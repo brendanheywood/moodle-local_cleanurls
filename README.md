@@ -57,7 +57,7 @@ Strategies of url manipulation:
 
 1) simple opaque rewrite which are 100% reversile.
 
-- remove .php extension and then put it back
+- remove .php extension and then put it back - this is dangerous if a php file and sibling directory have the same name
 - remove /index back to just /
 - ?id=123 is so common we can rewrite this as just /3
 

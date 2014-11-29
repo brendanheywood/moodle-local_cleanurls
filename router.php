@@ -40,7 +40,7 @@ require_once('lib.php');
 
 global $CFG;
 
-$realuri = local_clear_urls_unclean($_GET['q']);
+$realuri = local_clean_urls_unclean($_GET['q'], false);
 $url = new moodle_url($realuri);
 
 foreach ($url->params() as $k => $v){
@@ -48,6 +48,12 @@ foreach ($url->params() as $k => $v){
 }
 
 $file = $CFG->dirroot . '/' . $url->out_omit_querystring();
+
+# TODO protect from invalid dir
+
 chdir(dirname($file));
+
+# TODO protect from intrusion attacks eg '../../../etc'
+
 include ($file);
 

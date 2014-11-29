@@ -20,58 +20,82 @@
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function local_clear_urls_clean($url){
+function local_clean_urls_clean($url){
 
-    global $DB;
+    global $DB, $CFG;
+
+    // only clean urls if internal to this moodle
+    $base = $CFG->wwwroot . '/';
+    $basel = strlen($base);
+
+    if (strrpos ($url , $base) !== 0){
+        return $url;
+    }
 
     // If not php then ignore it quickly
     if (strrpos($url, ".php") === false ){
         return $url;
     }
 
-
-    // Remove .php
-
-    // Remove index
-
-    //
-
-    // More aggresive information adding url's
-
-    if (preg_match ("/^(.*)\/course\/view\.php\?id=(\d+)(.*)/", $url, $matches)){
-        #    error_log("In  uri: $url");
-
-        $shortname = $DB->get_field('course', 'shortname', array('id' => $matches[2]));
-
-        // $url = $matches[1] . "/course/" . $matches[2];
-        $url = $matches[1] . "/course/" . $shortname;
-        #e($matches);
-        #    error_log("Out course uri: $url");
-        # exit;
+    // Ignore any theme files
+    if ( substr($url,$basel,5) == 'theme'){
         return $url;
     }
 
+    // Remove .php extension
+#    $url = preg_replace ("/\.php/", '', $url,1);
+    // Note this is fairly dangerous when there a file which has the same name as a directory
+    // eg /settings.php and /settings/
+    // normal apache settings redirect this, or serve it directly
+    // so we check if a dir of the same name exists
 
-#    $url .= "&foo=bar";
-#    error_log("Out uri: $url");
+    // Remove index
 
-
-    return $url;
-
-}
-
-function local_clear_urls_unclean($url){
-
-
-    if (preg_match("/^course\/(.+)$/", $url, $matches)){
-        return "course/view.php?name=".$matches[1];
+    // TODO convert this to proper url parsing instead of regex
+    if (preg_match ("/^(.*)\/course\/view.php\?id=(\d+)(.*)/", $url, $matches)){
+        $shortname = $DB->get_field('course', 'shortname', array('id' => $matches[2]));
+        return $matches[1] . "/course/" . $shortname;
     }
 
-    error_log("In  uri: $url");
-    $url .= "&foo=bar";
-    error_log("Out uri: $url");
+
     return $url;
 
 }
 
+function local_clean_urls_unclean($url, $includebase = 1){
+
+    global $CFG;
+    $base = $CFG->wwwroot . '/';
+    $basel = strlen($base);
+
+    $debug = get_config('local_clean_urls', 'debugging');
+    $debug && error_log("Incoming url: $url");
+
+    if(!$includebase){
+        $base = '';
+    }
+
+    if (preg_match("/^course\/(.+)$/", $url, $matches)){
+        $url = "course/view.php?name=".$matches[1];
+        $debug && error_log("Rewritten to: $url");
+        return $base . $url;
+    }
+
+    $debug && error_log("Rewrtten to: $url");
+    return $base . $url;
+
+    // Add back in php extension
+    // $qp = strpos ($url, "?");
+    // if (!$qp){
+    //     $qp = strpos ($url, "#");
+    // }
+    // if ($qp){
+    //     $url = substr($url,0,$qp) . '.php' . substr($url,$qp);
+    // } else {
+    //     $url = $url . '.php';
+    // }
+
+    return $base . $url;
+
+}
 

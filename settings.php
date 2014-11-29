@@ -30,8 +30,13 @@ if ($hassiteconfig) {
 
     $ADMIN->add('localplugins', $settings);
     if (!during_initial_install()) {
-        $settings->add(new admin_setting_configcheckbox('local_clean_urls/cleaningon',  new lang_string('cleaningon', 'local_clean_urls'),
-                                                                       new lang_string('cleaningonhelp', 'local_clean_urls'), 0));
+        $settings->add(new admin_setting_configcheckbox('local_clean_urls/cleaningon',
+                        new lang_string('cleaningon',       'local_clean_urls'),
+                        new lang_string('cleaningonhelp',   'local_clean_urls'), 0));
+
+        $settings->add( new admin_setting_configcheckbox('local_clean_urls/debugging',
+                        new lang_string('debugging',        'local_clean_urls'),
+                        new lang_string('debugginghelp',    'local_clean_urls'), 0));
     }
 }
 
