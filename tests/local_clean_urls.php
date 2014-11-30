@@ -74,6 +74,8 @@ class local_clean_urls_test extends advanced_testcase {
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: External links should not be touched");
 
+        $unclean = local_clean_urls_unclean($clean);
+        $this->assertEquals($url, $unclean, "Unclean: external links should not be uncleaned");
 
         $url = 'http://www.example.com/moodle/theme/whatever.php';
         $murl = new moodle_url($url);

@@ -71,6 +71,10 @@ function local_clean_urls_unclean($url, $includebase = 1){
     $debug = get_config('local_clean_urls', 'debugging');
     $debug && error_log("Incoming url: $url");
 
+    if (strpos ($url , $base) !== 0){
+        return $url;
+    }
+    $url = substr($url, $basel);
     if(!$includebase){
         $base = '';
     }
