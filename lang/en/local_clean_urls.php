@@ -28,6 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname'] = 'Clean URLs';
 $string['cleaningon'] = 'Cleaning on';
 $string['cleaningonhelp'] = 'Off by default until the routing is added to apache first';
-$string['debugging'] = 'Debuggin on';
+$string['debugging'] = 'Debugging on';
 $string['debugginghelp'] = 'Logs rewrite process to php error log';
 

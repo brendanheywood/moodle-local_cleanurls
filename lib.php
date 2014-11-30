@@ -20,86 +20,130 @@
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function local_clean_urls_clean($url){
 
-    global $DB, $CFG;
+class clean_moodle_url extends moodle_url {
 
-    // only clean urls if internal to this moodle
-    $base = $CFG->wwwroot . '/';
-    $basel = strlen($base);
+    /*
+     * Takes a moodle_url and either returns a cloned object with cleaned properties
+     * of if nothing is done the original object
+     */
+    static function clean($orig){
 
-    if (strrpos ($url , $base) !== 0){
+        global $DB, $CFG;
+        $debug = get_config('local_clean_urls', 'debugging');
+
+        $path   = $orig->path;
+        $params = $orig->params();
+
+        $debug && error_log("Cleaning:".$orig->orig_out());
+
+        // Remove the moodle dir if present
+        $slash = strpos($CFG->wwwroot, '/',8);
+        $moodle = '';
+        if ($slash){
+            $moodle = substr($CFG->wwwroot,$slash);
+            $path = substr($path,strlen($moodle));
+        }
+
+        // Ignore non .php files
+        if (substr($path, -4) !== ".php"){
+            $debug && error_log("Ignoring non .php file");
+            return $orig;
+        }
+
+        // Ignore any theme files
+        if (substr($path,0,6) == '/theme'){
+            $debug && error_log("Ignoring theme file");
+            return $orig;
+        }
+
+        // Ignore any lib files
+        if (substr($path,0,4) == '/lib'){
+            $debug && error_log("Ignoring lib file");
+            return $orig;
+        }
+
+        // Remove the php extension
+        $path = substr($path, 0, -4);
+
+        // Remove /index from end
+        if (substr($path,-6) == '/index'){
+            $path = substr($path, 0, -5);
+        }
+
+        // Ignore if clashes with a directory
+        if (is_dir($CFG->dirroot . $path ) ){
+            $debug && error_log("Ignoring dir clash");
+            return $orig;
+        }
+
+        // Clean up course urls
+        if ($path == "/course/view" && $params['id'] ){
+            $shortname = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
+
+            $newpath =  "/course/" . $shortname;
+            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")){
+                $path = $newpath;
+                unset ($params['id']);
+                $debug && error_log("Rewrite course");
+            }
+        }
+
+        $clone = new moodle_url($orig);
+        $clone->path = $moodle . $path;
+        $clone->remove_all_params();
+        $clone->params($params);
+        $debug && error_log("Clean:".$clone->out());
+        return $clone;
+
+    }
+
+    /*
+     * Takes a string and converts it into an unclean moodle_url object
+     */
+    static function unclean($clean){
+
+        global $CFG;
+
+        $debug = get_config('local_clean_urls', 'debugging');
+        $debug && error_log("Incoming url: $clean");
+
+        $url = new moodle_url($clean);
+        $path = $url->path;
+        $params = $url->params();
+
+        $debug && error_log("Incoming path: $path");
+
+        // Remove the moodle dir if present
+        $slash = strpos($CFG->wwwroot, '/',8);
+        $moodle = '';
+        if ($slash){
+            $moodle = substr($CFG->wwwroot,$slash);
+            $path = substr($path,strlen($moodle));
+        }
+
+
+        // Clean up course urls
+        if (preg_match("/^\/course\/(.+)$/", $path, $matches)){
+            if (!is_dir ($CFG->dirroot . '/course/' . $matches[1]) &&
+                !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")){
+                $path = "/course/view.php";
+                $params['name'] = $matches[1];
+                $debug && error_log("Rewritten to: $path");
+            }
+        }
+
+        // Put back .php extension if doesn't end in slash or .php
+        if (substr($path,-1,1) !== '/' && substr($path,-4) !== '.php'){
+            $path .= '.php';
+        }
+
+        $debug && error_log("Rewritten to: $path");
+
+        $url->path = $moodle . $path;
+        $url->remove_all_params();
+        $url->params($params);
         return $url;
+
     }
-
-    // If not php then ignore it quickly
-    if (strrpos($url, ".php") === false ){
-        return $url;
-    }
-
-    // Ignore any theme files
-    if ( substr($url,$basel,5) == 'theme'){
-        return $url;
-    }
-
-    // Remove .php extension
-#    $url = preg_replace ("/\.php/", '', $url,1);
-    // Note this is fairly dangerous when there a file which has the same name as a directory
-    // eg /settings.php and /settings/
-    // normal apache settings redirect this, or serve it directly
-    // so we check if a dir of the same name exists
-
-    // Remove index
-
-    // TODO convert this to proper url parsing instead of regex
-    if (preg_match ("/^(.*)\/course\/view.php\?id=(\d+)(.*)/", $url, $matches)){
-        $shortname = $DB->get_field('course', 'shortname', array('id' => $matches[2]));
-        return $matches[1] . "/course/" . $shortname;
-    }
-
-
-    return $url;
-
 }
-
-function local_clean_urls_unclean($url, $includebase = 1){
-
-    global $CFG;
-    $base = $CFG->wwwroot . '/';
-    $basel = strlen($base);
-
-    $debug = get_config('local_clean_urls', 'debugging');
-    $debug && error_log("Incoming url: $url");
-
-    if (strpos ($url , $base) !== 0){
-        return $url;
-    }
-    $url = substr($url, $basel);
-    if(!$includebase){
-        $base = '';
-    }
-
-    if (preg_match("/^course\/(.+)$/", $url, $matches)){
-        $url = "course/view.php?name=".$matches[1];
-        $debug && error_log("Rewritten to: $url");
-        return $base . $url;
-    }
-
-    $debug && error_log("Rewrtten to: $url");
-    return $base . $url;
-
-    // Add back in php extension
-    // $qp = strpos ($url, "?");
-    // if (!$qp){
-    //     $qp = strpos ($url, "#");
-    // }
-    // if ($qp){
-    //     $url = substr($url,0,$qp) . '.php' . substr($url,$qp);
-    // } else {
-    //     $url = $url . '.php';
-    // }
-
-    return $base . $url;
-
-}
-

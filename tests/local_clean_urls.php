@@ -41,6 +41,10 @@ class local_clean_urls_test extends advanced_testcase {
                                                                  'shortname'=> 'shortcode',
                                                                  'visible'=> 1, 'category'=> $this->category->id));
 
+        $this->mancourse   = $this->getDataGenerator()->create_course(array('fullname'=> 'Some course',
+                                                                 'shortname'=> 'management',
+                                                                 'visible'=> 1, 'category'=> $this->category->id));
+
 
         // Create dummy student.
         $this->staff = $this->getDataGenerator()->create_user(array('email'=>'head1@example.com', 'username'=>'head1'));
@@ -54,33 +58,25 @@ class local_clean_urls_test extends advanced_testcase {
         $this->resetAfterTest(true);
         require_once("$CFG->dirroot/local/clean_urls/lib.php");
 
+        set_config('cleaningon', 0, 'local_clean_urls');
+
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
-
-        set_config('cleaningon', 0, 'local_clean_urls');
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Urls shouldn't be touched if cleaning setting is off");
 
         set_config('cleaningon', 1, 'local_clean_urls');
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/shortcode', $clean, "Clean: course");
 
-        $unclean = local_clean_urls_unclean($clean);
-        $this->assertEquals('http://www.example.com/moodle/course/view.php?name=shortcode', $unclean, "Unclean: course");
-
-
-        $url = 'http://www.notthismoodle.com/moodle/theme/whatever.php';
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals($url, $clean, "Nothing: External links should not be touched");
-
-        $unclean = local_clean_urls_unclean($clean);
-        $this->assertEquals($url, $unclean, "Unclean: external links should not be uncleaned");
 
         $url = 'http://www.example.com/moodle/theme/whatever.php';
         $murl = new moodle_url($url);
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: Theme files should not be touched");
+
+        $url = 'http://www.example.com/moodle/lib/whatever.php';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals($url, $clean, "Nothing: Lib files should not be touched");
 
 
         // $url = 'http://www.example.com/moodle/course/view.php?edit=1&id=' . $this->course->id;
@@ -92,44 +88,71 @@ class local_clean_urls_test extends advanced_testcase {
         // $this->assertEquals('http://www.example.com/moodle/course/view.php?name=shortcode&edit=1', $unclean, "Unclean: course with param");
 
 
+        $url = 'http://www.example.com/moodle/foo/bar.php';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/foo/bar', $clean, "Clean: Remove php extension");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out();
+        $this->assertEquals($url, $unclean, "Unclean: Put php extension back");
+
+
+        $url = 'http://www.example.com/moodle/foo/bar.php?ding=pop';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/foo/bar?ding=pop', $clean, "Clean: Remove php extension with params");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out();
+        $this->assertEquals($url, $unclean, "Unclean: Put php extension back with params");
+
+
+        $url = 'http://www.example.com/moodle/foo/bar.php#hash';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/foo/bar#hash', $clean, "Clean: Remove php extension with hash");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out();
+        $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
+
+
+        $url = 'http://www.example.com/moodle/one/two/three/index.php?foo=bar#hash';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/one/two/three/?foo=bar#hash', $clean, "Clean: Remove index");
+
+        $url = 'http://www.example.com/moodle/admin/settings.php?section=local_clean_urls';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals($url, $clean, "Clean: Don't clean when clash with directory");
 
 
 
-        // $url = 'http://www.example.com/moodle/foo/bar.php';
-        // $murl = new moodle_url($url);
-        // $clean = $murl->out();
-        // $this->assertEquals('http://www.example.com/moodle/foo/bar', $clean, "Clean: Remove php extension");
-        //
-        // $unclean = local_clean_urls_unclean($clean);
-        // $this->assertEquals($url, $unclean, "Unclean: Put php extension back");
-        //
-        //
-        // $url = 'http://www.example.com/moodle/foo/bar.php?ding=pop';
-        // $murl = new moodle_url($url);
-        // $clean = $murl->out();
-        // $this->assertEquals('http://www.example.com/moodle/foo/bar?ding=pop', $clean, "Clean: Remove php extension with params");
-        //
-        // $unclean = local_clean_urls_unclean($clean);
-        // $this->assertEquals($url, $unclean, "Unclean: Put php extension back with params");
-        //
-        //
-        // $url = 'http://www.example.com/moodle/foo/bar.php#hash';
-        // $murl = new moodle_url($url);
-        // $clean = $murl->out();
-        // $this->assertEquals('http://www.example.com/moodle/foo/bar#hash', $clean, "Clean: Remove php extension with hash");
-        //
-        // $unclean = local_clean_urls_unclean($clean);
-        // $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
+        $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->course->id;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/course/shortcode', $clean, "Clean: course");
 
-        # index removal
+        $unclean = clean_moodle_url::unclean($clean)->orig_out();
+        $this->assertEquals('http://www.example.com/moodle/course/view.php?name=shortcode', $unclean, "Unclean: course");
+
+        $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->mancourse->id;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/course/view?id=' . $this->mancourse->id, $clean, "Clean: course is ignored because it's shortname clashes with dir or file");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out();
+        $this->assertEquals($url, $unclean, "Unclean: course is ignored as clashed with php file");
+
+
+
         # id mapping
 
         # module index mapping
 
+        # if slash arguments are used then just skip it
+
 #        set_config('categoryon', 1, 'local_clean_urls');
 #        $this->assertEquals('http://www.example.com/cat1/course/shortcode', $murl->out(), " );
-
-
     }
 
 }

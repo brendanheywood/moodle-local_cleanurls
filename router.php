@@ -40,20 +40,26 @@ require_once('lib.php');
 
 global $CFG;
 
-$realuri = local_clean_urls_unclean($_GET['q'], false);
-$url = new moodle_url($realuri);
+$debug = get_config('local_clean_urls', 'debugging');
+$debug && error_log("Router: \$_GET: ".$_GET['q']);
+$url = clean_moodle_url::unclean($CFG->wwwroot . '/' . $_GET['q']);
 
 foreach ($url->params() as $k => $v){
     $_GET[$k] = $v;
 }
 
-$file = $CFG->dirroot . '/' . $url->out_omit_querystring();
+$file = $CFG->dirroot . $url->get_path();
 
-# TODO protect from invalid dir
+$debug && error_log("Router: including file: ".$file);
+if (!is_file($file)){
+
+    print "404!!!";
+
+    exit;
+}
+
 
 chdir(dirname($file));
-
 # TODO protect from intrusion attacks eg '../../../etc'
-
 include ($file);
 

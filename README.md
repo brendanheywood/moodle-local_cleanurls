@@ -48,6 +48,9 @@ at a deep level
   and added incrementally. In which case a 'best effort' solution needs to put in place anyway
 
 
+- what about slash arguments in moodle?
+
+
 # This realistic solution
 
 Strategies of url manipulation:
