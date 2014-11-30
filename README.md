@@ -31,6 +31,9 @@ Todo
 
 - human using a site, should know exactly what a url means
 - humans should be able to 'hack' a url and have a high chance of going where they want
+- better google analytics reports eg drill down report - but the reports all still work
+- better for SEO
+- when cutting and pasting a url into say an external forum or into facebook you can see what the url means
 
 
 # Parameters of the solution:
