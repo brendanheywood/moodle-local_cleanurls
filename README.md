@@ -50,8 +50,8 @@ Add an apache rewrite to the custom router
 ------------------------------------------
 
 
-```
-<Directory /var/www/example.com>
+```apache
+<Directory /var/www/moodle>
    RewriteEngine on
    RewriteBase /
    RewriteCond %{REQUEST_FILENAME} !-f
