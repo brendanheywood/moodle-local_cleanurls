@@ -75,7 +75,7 @@ class clean_moodle_url extends moodle_url {
         if ($path == "/course/view" && $params['id'] ){
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
 
-            $newpath =  "/course/" . $slug;
+            $newpath =  "/course/$slug";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")){
                 $path = $newpath;
                 unset ($params['id']);
@@ -87,10 +87,28 @@ class clean_moodle_url extends moodle_url {
         if ($path == "/user/profile" && $params['id'] ){
             $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
 
-            $newpath =  "/user/" . $slug;
+            $newpath =  "/user/$slug";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")){
                 $path = $newpath;
                 unset ($params['id']);
+
+                $debug && error_log("Rewrite user profile");
+            }
+        }
+        // Clean up user profile urls inside course
+        if ($path == "/user/view" && $params['id'] && $params['course']){
+            $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
+
+            $newpath =  "/user/$slug";
+            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")){
+                $path = $newpath;
+                unset ($params['id']);
+
+                if ($params['course']){
+                    $slug = $DB->get_field('course', 'shortname', array('id' => $params['course'] ));
+                    $path = "/course/$slug$path";
+                    unset ($params['course']);
+                }
                 $debug && error_log("Rewrite user profile");
             }
         }
@@ -136,8 +154,27 @@ class clean_moodle_url extends moodle_url {
         }
 
 
+        // Clean up user profile urls inside course
+        if (preg_match("/^\/course\/(.+)\/user\/(.+)/", $path, $matches)){
+            if (!is_dir ($CFG->dirroot . '/user/' . $matches[2]) &&
+                !is_file($CFG->dirroot . '/user/' . $matches[2] . ".php")){
+                $path = "/user/view.php";
+                $params['id']     = $DB->get_field('user',   'id', array('username'  => $matches[2] ));
+                $params['course'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
+                $debug && error_log("Rewritten to: $path");
+            }
+
+        // Clean up user profile urls
+        } else if (preg_match("/^\/user\/(.+)$/", $path, $matches)){
+            if (!is_dir ($CFG->dirroot . '/user/' . $matches[1]) &&
+                !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")){
+                $path = "/user/profile.php";
+                $params['id'] = $DB->get_field('user', 'id', array('username' => $matches[1] ));
+                $debug && error_log("Rewritten to: $path");
+            }
+
         // Clean up course urls
-        if (preg_match("/^\/course\/(.+)$/", $path, $matches)){
+        } else if (preg_match("/^\/course\/(.+)$/", $path, $matches)){
             if (!is_dir ($CFG->dirroot . '/course/' . $matches[1]) &&
                 !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")){
                 $path = "/course/view.php";
@@ -146,15 +183,6 @@ class clean_moodle_url extends moodle_url {
             }
         }
 
-        // Clean up user profile urls
-        if (preg_match("/^\/user\/(.+)$/", $path, $matches)){
-            if (!is_dir ($CFG->dirroot . '/user/' . $matches[1]) &&
-                !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")){
-                $path = "/user/profile.php";
-                $params['id'] = $DB->get_field('user', 'id', array('username' => $matches[1] ));
-                $debug && error_log("Rewritten to: $path");
-            }
-        }
 
         // Put back .php extension if doesn't end in slash or .php
         if (substr($path,-1,1) !== '/' && substr($path,-4) !== '.php'){
