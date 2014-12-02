@@ -5,8 +5,8 @@
 Installation
 ============
 
-Install the local module as you would normally
-----------------------------------------------
+Install the local module
+------------------------
 
 
 eg using git submodule:
@@ -90,7 +90,10 @@ Todo
 * [ ] maximum expensive cleanings per request
 
 
-# Principals
+Principals
+==========
+
+
 
 - backward compatibility
 
@@ -101,7 +104,8 @@ Todo
 - every part of the url should work in it's own right 'go up 1 level'
 
 
-# Use cases:
+Use cases
+=========
 
 - human using a site, should know exactly what a url means
 - humans should be able to 'hack' a url and have a high chance of going where they want
@@ -110,14 +114,14 @@ Todo
 - when cutting and pasting a url into say an external forum or into facebook you can see what the url means
 
 
-# Parameters of the solution:
+Parameters of the solution
+--------------------------
 
 - speed: no redirects
 - speed: rewriting can be expensive, when adding info - cache as much as possible, but do it properly
 
-
-
-# In an ideal world
+An ideal solution
+-----------------
 
 - like drupal or other frameworks the url routes would be built in to each and every plugin
 at a deep level
@@ -127,8 +131,8 @@ at a deep level
 
 - what about slash arguments in moodle?
 
-
-# This realistic solution
+This realistic solution
+-----------------------
 
 Strategies of url manipulation:
 
@@ -212,9 +216,6 @@ make sure we replace the current url before we send it off to GA
 
 Application cache
 - only cache proper 'clean' urls, not simply the rewritten ones (don't want to cache the half good one)
-
-
-
 
 
 
