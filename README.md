@@ -9,11 +9,9 @@ Backward compatibility
 ----------------------
 URL's must always work, old and new. Old url's should be seamlessly upgraded to new url's where possible.
 
-
 Speed is king
 -------------
-Speed is an integral part of the user experience. So we want to avoid things like 302 redirects, cache internally any expensive processing.
-
+Speed is an integral part of the user experience. So we want to avoid things like 302 redirects, cache internally any expensive processing. If a url is never going to be seen by an end user, then avoid cleaning it.
 
 Human readable
 --------------
@@ -30,56 +28,6 @@ Note we have also added redundant heirarchical information, ie the course path c
 Automatic
 ---------
 Moodle already has rich meta data which we can leverage to produce clean url's. We don't want the site admins, let along the teachers, to have to do anything extra. It should Just Work.
-
-This realistic solution
------------------------
-
-Strategies of url manipulation:
-
-0) speed: don't rewrite things which aren't seen by the outside world, ie whose url's don't matter
-
-1) simple opaque rewrite which are 100% reversile.
-
-- remove .php extension and then put it back - this is dangerous if a php file and sibling directory have the same name
-- remove /index back to just /
-- ?id=123 is so common we can rewrite this as just /3
-
-
-2) Never removing information
-
-- for speed we want to avoid any sort of extra lookup as route time, so retain all information
-  needed for routing that was in the original url, does mean /1-hello-world instead of just /hello-world
-- just never ever do it
-- special case of course id to course name, only possibly because of core router
-
-3) adding redundant information
-
-- instead of /1 we can have /1-name-of-page
-
-
-4) adding heirarchicaly information
-
-eg instead of /1-blah we can have /course/XYZ/1-blah
-
-- means it is clear where we are at any time
-- means it is 'hackable' and we can go'up'
-
-- pull this info from the moodle navigation heirarchy
- - cons - we can only get this info if we are already on this page (too late for creating links)
-          or if the page we are on already knows about the linked to page, either because it is
-          already in the navigation structure, or we've cached it from previous times
-
-
-because we ar adding redundant information this can safely be discarded when converting back
-however because we have this, there are extra things we can now do, such as if a page is not
-found a 404 can be a lot smart about providing a better context for where to direct the user
-
-
-# intercept and route traffic to where it should go
-
-- custom apache rewrite + php router which is aware of moodle (ie not just a dumb regex in apache land)
-
-
 
 How it works
 ============
@@ -137,7 +85,6 @@ code. We want the url's to be nice in GA so we get clean 'drill down' report etc
 The only down side to this approach is if you have outbound link tracking on the referring page.
 
 https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_browser_history#The_replaceState()_method
-
 
 Installation
 ============
