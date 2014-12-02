@@ -83,6 +83,18 @@ class clean_moodle_url extends moodle_url {
             }
         }
 
+        // Clean up user course list urls
+        if ($path == "/user/" && $params['id'] ){
+            $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
+
+            $newpath =  "/course/$slug/user/";
+            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")){
+                $path = $newpath;
+                unset ($params['id']);
+
+                $debug && error_log("Rewrite user profile");
+            }
+        }
         // Clean up user profile urls
         if ($path == "/user/profile" && $params['id'] ){
             $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
@@ -153,14 +165,24 @@ class clean_moodle_url extends moodle_url {
             $path = substr($path,strlen($moodle));
         }
 
+        // These regex's must be in order of higher specificity to lowest
 
         // Clean up user profile urls inside course
-        if (preg_match("/^\/course\/(.+)\/user\/(.+)/", $path, $matches)){
+        if (preg_match("/^\/course\/(.+)\/user\/(.+)$/", $path, $matches)){
             if (!is_dir ($CFG->dirroot . '/user/' . $matches[2]) &&
                 !is_file($CFG->dirroot . '/user/' . $matches[2] . ".php")){
                 $path = "/user/view.php";
                 $params['id']     = $DB->get_field('user',   'id', array('username'  => $matches[2] ));
                 $params['course'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
+                $debug && error_log("Rewritten to: $path");
+            }
+
+        // Clean up user profile urls inside course
+        } else if (preg_match("/^\/course\/(.+)\/user\/$/", $path, $matches)){
+            if (!is_dir ($CFG->dirroot . '/user/' . $matches[1]) &&
+                !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")){
+                $path = "/user/index.php";
+                $params['id'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
                 $debug && error_log("Rewritten to: $path");
             }
 
