@@ -1,4 +1,75 @@
 
+Installation
+============
+
+Install the local module as you would normally
+----------------------------------------------
+
+
+eg using git submodule:
+
+```
+git submodule add git@github.com:brendanheywood/moodle-local_clean_urls.git local/clean_urls
+```
+
+
+Tiny hack to core to intercept moodle_url serialization
+-------------------------------------------------------
+
+
+```
+diff --git a/lib/weblib.php b/lib/weblib.php
+index ff3a3ff..8baf2d2 100644
+--- a/lib/weblib.php
++++ b/lib/weblib.php
+@@ -79,6 +79,7 @@ define('URL_MATCH_PARAMS', 1);
+  */
+ define('URL_MATCH_EXACT', 2);
+ 
++require_once($CFG->dirroot.'/local/clean_urls/lib.php');
+ // Functions.
+ 
+ /**
+@@ -541,6 +542,13 @@ class moodle_url {
+      * @return string Resulting URL
+      */
+     public function out($escaped = true, array $overrideparams = null) {
++        $murl = $this;
++        if (get_config('local_clean_urls', 'cleaningon')){
++            $murl = clean_moodle_url::clean($murl);
++        }
++        return $murl->orig_out($escaped, $overrideparams);
++    }
++    public function orig_out($escaped = true, array $overrideparams = null) {
+         if (!is_bool($escaped)) {
+             debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
+         }
+```
+
+Add an apache rewrite to the custom router
+------------------------------------------
+
+
+```
+<Directory /var/www/example.com>
+   RewriteEngine on
+   RewriteBase /
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteRule ^(.*)$ local/clean_urls/router.php?q=$1 [L,QSA]
+</Directory>
+```
+
+Add the head tag cleanup to your theme
+--------------------------------------
+
+
+
+How it works
+============
+
+
+
 Todo
 
 * [ ] live url testing in admin settings page
@@ -141,39 +212,6 @@ Application cache
 
 
 
-#
-# insert the moodle url intercept
-
-<pre>
-diff --git a/lib/weblib.php b/lib/weblib.php
-index ff3a3ff..9950526 100644
---- a/lib/weblib.php
-+++ b/lib/weblib.php
-@@ -79,6 +79,8 @@ define('URL_MATCH_PARAMS', 1);
-  */
- define('URL_MATCH_EXACT', 2);
- 
-+require_once($CFG->dirroot.'/local/clean_urls/lib.php');
-+
- // Functions.
- 
- /**
-@@ -551,6 +553,9 @@ class moodle_url {
-         if ($querystring !== '') {
-             $uri .= '?' . $querystring;
-         }
-+        if (get_config('local_clean_urls', 'cleaningon')){
-+            $uri = local_clear_urls_clean($uri);
-+        }
-         if (!is_null($this->anchor)) {
-             $uri .= '#'.$this->anchor;
-         }
-</pre>
-
-# insert the apache rewrite to the router:
-
-
-# insert the head cleanup in your theme
 
 
 
