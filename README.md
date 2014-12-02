@@ -2,43 +2,33 @@
 * [Installation](#installation)
 
 
-Principals
-==========
+Design principals
+=================
 
-- backward compatibility
-- speed
-- human readable
-- heirarchical
-
-- every part of the url should work in it's own right 'go up 1 level'
+Backward compatibility
+----------------------
+URL's must always work, old and new. Old url's should be seamlessly upgraded to new url's where possible.
 
 
-Use cases
-=========
-
-- human using a site, should know exactly what a url means
-- humans should be able to 'hack' a url and have a high chance of going where they want
-- better google analytics reports eg drill down report - but the reports all still work
-- better for SEO
-- when cutting and pasting a url into say an external forum or into facebook you can see what the url means
+Speed is king
+-------------
+Speed is an integral part of the user experience. So we want to avoid things like 302 redirects, cache internally any expensive processing.
 
 
-Parameters of the solution
---------------------------
+Human readable
+--------------
+A url like /mod/forum/view.php?id=6 is opaque and tells us nothing. We should add extra potentially redundant information into the url to make it readable, eg 
 
-- speed: no redirects
-- speed: rewriting can be expensive, when adding info - cache as much as possible, but do it properly
+/course/MATH101/lesson/6-how-to-do-matrix-multiplication
 
-An ideal solution
------------------
-
-- like drupal or other frameworks the url routes would be built in to each and every plugin
-at a deep level
-- adding this requires a massive overhaul of everything. It could be added as an optional thing
-  and added incrementally. In which case a 'best effort' solution needs to put in place anyway
+Note we have also added redundant heirarchical information, ie the course path compents. This immediately gives context, but is also useful to non humans, such as for Google Analytics to create 'dill down' reports.
 
 
-- what about slash arguments in moodle?
+Automatic
+---------
+Moodle already has rich meta data which we can leverage to produce clean url's. We don't want the site admins, let along the teachers, to have to do anything extra. It should Just Work.
+
+
 
 This realistic solution
 -----------------------
@@ -110,9 +100,8 @@ Rewrite incoming links
 Incoming links are diverted by an apache rewrite rule to router.php, which then uncleans the url and
 passes it back into moodle which doesn't know anything was different.
 
-base href
+Base href
 ---------
-
 TODO
 
 Not every moodle link uses moodle_url, and some may also use relative links. Because the clean url may be
@@ -122,7 +111,6 @@ the original url.
 
 Cannoncial link
 ---------------
-
 TODO
 
 If a robot like google is scraping your page, we don't want to split the pagerank between the old
@@ -137,7 +125,6 @@ This also now makes it much easier to manage parts of your site using robots.txt
 
 history.replaceState
 --------------------
-
 TODO
 
 The are many ways a url gets shared, copy and paste, a 'share' widget etc. We want the url to be
