@@ -1,4 +1,5 @@
-* [Installation](#Installation)
+* [Installation](#installation)
+* [How it works](#how-it-works)
 
 
 Installation
