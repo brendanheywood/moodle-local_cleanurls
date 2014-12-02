@@ -71,23 +71,36 @@ class clean_moodle_url extends moodle_url {
             $path = substr($path, 0, -5);
         }
 
-        // Ignore if clashes with a directory
-        if (is_dir($CFG->dirroot . $path ) && substr($path,-1) != '/'){
-            $debug && error_log("Ignoring dir clash");
-            return $orig;
-        }
-
         // Clean up course urls
         if ($path == "/course/view" && $params['id'] ){
-            $shortname = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
+            $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
 
-            $newpath =  "/course/" . $shortname;
+            $newpath =  "/course/" . $slug;
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")){
                 $path = $newpath;
                 unset ($params['id']);
                 $debug && error_log("Rewrite course");
             }
         }
+
+        // Clean up user profile urls
+        if ($path == "/user/profile" && $params['id'] ){
+            $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
+
+            $newpath =  "/user/" . $slug;
+            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")){
+                $path = $newpath;
+                unset ($params['id']);
+                $debug && error_log("Rewrite user profile");
+            }
+        }
+
+        // Ignore if clashes with a directory
+        if (is_dir($CFG->dirroot . $path ) && substr($path,-1) != '/'){
+            $debug && error_log("Ignoring dir clash");
+            return $orig;
+        }
+
 
         $clone = new moodle_url($orig);
         $clone->path = $moodle . $path;
@@ -103,7 +116,7 @@ class clean_moodle_url extends moodle_url {
      */
     static function unclean($clean){
 
-        global $CFG;
+        global $CFG, $DB;
 
         $debug = get_config('local_clean_urls', 'debugging');
         $debug && error_log("Incoming url: $clean");
@@ -129,6 +142,16 @@ class clean_moodle_url extends moodle_url {
                 !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")){
                 $path = "/course/view.php";
                 $params['name'] = $matches[1];
+                $debug && error_log("Rewritten to: $path");
+            }
+        }
+
+        // Clean up user profile urls
+        if (preg_match("/^\/user\/(.+)$/", $path, $matches)){
+            if (!is_dir ($CFG->dirroot . '/user/' . $matches[1]) &&
+                !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")){
+                $path = "/user/profile.php";
+                $params['id'] = $DB->get_field('user', 'id', array('username' => $matches[1] ));
                 $debug && error_log("Rewritten to: $path");
             }
         }

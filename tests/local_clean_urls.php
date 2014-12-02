@@ -151,6 +151,15 @@ class local_clean_urls_test extends advanced_testcase {
         // Nothing to unclean because these urls will get routed directly by apache not router.php
 
 
+        $url = 'http://www.example.com/moodle/user/profile.php?id=' . $this->staff->id;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/user/' . $this->staff->username, $clean, "Clean: user profile url with username");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out();
+        $this->assertEquals($url, $unclean, "Unclean: user profile url");
+
+
         # id mapping
 
         # module index mapping
