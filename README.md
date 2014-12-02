@@ -1,6 +1,6 @@
+* [Design principals](#design-principals)
 * [How it works](#how-it-works)
 * [Installation](#installation)
-
 
 Design principals
 =================
@@ -17,18 +17,19 @@ Speed is an integral part of the user experience. So we want to avoid things lik
 
 Human readable
 --------------
-A url like /mod/forum/view.php?id=6 is opaque and tells us nothing. We should add extra potentially redundant information into the url to make it readable, eg 
+A typical moodle url looks like this:
+
+/mod/forum/view.php?id=6
+
+This is fairly opaque and tells us very little. We should add extra information into the url to make it readable, giving it context, whilst at the same time removing extaneous information such as the php extension. eg
 
 /course/MATH101/lesson/6-how-to-do-matrix-multiplication
 
 Note we have also added redundant heirarchical information, ie the course path compents. This immediately gives context, but is also useful to non humans, such as for Google Analytics to create 'dill down' reports.
 
-
 Automatic
 ---------
 Moodle already has rich meta data which we can leverage to produce clean url's. We don't want the site admins, let along the teachers, to have to do anything extra. It should Just Work.
-
-
 
 This realistic solution
 -----------------------
@@ -36,7 +37,6 @@ This realistic solution
 Strategies of url manipulation:
 
 0) speed: don't rewrite things which aren't seen by the outside world, ie whose url's don't matter
-
 
 1) simple opaque rewrite which are 100% reversile.
 
