@@ -143,6 +143,12 @@ class local_clean_urls_test extends advanced_testcase {
         $unclean = clean_moodle_url::unclean($clean)->orig_out();
         $this->assertEquals($url, $unclean, "Unclean: course is ignored as clashed with php file");
 
+        $url = 'http://www.example.com/moodle/course/index.php';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/course/', $clean, "Clean: index.php off url");
+
+        // Nothing to unclean because these urls will get routed directly by apache not router.php
 
 
         # id mapping

@@ -72,7 +72,7 @@ class clean_moodle_url extends moodle_url {
         }
 
         // Ignore if clashes with a directory
-        if (is_dir($CFG->dirroot . $path ) ){
+        if (is_dir($CFG->dirroot . $path ) && substr($path,-1) != '/'){
             $debug && error_log("Ignoring dir clash");
             return $orig;
         }
