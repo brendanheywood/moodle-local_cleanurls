@@ -8,7 +8,7 @@ Install the local module as you would normally
 
 eg using git submodule:
 
-```
+```shell
 git submodule add git@github.com:brendanheywood/moodle-local_clean_urls.git local/clean_urls
 ```
 
@@ -17,7 +17,7 @@ Tiny hack to core to intercept moodle_url serialization
 -------------------------------------------------------
 
 
-```
+```diff
 diff --git a/lib/weblib.php b/lib/weblib.php
 index ff3a3ff..8baf2d2 100644
 --- a/lib/weblib.php
