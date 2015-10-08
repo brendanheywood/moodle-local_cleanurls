@@ -95,7 +95,7 @@ Install the local module
 eg using git submodule:
 
 ```shell
-git submodule add git@github.com:brendanheywood/moodle-local_clean_urls.git local/clean_urls
+git submodule add git@github.com:brendanheywood/moodle-local_cleanurls.git local/cleanurls
 ```
 
 
@@ -112,7 +112,7 @@ index ff3a3ff..8baf2d2 100644
   */
  define('URL_MATCH_EXACT', 2);
  
-+require_once($CFG->dirroot.'/local/clean_urls/lib.php');
++require_once($CFG->dirroot.'/local/cleanurls/lib.php');
  // Functions.
  
  /**
@@ -121,7 +121,7 @@ index ff3a3ff..8baf2d2 100644
       */
      public function out($escaped = true, array $overrideparams = null) {
 +        $murl = $this;
-+        if (get_config('local_clean_urls', 'cleaningon')){
++        if (get_config('local_cleanurls', 'cleaningon')){
 +            $murl = clean_moodle_url::clean($murl);
 +        }
 +        return $murl->orig_out($escaped, $overrideparams);
@@ -142,7 +142,7 @@ Add an apache rewrite to the custom router
    RewriteBase /
    RewriteCond %{REQUEST_FILENAME} !-f
    RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule ^(.*)$ local/clean_urls/router.php?q=$1 [L,QSA]
+   RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,QSA]
 </Directory>
 ```
 
@@ -153,6 +153,7 @@ Add the head tag cleanup to your theme
 Todo
 ====
 
+* [ ] convert weblib to patch and cli for install it
 * [ ] live url testing in admin settings page
 * [ ] rewrite modules using crumb trail heirarchy
 * [ ] make route work with /course/ZYX/forum/ - link to index with course id (lookup? or name?)
@@ -161,7 +162,6 @@ Todo
 * [ ] write a typial page render time
 * [ ] use the muc for extended rewrites
 * [ ] maximum expensive cleanings per request
-
 
 Contributing
 ============

@@ -17,7 +17,7 @@
 
 /**
  * @package    local
- * @subpackage clean_urls
+ * @subpackage cleanurls
  * @author     Brendan Heywood <brendan@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,5 +27,5 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2014112500;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2013110500;        // Requires this Moodle version
-$plugin->component = 'local_clean_urls'; // To check on upgrade, that module sits in correct place
+$plugin->component = 'local_cleanurls'; // To check on upgrade, that module sits in correct place.
 

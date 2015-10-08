@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * @package    local
- * @subpackage clean_urls
+ * @subpackage cleanurls
  * @author     Brendan Heywood <brendan@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,7 +30,7 @@ This is what all traffic should be routed to in apache, which doesn't match an e
    RewriteBase /
    RewriteCond %{REQUEST_FILENAME} !-f
    RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule ^(.*)$ local/clean_urls/router.php?q=$1 [L,QSA]
+   RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,QSA]
 </Directory>
 
 */
@@ -40,26 +40,26 @@ require_once('lib.php');
 
 global $CFG;
 
-$debug = get_config('local_clean_urls', 'debugging');
+$debug = get_config('local_cleanurls', 'debugging');
 $debug && error_log("Router: \$_GET: ".$_GET['q']);
 $url = clean_moodle_url::unclean($CFG->wwwroot . '/' . $_GET['q']);
 
-foreach ($url->params() as $k => $v){
+foreach ($url->params() as $k => $v) {
     $_GET[$k] = $v;
 }
 
 $file = $CFG->dirroot . $url->get_path();
 
 $debug && error_log("Router: including file: ".$file);
-if (!is_file($file)){
+if (!is_file($file)) {
 
+    // TODO.
     print "404!!!";
-
     exit;
 }
 
 
 chdir(dirname($file));
-# TODO protect from intrusion attacks eg '../../../etc'
-include ($file);
+// TODO protect from intrusion attacks eg '../../../etc'.
+require($file);
 

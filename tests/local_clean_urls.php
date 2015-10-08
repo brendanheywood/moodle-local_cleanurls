@@ -17,14 +17,14 @@
 
 /**
  * @package    local
- * @subpackage clean_urls
+ * @subpackage cleanurls
  * @author     Brendan Heywood <brendan@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden');
-class local_clean_urls_test extends advanced_testcase {
+class local_cleanurls_test extends advanced_testcase {
 
     private $category;
     private $course;
@@ -37,36 +37,34 @@ class local_clean_urls_test extends advanced_testcase {
 
         $this->category = $this->getDataGenerator()->create_category(array('idnumber' => 'cat1'));
 
-        $this->course   = $this->getDataGenerator()->create_course(array('fullname'=> 'Some course',
-                                                                 'shortname'=> 'shortcode',
-                                                                 'visible'=> 1, 'category'=> $this->category->id));
+        $this->course   = $this->getDataGenerator()->create_course(array('fullname' => 'Some course',
+                                                                 'shortname' => 'shortcode',
+                                                                 'visible' => 1, 'category' => $this->category->id));
 
-        $this->mancourse   = $this->getDataGenerator()->create_course(array('fullname'=> 'Some course',
-                                                                 'shortname'=> 'management',
-                                                                 'visible'=> 1, 'category'=> $this->category->id));
-
+        $this->mancourse   = $this->getDataGenerator()->create_course(array('fullname' => 'Some course',
+                                                                 'shortname' => 'management',
+                                                                 'visible' => 1, 'category' => $this->category->id));
 
         // Create dummy student.
-        $this->staff = $this->getDataGenerator()->create_user(array('email'=>'head1@example.com', 'username'=>'head1'));
+        $this->staff = $this->getDataGenerator()->create_user(array('email' => 'head1@example.com', 'username' => 'head1'));
         // The user logs in.
         $this->setUser($staff);
 
     }
 
-    public function test_local_clean_urls_simple() {
+    public function test_local_cleanurls_simple() {
         global $DB, $CFG;
         $this->resetAfterTest(true);
-        require_once("$CFG->dirroot/local/clean_urls/lib.php");
+        require_once("$CFG->dirroot/local/cleanurls/lib.php");
 
-        set_config('cleaningon', 0, 'local_clean_urls');
+        set_config('cleaningon', 0, 'local_cleanurls');
 
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Urls shouldn't be touched if cleaning setting is off");
 
-        set_config('cleaningon', 1, 'local_clean_urls');
-
+        set_config('cleaningon', 1, 'local_cleanurls');
 
         $url = 'http://www.example.com/moodle/theme/whatever.php';
         $murl = new moodle_url($url);
@@ -78,15 +76,13 @@ class local_clean_urls_test extends advanced_testcase {
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: Lib files should not be touched");
 
-
         // $url = 'http://www.example.com/moodle/course/view.php?edit=1&id=' . $this->course->id;
         // $murl = new moodle_url($url);
         // $clean = $murl->out();
         // $this->assertEquals('http://www.example.com/moodle/course/shortcode?edit=1', $clean, "Clean: course with param");
         //
-        // $unclean = local_clean_urls_unclean($clean);
+        // $unclean = local_cleanurls_unclean($clean);
         // $this->assertEquals('http://www.example.com/moodle/course/view.php?name=shortcode&edit=1', $unclean, "Unclean: course with param");
-
 
         $url = 'http://www.example.com/moodle/foo/bar.php';
         $murl = new moodle_url($url);
@@ -96,7 +92,6 @@ class local_clean_urls_test extends advanced_testcase {
         $unclean = clean_moodle_url::unclean($clean)->orig_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back");
 
-
         $url = 'http://www.example.com/moodle/foo/bar.php?ding=pop';
         $murl = new moodle_url($url);
         $clean = $murl->out();
@@ -104,7 +99,6 @@ class local_clean_urls_test extends advanced_testcase {
 
         $unclean = clean_moodle_url::unclean($clean)->orig_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with params");
-
 
         $url = 'http://www.example.com/moodle/foo/bar.php#hash';
         $murl = new moodle_url($url);
@@ -114,18 +108,15 @@ class local_clean_urls_test extends advanced_testcase {
         $unclean = clean_moodle_url::unclean($clean)->orig_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
 
-
         $url = 'http://www.example.com/moodle/one/two/three/index.php?foo=bar#hash';
         $murl = new moodle_url($url);
         $clean = $murl->out();
         $this->assertEquals('http://www.example.com/moodle/one/two/three/?foo=bar#hash', $clean, "Clean: Remove index");
 
-        $url = 'http://www.example.com/moodle/admin/settings.php?section=local_clean_urls';
+        $url = 'http://www.example.com/moodle/admin/settings.php?section=local_cleanurls';
         $murl = new moodle_url($url);
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Clean: Don't clean when clash with directory");
-
-
 
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
@@ -138,7 +129,8 @@ class local_clean_urls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->mancourse->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/view?id=' . $this->mancourse->id, $clean, "Clean: course is ignored because it's shortname clashes with dir or file");
+        $this->assertEquals('http://www.example.com/moodle/course/view?id=' . $this->mancourse->id, $clean,
+            "Clean: course is ignored because it's shortname clashes with dir or file");
 
         $unclean = clean_moodle_url::unclean($clean)->orig_out();
         $this->assertEquals($url, $unclean, "Unclean: course is ignored as clashed with php file");
@@ -148,13 +140,13 @@ class local_clean_urls_test extends advanced_testcase {
         $clean = $murl->out();
         $this->assertEquals('http://www.example.com/moodle/course/', $clean, "Clean: index.php off url");
 
-        // Nothing to unclean because these urls will get routed directly by apache not router.php
-
+        // Nothing to unclean because these urls will get routed directly by apache not router.php.
 
         $url = 'http://www.example.com/moodle/user/profile.php?id=' . $this->staff->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/user/' . $this->staff->username, $clean, "Clean: user profile url with username");
+        $this->assertEquals('http://www.example.com/moodle/user/' . $this->staff->username, $clean,
+            "Clean: user profile url with username");
 
         $unclean = clean_moodle_url::unclean($clean)->orig_out();
         $this->assertEquals($url, $unclean, "Unclean: user profile url inside course");
@@ -162,7 +154,8 @@ class local_clean_urls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/user/view.php?id=' . $this->staff->id . '&course=' . $this->course->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/'.$this->course->shortname.'/user/' . $this->staff->username, $clean, "Clean: user profile url with username inside course");
+        $this->assertEquals('http://www.example.com/moodle/course/'.$this->course->shortname.'/user/' . $this->staff->username,
+            $clean, "Clean: user profile url with username inside course");
 
         $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
         $this->assertEquals($url, $unclean, "Unclean: user view url inside course");
@@ -170,20 +163,18 @@ class local_clean_urls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/user/index.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/'.$this->course->shortname.'/user/', $clean, "Clean: user list in course");
+        $this->assertEquals('http://www.example.com/moodle/course/'.$this->course->shortname.'/user/', $clean,
+            "Clean: user list in course");
 
         $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
         $this->assertEquals($url, $unclean, "Unclean: user list inside course");
 
+        // ID mapping.
 
-        # id mapping
+        // Module index mapping.
 
-        # module index mapping
+        // If slash arguments are used then just skip it.
 
-        # if slash arguments are used then just skip it
-
-#        set_config('categoryon', 1, 'local_clean_urls');
-#        $this->assertEquals('http://www.example.com/cat1/course/shortcode', $murl->out(), " );
     }
 
 }
