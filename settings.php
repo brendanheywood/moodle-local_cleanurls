@@ -16,10 +16,11 @@
 
 
 /**
- *  cqu_staff_sync local plugin settings
+ * local_cleanurls plugin settings
  *
  * @package    local
  * @subpackage cleanurls
+ * @author     Brendan Heywood <brendan@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,6 +39,8 @@ if ($hassiteconfig) {
         // If we are on the settings page then also run a router test.
         if ($section == 'local_cleanurls') {
             $result = @file_get_contents($CFG->wwwroot . '/local/cleanurls/tests/file');
+            // TODO
+            // $result = @file_get_contents($CFG->wwwroot . '/local/cleanurls/test/1-example');
             if ($result == 'OK') {
                 $routertest = $OUTPUT->notification(get_string('routerok', 'local_cleanurls'), 'notifysuccess');
             } else {
@@ -46,12 +49,16 @@ if ($hassiteconfig) {
         }
 
         $settings->add(new admin_setting_configcheckbox('local_cleanurls/cleaningon',
-                        new lang_string('cleaningon',       'local_cleanurls'),
-                        new lang_string('cleaningonhelp',   'local_cleanurls') . $routertest, 0));
+                        new lang_string('cleaningon',         'local_cleanurls'),
+                        new lang_string('cleaningonhelp',     'local_cleanurls') . $routertest, 0));
+
+        $settings->add(new admin_setting_configcheckbox('local_cleanurls/cleanusernames',
+                        new lang_string('cleanusernames',     'local_cleanurls'),
+                        new lang_string('cleanusernameshelp', 'local_cleanurls'), 0));
 
         $settings->add( new admin_setting_configcheckbox('local_cleanurls/debugging',
-                        new lang_string('debugging',        'local_cleanurls'),
-                        new lang_string('debugginghelp',    'local_cleanurls'), 0));
+                        new lang_string('debugging',          'local_cleanurls'),
+                        new lang_string('debugginghelp',      'local_cleanurls'), 0));
     }
 }
 

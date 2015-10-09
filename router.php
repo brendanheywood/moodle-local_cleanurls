@@ -40,8 +40,7 @@ require_once('lib.php');
 
 global $CFG;
 
-$debug = get_config('local_cleanurls', 'debugging');
-$debug && error_log("Router: \$_GET: ".$_GET['q']);
+clean_moodle_url::log("Router: \$_GET: ".$_GET['q']);
 $url = clean_moodle_url::unclean($CFG->wwwroot . '/' . $_GET['q']);
 
 foreach ($url->params() as $k => $v) {
@@ -50,7 +49,7 @@ foreach ($url->params() as $k => $v) {
 
 $file = $CFG->dirroot . $url->get_path();
 
-$debug && error_log("Router: including file: ".$file);
+clean_moodle_url::log("Router: including file: ".$file);
 if (!is_file($file)) {
 
     // TODO.

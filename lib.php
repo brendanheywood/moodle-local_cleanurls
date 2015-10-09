@@ -24,18 +24,30 @@
 class clean_moodle_url extends moodle_url {
 
     /*
+     *
+     */
+    public static function log($msg) {
+
+        $debug = get_config('local_cleanurls', 'debugging');
+        $debug && error_log($msg);
+
+    }
+
+    /*
      * Takes a moodle_url and either returns a cloned object with cleaned properties
      * of if nothing is done the original object
      */
     public static function clean($orig) {
 
         global $DB, $CFG;
-        $debug = get_config('local_cleanurls', 'debugging');
 
         $path   = $orig->path;
         $params = $orig->params();
 
-        $debug && error_log("Cleaning:".$orig->orig_out());
+        $config = get_config('local_cleanurls');
+
+        self::log("Cleaning:" . $orig->orig_out());
+        self::log("Path is: $path");
 
         // Remove the moodle dir if present.
         $slash = strpos($CFG->wwwroot, '/', 8);
@@ -43,31 +55,34 @@ class clean_moodle_url extends moodle_url {
         if ($slash) {
             $moodle = substr($CFG->wwwroot, $slash);
             $path = substr($path, strlen($moodle));
-        }
-
-        // Ignore non .php files.
-        if (substr($path, -4) !== ".php") {
-            $debug && error_log("Ignoring non .php file");
-            return $orig;
+            self::log("Removed wwwroot from path: $path");
         }
 
         // Ignore any theme files.
         if (substr($path, 0, 6) == '/theme') {
-            $debug && error_log("Ignoring theme file");
+            self::log("Ignoring theme file");
             return $orig;
         }
 
         // Ignore any lib files.
         if (substr($path, 0, 4) == '/lib') {
-            $debug && error_log("Ignoring lib file");
+            self::log("Ignoring lib file");
             return $orig;
         }
+
+        // Ignore non .php files.
+        if (substr($path, -4) !== ".php") {
+            self::log("Ignoring non .php file");
+            return $orig;
+        }
+
 
         // Remove the php extension.
         $path = substr($path, 0, -4);
 
         // Remove /index from end.
         if (substr($path, -6) == '/index') {
+            self::log("Removing /index");
             $path = substr($path, 0, -5);
         }
 
@@ -79,7 +94,7 @@ class clean_moodle_url extends moodle_url {
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
                 $path = $newpath;
                 unset ($params['id']);
-                $debug && error_log("Rewrite course");
+                self::log("Rewrite course");
             }
         }
 
@@ -92,42 +107,48 @@ class clean_moodle_url extends moodle_url {
                 $path = $newpath;
                 unset ($params['id']);
 
-                $debug && error_log("Rewrite user profile");
+                self::log("Rewrite user profile");
             }
         }
-        // Clean up user profile urls.
-        if ($path == "/user/profile" && $params['id'] ) {
-            $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
 
-            $newpath = "/user/$slug";
-            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                $path = $newpath;
-                unset ($params['id']);
+        // Clean up user id's into usernmes?
+        if ($config->cleanusernames) {
 
-                $debug && error_log("Rewrite user profile");
-            }
-        }
-        // Clean up user profile urls inside course.
-        if ($path == "/user/view" && $params['id'] && $params['course']) {
-            $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
+            // In profile urls.
+            if ($path == "/user/profile" && $params['id'] ) {
+                $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
 
-            $newpath = "/user/$slug";
-            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                $path = $newpath;
-                unset ($params['id']);
+                $newpath = "/user/$slug";
+                if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+                    $path = $newpath;
+                    unset ($params['id']);
 
-                if ($params['course']) {
-                    $slug = $DB->get_field('course', 'shortname', array('id' => $params['course'] ));
-                    $path = "/course/$slug$path";
-                    unset ($params['course']);
+                    self::log("Rewrite user profile");
                 }
-                $debug && error_log("Rewrite user profile");
+            }
+
+            // Clean up user profile urls inside course.
+            if ($path == "/user/view" && $params['id'] && $params['course']) {
+                $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
+
+                $newpath = "/user/$slug";
+                if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+                    $path = $newpath;
+                    unset ($params['id']);
+
+                    if ($params['course']) {
+                        $slug = $DB->get_field('course', 'shortname', array('id' => $params['course'] ));
+                        $path = "/course/$slug$path";
+                        unset ($params['course']);
+                    }
+                    self::log("Rewrite user profile");
+                }
             }
         }
 
         // Ignore if clashes with a directory.
         if (is_dir($CFG->dirroot . $path ) && substr($path, -1) != '/') {
-            $debug && error_log("Ignoring dir clash");
+            self::log("Ignoring dir clash");
             return $orig;
         }
 
@@ -135,7 +156,7 @@ class clean_moodle_url extends moodle_url {
         $clone->path = $moodle . $path;
         $clone->remove_all_params();
         $clone->params($params);
-        $debug && error_log("Clean:".$clone->out());
+        self::log("Clean:".$clone->out());
         return $clone;
 
     }
@@ -147,14 +168,13 @@ class clean_moodle_url extends moodle_url {
 
         global $CFG, $DB;
 
-        $debug = get_config('local_cleanurls', 'debugging');
-        $debug && error_log("Incoming url: $clean");
+        self::log("Incoming url: $clean");
 
         $url = new moodle_url($clean);
         $path = $url->path;
         $params = $url->params();
 
-        $debug && error_log("Incoming path: $path");
+        self::log("Incoming path: $path");
 
         // Remove the moodle dir if present.
         $slash = strpos($CFG->wwwroot, '/', 8);
@@ -173,7 +193,7 @@ class clean_moodle_url extends moodle_url {
                 $path = "/user/view.php";
                 $params['id']     = $DB->get_field('user',   'id', array('username'  => $matches[2] ));
                 $params['course'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
-                $debug && error_log("Rewritten to: $path");
+                self::log("Rewritten to: $path");
             }
 
             // Clean up user profile urls inside course.
@@ -182,7 +202,7 @@ class clean_moodle_url extends moodle_url {
                 !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")) {
                 $path = "/user/index.php";
                 $params['id'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
-                $debug && error_log("Rewritten to: $path");
+                self::log("Rewritten to: $path");
             }
 
             // Clean up user profile urls.
@@ -191,7 +211,7 @@ class clean_moodle_url extends moodle_url {
                 !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")) {
                 $path = "/user/profile.php";
                 $params['id'] = $DB->get_field('user', 'id', array('username' => $matches[1] ));
-                $debug && error_log("Rewritten to: $path");
+                self::log("Rewritten to: $path");
             }
 
             // Clean up course urls.
@@ -200,7 +220,7 @@ class clean_moodle_url extends moodle_url {
                 !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")) {
                 $path = "/course/view.php";
                 $params['name'] = $matches[1];
-                $debug && error_log("Rewritten to: $path");
+                self::log("Rewritten to: $path");
             }
         }
 
@@ -209,7 +229,7 @@ class clean_moodle_url extends moodle_url {
             $path .= '.php';
         }
 
-        $debug && error_log("Rewritten to: $path");
+        self::log("Rewritten to: $path");
 
         $url->path = $moodle . $path;
         $url->remove_all_params();

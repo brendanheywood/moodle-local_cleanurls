@@ -45,10 +45,8 @@ class local_cleanurls_test extends advanced_testcase {
                                                                  'shortname' => 'management',
                                                                  'visible' => 1, 'category' => $this->category->id));
 
-        // Create dummy student.
         $this->staff = $this->getDataGenerator()->create_user(array('email' => 'head1@example.com', 'username' => 'head1'));
-        // The user logs in.
-        $this->setUser($staff);
+        $this->setUser($this->staff);
 
     }
 
@@ -57,7 +55,9 @@ class local_cleanurls_test extends advanced_testcase {
         $this->resetAfterTest(true);
         require_once("$CFG->dirroot/local/cleanurls/lib.php");
 
+        // set_config('debugging', 1, 'local_cleanurls');
         set_config('cleaningon', 0, 'local_cleanurls');
+        set_config('cleanusernames', 0, 'local_cleanurls');
 
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
@@ -138,10 +138,22 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/course/index.php';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/', $clean, "Clean: index.php off url");
+        $this->assertEquals($clean, 'http://www.example.com/moodle/course/', "Clean: index.php off url");
 
         // Nothing to unclean because these urls will get routed directly by apache not router.php.
 
+        $url = 'http://www.example.com/moodle/user/profile.php?id=' . $this->staff->id;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals($clean, $url, "Not Cleaned: user profile url with username");
+        $url = 'http://www.example.com/moodle/user/view.php?id=' . $this->staff->id . '&course=' . $this->course->id;
+
+        $murl = new moodle_url($url);
+        $clean = $murl->out(false);
+        $this->assertEquals('http://www.example.com/moodle/user/view?id=' . $this->staff->id . '&course=' . $this->course->id, $clean,
+            "Not Cleaned: user profile url with username inside course");
+
+        set_config('cleanusernames', 1, 'local_cleanurls');
         $url = 'http://www.example.com/moodle/user/profile.php?id=' . $this->staff->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();

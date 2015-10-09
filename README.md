@@ -9,6 +9,8 @@ Backward compatibility
 ----------------------
 URL's must always work, old and new. Old url's should be seamlessly upgraded to new url's where possible.
 
+Some url rewrites such as those involving a course shortcode or username instead of id's, maybe be brittle if your site allows these things to change, so these are optional.
+
 Speed is king
 -------------
 Speed is an integral part of the user experience. So we want to avoid things like 302 redirects, cache internally any expensive processing. If a url is never going to be seen by an end user, then avoid cleaning it.
@@ -138,16 +140,18 @@ on the rewrite logging and tail your apache log for details.
 Todo
 ====
 
-* [ ] rewrite modules using crumb trail heirarchy
+* [ ] rewrite modules using crumb trail heirarchy, too hard?
 * [ ] make route work with /course/ZYX/forum/ - link to index with course id (lookup? or name?)
-* [ ] add settings to remove crumb items, or hard code
-* [ ] settings to only do 'safe' rewrites or 'extended rewrites'
+* [ ] have a 'cautious' mode which cleans the url, then uncleans it on the fly to check it will work later
 * [ ] write a typial page render time
 * [ ] use the muc for extended rewrites
 * [ ] maximum expensive cleanings per request
 * [ ] add an admin debug page which shows all urls in the cache - can we even do this?
 * [ ] almost all id's can't change, but course shortcodes CAN! test how this behaves and make a event trigger fix the index / cache
 * [ ] also do this for usernames as well
+* Don't rewrite users for course=1
+* Protect against userid's and courseshortcodes which contains / ? # etc
+
 
 
 Contributing
