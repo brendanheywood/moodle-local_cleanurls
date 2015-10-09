@@ -1,8 +1,8 @@
 diff --git a/lib/weblib.php b/lib/weblib.php
-index 81b075d..50684b8 100644
+index 81b075d..a84ffb9 100644
 --- a/lib/weblib.php
 +++ b/lib/weblib.php
-@@ -543,6 +543,24 @@ class moodle_url {
+@@ -543,6 +543,25 @@ class moodle_url {
      }
  
      /**
@@ -15,6 +15,7 @@ index 81b075d..50684b8 100644
 +     * @return string Resulting URL
 +     */
 +    public function out($escaped = true, array $overrideparams = null) {
++        global $CFG;
 +        require_once($CFG->dirroot.'/local/cleanurls/lib.php');
 +        $murl = $this;
 +        if (get_config('local_cleanurls', 'cleaningon')) {
@@ -27,7 +28,7 @@ index 81b075d..50684b8 100644
       * Output url.
       *
       * If you use the returned URL in HTML code, you want the escaped ampersands. If you use
-@@ -552,7 +570,7 @@ class moodle_url {
+@@ -552,7 +571,7 @@ class moodle_url {
       * @param array $overrideparams params to add to the output url, these override existing ones with the same name.
       * @return string Resulting URL
       */
