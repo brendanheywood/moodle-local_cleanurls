@@ -54,7 +54,7 @@ $debug && error_log("Router: including file: ".$file);
 if (!is_file($file)) {
 
     // TODO.
-    print "404!!!";
+    print "404!!! $file";
     exit;
 }
 

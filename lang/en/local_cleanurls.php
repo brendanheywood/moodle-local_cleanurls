@@ -27,7 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Clean URLs';
 $string['cleaningon'] = 'Cleaning on';
-$string['cleaningonhelp'] = 'Off by default until the routing is added to apache first';
+$string['cleaningonhelp'] = 'Off by default until the routing is added to apache first<br>';
+$string['routerok'] = 'Rewrite router is working';
+$string['routerbroken'] = 'Rewrite router is NOT working';
 $string['debugging'] = 'Debugging on';
 $string['debugginghelp'] = 'Logs rewrite process to php error log';
 

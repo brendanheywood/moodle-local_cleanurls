@@ -89,8 +89,8 @@ https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_brow
 Installation
 ============
 
-Install the local module
-------------------------
+Step 1: Install the local module
+--------------------------------
 
 eg using git submodule:
 
@@ -99,8 +99,8 @@ git submodule add git@github.com:brendanheywood/moodle-local_cleanurls.git local
 ```
 
 
-Edit /lib/weblb.php to intercept moodle_url serialization
----------------------------------------------------------
+Step 2: Edit /lib/weblb.php to intercept moodle_url serialization
+-----------------------------------------------------------------
 
 Apply a tiny patch to core using git:
 
@@ -109,12 +109,15 @@ git apply local/cleanurls/weblib.patch
 ```
 
 
-Add an apache rewrite to the custom router
-------------------------------------------
+Step 3: Add the head tag cleanup to your theme
+----------------------------------------------
 
+
+Step 4: Add the apache rewrite to the custom router
+---------------------------------------------------
 
 ```apache
-<Directory /var/www/moodle>
+<Directory /var/www/your/moodle/path>
    RewriteEngine on
    RewriteBase /
    RewriteCond %{REQUEST_FILENAME} !-f
@@ -123,14 +126,18 @@ Add an apache rewrite to the custom router
 </Directory>
 ```
 
-Add the head tag cleanup to your theme
---------------------------------------
+Now restart apache
+
+Go to the /admin/settings.php?section=local_cleanurls settings page and it should
+show a green success message if it detects the route rewrite is in place and working.
+
+Now you can Tick the box turning on the rewrites. If you have any issues then turn
+on the rewrite logging and tail your apache log for details.
 
 
 Todo
 ====
 
-* [ ] live url testing in admin settings page
 * [ ] rewrite modules using crumb trail heirarchy
 * [ ] make route work with /course/ZYX/forum/ - link to index with course id (lookup? or name?)
 * [ ] add settings to remove crumb items, or hard code
@@ -138,14 +145,15 @@ Todo
 * [ ] write a typial page render time
 * [ ] use the muc for extended rewrites
 * [ ] maximum expensive cleanings per request
+* [ ] add an admin debug page which shows all urls in the cache - can we even do this?
+* [ ] almost all id's can't change, but course shortcodes CAN! test how this behaves and make a event trigger fix the index / cache
+* [ ] also do this for usernames as well
+
 
 Contributing
 ============
 
 * Pull requests welcome!
 * You may find that certain links in moodle core, or particular plugins don't use moodle_url - so best patch them and push back upstream
-
-
-
 
 
