@@ -39,8 +39,6 @@ if ($hassiteconfig) {
         // If we are on the settings page then also run a router test.
         if ($section == 'local_cleanurls') {
             $result = @file_get_contents($CFG->wwwroot . '/local/cleanurls/tests/file');
-            // TODO
-            // $result = @file_get_contents($CFG->wwwroot . '/local/cleanurls/test/1-example');
             if ($result == 'OK') {
                 $routertest = $OUTPUT->notification(get_string('routerok', 'local_cleanurls'), 'notifysuccess');
             } else {

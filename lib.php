@@ -33,6 +33,18 @@ class clean_moodle_url extends moodle_url {
 
     }
 
+    public static function sluggify($string, $dash) {
+
+        $string = strtolower($string);
+        $string = str_replace(' ', '-', $string);
+
+        if ($dash) {
+            return '-' . $string;
+        }
+        return $string;
+
+    }
+
     /*
      * Takes a moodle_url and either returns a cloned object with cleaned properties
      * of if nothing is done the original object
@@ -76,7 +88,6 @@ class clean_moodle_url extends moodle_url {
             return $orig;
         }
 
-
         // Remove the php extension.
         $path = substr($path, 0, -4);
 
@@ -108,6 +119,25 @@ class clean_moodle_url extends moodle_url {
                 unset ($params['id']);
 
                 self::log("Rewrite user profile");
+            }
+        }
+
+        // Clean up mod view pages.
+        if (preg_match("/^\/mod\/(\w+)\/view$/", $path, $matches) && $params['id'] ) {
+
+            $id = $params['id'];
+            $mod = $matches[1];
+            list ($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
+
+            $slug = self::sluggify($cm->name, true);
+            $shortcode = $course->shortname;
+
+            $newpath = "/course/$shortcode/$mod/$id$slug";
+            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+                $path = $newpath;
+                unset ($params['id']);
+
+                self::log("Rewrite mod view: $path");
             }
         }
 
@@ -214,6 +244,14 @@ class clean_moodle_url extends moodle_url {
                 self::log("Rewritten to: $path");
             }
 
+            // Clean up course mod view.
+        } else if (preg_match("/^\/course\/(.+)\/(\w+)\/(\d+)(-.*)?$/", $path, $matches)) {
+            if (!is_dir ($CFG->dirroot . '/course/' . $matches[1]) &&
+                !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")) {
+                $path = "/mod/$matches[2]/view.php";
+                $params['id'] = $matches[3];
+                self::log("Rewritten to: $path");
+            }
             // Clean up course urls.
         } else if (preg_match("/^\/course\/(.+)$/", $path, $matches)) {
             if (!is_dir ($CFG->dirroot . '/course/' . $matches[1]) &&

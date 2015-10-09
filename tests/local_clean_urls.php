@@ -41,9 +41,12 @@ class local_cleanurls_test extends advanced_testcase {
                                                                  'shortname' => 'shortcode',
                                                                  'visible' => 1, 'category' => $this->category->id));
 
-        $this->mancourse   = $this->getDataGenerator()->create_course(array('fullname' => 'Some course',
+        $this->mancourse = $this->getDataGenerator()->create_course(array('fullname' => 'Some course',
                                                                  'shortname' => 'management',
                                                                  'visible' => 1, 'category' => $this->category->id));
+
+        $this->forum = $this->getDataGenerator()->create_module('forum',
+            array('course' => $this->course->id, 'name' => 'A test FORUM'));
 
         $this->staff = $this->getDataGenerator()->create_user(array('email' => 'head1@example.com', 'username' => 'head1'));
         $this->setUser($this->staff);
@@ -55,7 +58,6 @@ class local_cleanurls_test extends advanced_testcase {
         $this->resetAfterTest(true);
         require_once("$CFG->dirroot/local/cleanurls/lib.php");
 
-        // set_config('debugging', 1, 'local_cleanurls');
         set_config('cleaningon', 0, 'local_cleanurls');
         set_config('cleanusernames', 0, 'local_cleanurls');
 
@@ -76,13 +78,14 @@ class local_cleanurls_test extends advanced_testcase {
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: Lib files should not be touched");
 
-        // $url = 'http://www.example.com/moodle/course/view.php?edit=1&id=' . $this->course->id;
-        // $murl = new moodle_url($url);
-        // $clean = $murl->out();
-        // $this->assertEquals('http://www.example.com/moodle/course/shortcode?edit=1', $clean, "Clean: course with param");
-        //
-        // $unclean = local_cleanurls_unclean($clean);
-        // $this->assertEquals('http://www.example.com/moodle/course/view.php?name=shortcode&edit=1', $unclean, "Unclean: course with param");
+        $url = 'http://www.example.com/moodle/course/view.php?edit=1&id=' . $this->course->id;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/course/shortcode?edit=1', $clean, "Clean: course with param");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
+        $this->assertEquals('http://www.example.com/moodle/course/view.php?edit=1&name=shortcode', $unclean,
+            "Unclean: course with param");
 
         $url = 'http://www.example.com/moodle/foo/bar.php';
         $murl = new moodle_url($url);
@@ -150,8 +153,8 @@ class local_cleanurls_test extends advanced_testcase {
 
         $murl = new moodle_url($url);
         $clean = $murl->out(false);
-        $this->assertEquals('http://www.example.com/moodle/user/view?id=' . $this->staff->id . '&course=' . $this->course->id, $clean,
-            "Not Cleaned: user profile url with username inside course");
+        $this->assertEquals('http://www.example.com/moodle/user/view?id=' . $this->staff->id . '&course=' . $this->course->id,
+            $clean, "Not Cleaned: user profile url with username inside course");
 
         set_config('cleanusernames', 1, 'local_cleanurls');
         $url = 'http://www.example.com/moodle/user/profile.php?id=' . $this->staff->id;
@@ -181,6 +184,14 @@ class local_cleanurls_test extends advanced_testcase {
         $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
         $this->assertEquals($url, $unclean, "Unclean: user list inside course");
 
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $this->forum->cmid;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/course/shortcode/forum/' . $this->forum->cmid . '-a-test-forum',
+            $clean, "Clean: Module view page");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
+        $this->assertEquals($url, $unclean, "Unclean: Module view page");
         // ID mapping.
 
         // Module index mapping.
