@@ -192,9 +192,14 @@ class local_cleanurls_test extends advanced_testcase {
 
         $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
         $this->assertEquals($url, $unclean, "Unclean: Module view page");
-        // ID mapping.
 
-        // Module index mapping.
+        $url = 'http://www.example.com/moodle/mod/forum/index.php?id=' . $this->course->id;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/course/shortcode/forum', $clean, "Clean: course mod index page");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out();
+        $this->assertEquals('http://www.example.com/moodle/mod/forum/index.php?id=' . $this->course->id, $unclean, "Unclean: course mod index page");
 
         // If slash arguments are used then just skip it.
 

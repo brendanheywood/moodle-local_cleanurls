@@ -97,8 +97,9 @@ class clean_moodle_url extends moodle_url {
             $path = substr($path, 0, -5);
         }
 
-        // Clean up course urls.
         if ($path == "/course/view" && $params['id'] ) {
+            // Clean up course urls.
+
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
 
             $newpath = "/course/$slug";
@@ -107,10 +108,10 @@ class clean_moodle_url extends moodle_url {
                 unset ($params['id']);
                 self::log("Rewrite course");
             }
-        }
 
-        // Clean up user course list urls.
-        if ($path == "/user/" && $params['id'] ) {
+        } else if ($path == "/user/" && $params['id'] ) {
+            // Clean up user course list urls.
+
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
 
             $newpath = "/course/$slug/user/";
@@ -120,10 +121,24 @@ class clean_moodle_url extends moodle_url {
 
                 self::log("Rewrite user profile");
             }
-        }
 
-        // Clean up mod view pages.
-        if (preg_match("/^\/mod\/(\w+)\/view$/", $path, $matches) && $params['id'] ) {
+        } else if (preg_match("/^\/mod\/(\w+)\/$/", $path, $matches) && $params['id'] ) {
+            // Clean up mod view pages. (/index has already been removed earlier)
+
+            $mod = $matches[1];
+
+            $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
+
+            $newpath = "/course/$slug/$mod";
+            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+                $path = $newpath;
+                unset ($params['id']);
+
+                self::log("Rewrite mod view: $path");
+            }
+
+        } else if (preg_match("/^\/mod\/(\w+)\/view$/", $path, $matches) && $params['id'] ) {
+            // Clean up mod view pages.
 
             $id = $params['id'];
             $mod = $matches[1];
@@ -216,8 +231,8 @@ class clean_moodle_url extends moodle_url {
 
         // These regex's must be in order of higher specificity to lowest.
 
-        // Clean up user profile urls inside course.
         if (preg_match("/^\/course\/(.+)\/user\/(.+)$/", $path, $matches)) {
+            // Clean up user profile urls inside course.
             if (!is_dir ($CFG->dirroot . '/user/' . $matches[2]) &&
                 !is_file($CFG->dirroot . '/user/' . $matches[2] . ".php")) {
                 $path = "/user/view.php";
@@ -226,8 +241,8 @@ class clean_moodle_url extends moodle_url {
                 self::log("Rewritten to: $path");
             }
 
-            // Clean up user profile urls inside course.
         } else if (preg_match("/^\/course\/(.+)\/user\/$/", $path, $matches)) {
+            // Clean up user profile urls inside course.
             if (!is_dir ($CFG->dirroot . '/user/' . $matches[1]) &&
                 !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")) {
                 $path = "/user/index.php";
@@ -235,8 +250,8 @@ class clean_moodle_url extends moodle_url {
                 self::log("Rewritten to: $path");
             }
 
-            // Clean up user profile urls.
         } else if (preg_match("/^\/user\/(.+)$/", $path, $matches)) {
+            // Clean up user profile urls.
             if (!is_dir ($CFG->dirroot . '/user/' . $matches[1]) &&
                 !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")) {
                 $path = "/user/profile.php";
@@ -244,16 +259,27 @@ class clean_moodle_url extends moodle_url {
                 self::log("Rewritten to: $path");
             }
 
-            // Clean up course mod view.
         } else if (preg_match("/^\/course\/(.+)\/(\w+)\/(\d+)(-.*)?$/", $path, $matches)) {
+            // Clean up course mod view.
             if (!is_dir ($CFG->dirroot . '/course/' . $matches[1]) &&
                 !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")) {
                 $path = "/mod/$matches[2]/view.php";
                 $params['id'] = $matches[3];
                 self::log("Rewritten to: $path");
             }
-            // Clean up course urls.
+
+        } else if (preg_match("/^\/course\/(.+)\/(\w+)\/?$/", $path, $matches)) {
+
+            // Clean up course mod index.
+            if (!is_dir ($CFG->dirroot . '/course/' . $matches[1]) &&
+                !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")) {
+                $path = "/mod/$matches[2]/index.php";
+                $params['id'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
+                self::log("Rewritten to: $path");
+            }
+
         } else if (preg_match("/^\/course\/(.+)$/", $path, $matches)) {
+            // Clean up course urls.
             if (!is_dir ($CFG->dirroot . '/course/' . $matches[1]) &&
                 !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")) {
                 $path = "/course/view.php";
