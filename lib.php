@@ -137,7 +137,7 @@ class clean_moodle_url extends moodle_url {
                 self::log("Rewrite mod view: $path");
             }
 
-        } else if (preg_match("/^\/mod\/(\w+)\/view$/", $path, $matches) && $params['id'] ) {
+        } else if (preg_match("/^\/mod\/(\w+)\/view$/", $path, $matches) && isset($params['id']) ) {
             // Clean up mod view pages.
 
             $id = $params['id'];
