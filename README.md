@@ -102,35 +102,12 @@ git submodule add git@github.com:brendanheywood/moodle-local_cleanurls.git local
 Edit /lib/weblb.php to intercept moodle_url serialization
 ---------------------------------------------------------
 
+Apply a tiny patch to core using git:
 
-```diff
-diff --git a/lib/weblib.php b/lib/weblib.php
-index ff3a3ff..8baf2d2 100644
---- a/lib/weblib.php
-+++ b/lib/weblib.php
-@@ -79,6 +79,7 @@ define('URL_MATCH_PARAMS', 1);
-  */
- define('URL_MATCH_EXACT', 2);
- 
-+require_once($CFG->dirroot.'/local/cleanurls/lib.php');
- // Functions.
- 
- /**
-@@ -541,6 +542,13 @@ class moodle_url {
-      * @return string Resulting URL
-      */
-     public function out($escaped = true, array $overrideparams = null) {
-+        $murl = $this;
-+        if (get_config('local_cleanurls', 'cleaningon')){
-+            $murl = clean_moodle_url::clean($murl);
-+        }
-+        return $murl->orig_out($escaped, $overrideparams);
-+    }
-+    public function orig_out($escaped = true, array $overrideparams = null) {
-         if (!is_bool($escaped)) {
-             debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
-         }
 ```
+git apply local/cleanurls/weblib.patch
+```
+
 
 Add an apache rewrite to the custom router
 ------------------------------------------
@@ -153,7 +130,6 @@ Add the head tag cleanup to your theme
 Todo
 ====
 
-* [ ] convert weblib to patch and cli for install it
 * [ ] live url testing in admin settings page
 * [ ] rewrite modules using crumb trail heirarchy
 * [ ] make route work with /course/ZYX/forum/ - link to index with course id (lookup? or name?)

@@ -1,0 +1,38 @@
+diff --git a/lib/weblib.php b/lib/weblib.php
+index 81b075d..50684b8 100644
+--- a/lib/weblib.php
++++ b/lib/weblib.php
+@@ -543,6 +543,24 @@ class moodle_url {
+     }
+ 
+     /**
++     * Output clean urls.
++     *
++     * This is a proxy of the core method to rewrite urls into clean urls
++     *
++     * @param bool $escaped Use &amp; as params separator instead of plain &
++     * @param array $overrideparams params to add to the output url, these override existing ones with the same name.
++     * @return string Resulting URL
++     */
++    public function out($escaped = true, array $overrideparams = null) {
++        require_once($CFG->dirroot.'/local/cleanurls/lib.php');
++        $murl = $this;
++        if (get_config('local_cleanurls', 'cleaningon')) {
++            $murl = clean_moodle_url::clean($murl);
++        }
++        return $murl->orig_out($escaped, $overrideparams);
++    }
++
++    /**
+      * Output url.
+      *
+      * If you use the returned URL in HTML code, you want the escaped ampersands. If you use
+@@ -552,7 +570,7 @@ class moodle_url {
+      * @param array $overrideparams params to add to the output url, these override existing ones with the same name.
+      * @return string Resulting URL
+      */
+-    public function out($escaped = true, array $overrideparams = null) {
++    public function orig_out($escaped = true, array $overrideparams = null) {
+         if (!is_bool($escaped)) {
+             debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
+         }
