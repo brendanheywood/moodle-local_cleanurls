@@ -93,7 +93,6 @@ This also now makes it much easier to manage parts of your site using robots.txt
 
 history.replaceState
 --------------------
-TODO
 
 The are many ways a url gets shared, copy and paste, a 'share' widget etc. We
 want the url to be correct as soon as possibly, so even if the link we clicked
@@ -108,6 +107,7 @@ The only down side to this approach is if you have outbound link tracking on
 the referring page.
 
 https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_browser_history#The_replaceState()_method
+
 
 Installation
 ============

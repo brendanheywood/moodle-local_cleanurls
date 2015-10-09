@@ -23,14 +23,34 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/**
- * One issue is that when rewriting urls we change their nesting and depth
- * which means legacy urls in the codebase which do NOT use moodle_url and
- * which are also relative links can be broken. To fix this we set the
- * base href of the base to the uncleaned url.
- */
-
 if (isset($CFG->uncleanedurl)) {
-    $output .= "<base href='$CFG->uncleanedurl'>\n";
-}
 
+    /**
+     * One issue is that when rewriting urls we change their nesting and depth
+     * which means legacy urls in the codebase which do NOT use moodle_url and
+     * which are also relative links can be broken. To fix this we set the
+     * base href to the original uncleaned url.
+     */
+
+    $output .= "<base href='$CFG->uncleanedurl'>\n";
+
+} else {
+
+    /**
+     * If we have just loaded a legacy url AND we can clean it, instead of
+     * cleaning the url, caching it, and waiting for the user or someone else
+     * to come back again to see the good url, we can use html5 replaceState to
+     * fix it imeditately without a page reload.
+     *
+     * Importantly this needs to happen before any JS on the page uses it, such
+     * as any analytics tracking.
+     */
+
+    global $PAGE;
+    $clean = $PAGE->url->out();
+    $orig = $PAGE->url->orig_out();
+    if ($orig != $clean) {
+        $output .= "<script>history.replaceState && history.replaceState({}, '', '$clean');</script>\n";
+    }
+
+}
