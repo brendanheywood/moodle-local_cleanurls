@@ -1,9 +1,43 @@
 * [Design principals](#design-principals)
+  * [Backward compatible](#backward-compatibility)
+  * [Speed is king](#speed-is-king)
+  * [Human readable](#human-readable)
+  * [Automatic](#automatic)
 * [How it works](#how-it-works)
-** [Base href](#base-href)
-** [Cannonical link](#cannonical-link)
-** [History replaceState](#historyreplacestate)
+  * [Rewrite outgoing links](#rewrite-outgoing-links)
+  * [Rewrite incoming links](#rewrite-incoming-links)
+  * [Base href](#base-href)
+  * [Canonical link](#canonical-link)
+  * [History replaceState](#historyreplacestate)
 * [Installation](#installation)
+
+Why bother?
+===========
+
+Good URL design is a hall mark of properly engineered internet systems. That
+said URL's have long been poorly implemented in many systems, moodle included,
+to the point where browsers are now hiding URL's because they are so ugly and
+opaque.
+
+For the canonical guide to good URL's refer to Tim Berners-Lee timeless page:
+
+http://www.w3.org/Provider/Style/URI
+
+There are many benefits to end users, but admittedly some of these are fading:
+
+* Human readable URL's when shared or embedded in social media
+* Better context of a page, eg what course is this forum in
+* 'Hackable' urls, going 'up' and also guessing urls is easier
+
+But despite the fading of importance of URL's to browsers and users there are
+still many reasons why clean urls are a good thing:
+
+* Much better filtering and reporting in log files and analytics software
+* More resilient links when migrating systems (eg backup and restore to a
+  new moodle but mostly keep your urls the same)
+* Deterministic linking in from external pages, (eg deep link from a course
+  catalog or staff directly into moodle)
+
 
 Design principals
 =================
@@ -79,7 +113,7 @@ relative links to the discussions.
 /mod/forum/index.php?id=4
 
 
-Cannoncial link
+Canoncial link
 ---------------
 
 If a robot like google is scraping your page, we don't want to split the
