@@ -58,8 +58,16 @@ class clean_moodle_url extends moodle_url {
 
         $config = get_config('local_cleanurls');
 
-        self::log("Cleaning:" . $orig->orig_out());
-        self::log("Path is: $path");
+        $origurl = $orig->orig_out();
+        $cache = cache::make('local_cleanurls', 'outgoing');
+        $cached = $cache->get($origurl);
+        if ($cached) {
+            $clean = new moodle_url($cached);
+            self::log("Found cached:" . $origurl . " => " . $cached);
+            return $clean;
+        }
+
+        self::log("Cleaning: " . $origurl . " Path is: $path");
 
         // Remove the moodle dir if present.
         $slash = strpos($CFG->wwwroot, '/', 8);
@@ -200,7 +208,11 @@ class clean_moodle_url extends moodle_url {
         $clone->path = $moodle . $path;
         $clone->remove_all_params();
         $clone->params($params);
-        self::log("Clean:".$clone->out());
+
+        $cleaned = $clone->out();
+        $cache->set($origurl, $cleaned);
+
+        self::log("Clean:".$cleaned);
         return $clone;
 
     }

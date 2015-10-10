@@ -237,10 +237,8 @@ Todo
 * [ ] rewrite modules using crumb trail heirarchy, too hard?
 * [ ] have a 'cautious' mode which cleans the url, then uncleans it on the fly to check it will work later
 * [ ] write a typial page render time
-* [ ] use the muc for extended rewrites
 * [ ] maximum expensive cleanings per request
 * [ ] add an admin debug page which shows all urls in the cache - can we even do this?
-* Don't rewrite users for course=1
 * Protect against userid's and courseshortcodes which contains / ? # etc
 
 

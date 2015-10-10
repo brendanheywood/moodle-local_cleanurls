@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * @package    local
  * @subpackage cleanurls
@@ -25,7 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015101000;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2013110500;        // Requires this Moodle version
-$plugin->component = 'local_cleanurls'; // To check on upgrade, that module sits in correct place.
+$definitions = array(
+    'outgoing' => array(
+        'mode' => cache_store::MODE_APPLICATION
+    )
+);
 

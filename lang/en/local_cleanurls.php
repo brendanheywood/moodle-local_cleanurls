@@ -34,4 +34,5 @@ $string['cleanusernames'] = 'Rewrite userid\'s into usernames?';
 $string['cleanusernameshelp'] = '<p>If username\'s change this is not recommended.</p><p>If on this may also be a privacy issue if your usernames expose anything sensitive.</p>';
 $string['debugging'] = 'Debugging on';
 $string['debugginghelp'] = 'Logs rewrite process to php error log';
+$string['cachedef_outgoing'] = 'Cleaned url mapping';
 
