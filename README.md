@@ -133,8 +133,8 @@ relative links to the discussions.
 /mod/forum/index.php?id=4
 
 
-Canoncial link
----------------
+Canonical link
+--------------
 
 If a robot like google is scraping your page, we don't want to split the
 pagerank between the old and clean url, and we want to ensure that google
