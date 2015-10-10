@@ -63,6 +63,9 @@ if (isset($CFG->uncleanedurl)) {
          */
 
         $output .= "<link rel='canonical' href='$clean' />\n";
+
+        apache_note('CLEANURL', $clean);
+
     }
 
 }
