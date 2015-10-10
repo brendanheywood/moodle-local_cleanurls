@@ -11,6 +11,24 @@
   * [History replaceState](#historyreplacestate)
 * [Installation](#installation)
 
+What this plugin does:
+======================
+
+It makes url's clean! Some real example url's:
+
+* A course page:
+
+/course/MATH101
+
+* A module page:
+
+/course/MATH101/lesson/6-how-to-do-matrix-multiplication
+
+* A user profile:
+
+/user/brendan
+
+
 Why bother?
 ===========
 
