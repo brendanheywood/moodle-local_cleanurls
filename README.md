@@ -1,8 +1,8 @@
 * [Design principals](#design-principals)
 * [How it works](#how-it-works)
-** [Base href](#base-href)
-** [Cannonical link](#cannonical-link)
-** [History replaceState](#historyreplacestate)
+  - [Base href](#base-href)
+  - [Cannonical link](#cannonical-link)
+  - [History replaceState](#historyreplacestate)
 * [Installation](#installation)
 
 Design principals
