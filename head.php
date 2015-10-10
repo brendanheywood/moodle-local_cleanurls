@@ -36,21 +36,33 @@ if (isset($CFG->uncleanedurl)) {
 
 } else {
 
-    /**
-     * If we have just loaded a legacy url AND we can clean it, instead of
-     * cleaning the url, caching it, and waiting for the user or someone else
-     * to come back again to see the good url, we can use html5 replaceState to
-     * fix it imeditately without a page reload.
-     *
-     * Importantly this needs to happen before any JS on the page uses it, such
-     * as any analytics tracking.
-     */
-
     global $PAGE;
     $clean = $PAGE->url->out();
     $orig = $PAGE->url->orig_out();
     if ($orig != $clean) {
+
+        /**
+         * If we have just loaded a legacy url AND we can clean it, instead of
+         * cleaning the url, caching it, and waiting for the user or someone
+         * else to come back again to see the good url, we can use html5
+         * replaceState to fix it imeditately without a page reload.
+         *
+         * Importantly this needs to happen before any JS on the page uses it,
+         * such as any analytics tracking.
+         */
+
         $output .= "<script>history.replaceState && history.replaceState({}, '', '$clean');</script>\n";
+
+        /**
+         * Now that each page has two valid urls, we need to tell robots like
+         * GoogleBot that they are the same, otherwise Google may think they
+         * are low quality duplicates and possibly split pagerank between them.
+         *
+         * We specify that the clean one is the 'canonical' url so this is what
+         * will be shown in google search results pages.
+         */
+
+        $output .= "<link rel='canonical' href='$clean' />\n";
     }
 
 }

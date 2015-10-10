@@ -1,5 +1,8 @@
 * [Design principals](#design-principals)
 * [How it works](#how-it-works)
+** [Base href](#base-href)
+** [Cannonical link](#cannonical-link)
+** [History replaceState](#historyreplacestate)
 * [Installation](#installation)
 
 Design principals
@@ -60,7 +63,7 @@ the first time we render that page we clean the url and cache it for next time.
 Rewrite incoming links
 ----------------------
 
-Incoming links are diverted by an apache rewrite rule to router.php, which then
+Incoming links are diverted by an apache rewrite rule to ```router.php```, which then
 uncleans the url and passes it back into moodle which doesn't know anything was
 different.
 
@@ -78,7 +81,6 @@ relative links to the discussions.
 
 Cannoncial link
 ---------------
-TODO
 
 If a robot like google is scraping your page, we don't want to split the
 pagerank between the old and clean url, and we want to ensure that google
