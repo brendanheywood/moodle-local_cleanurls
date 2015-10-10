@@ -199,7 +199,8 @@ class local_cleanurls_test extends advanced_testcase {
         $this->assertEquals('http://www.example.com/moodle/course/shortcode/forum', $clean, "Clean: course mod index page");
 
         $unclean = clean_moodle_url::unclean($clean)->orig_out();
-        $this->assertEquals('http://www.example.com/moodle/mod/forum/index.php?id=' . $this->course->id, $unclean, "Unclean: course mod index page");
+        $this->assertEquals('http://www.example.com/moodle/mod/forum/index.php?id=' . $this->course->id, $unclean,
+            "Unclean: course mod index page");
 
         // If slash arguments are used then just skip it.
 

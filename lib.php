@@ -123,7 +123,7 @@ class clean_moodle_url extends moodle_url {
             }
 
         } else if (preg_match("/^\/mod\/(\w+)\/$/", $path, $matches) && $params['id'] ) {
-            // Clean up mod view pages. (/index has already been removed earlier)
+            // Clean up mod view pages /index has already been removed earlier.
 
             $mod = $matches[1];
 
@@ -221,11 +221,12 @@ class clean_moodle_url extends moodle_url {
 
         self::log("Incoming path: $path");
 
-        // Remove the moodle dir if present.
-        $slash = strpos($CFG->wwwroot, '/', 8);
+        // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
+        // then remove the 'somepath/moodle' part and store for later.
+        $slashpos = strpos($CFG->wwwroot, '/', 8);
         $moodle = '';
-        if ($slash) {
-            $moodle = substr($CFG->wwwroot, $slash);
+        if ($slashpos) {
+            $moodle = substr($CFG->wwwroot, $slashpos);
             $path = substr($path, strlen($moodle));
         }
 
