@@ -1,4 +1,5 @@
 * [What this plugin does](#what-this-plugin-does)
+* [Why bother?](#why-bother)
 * [Design principals](#design-principals)
   * [Backward compatible](#backward-compatibility)
   * [Speed is king](#speed-is-king)
