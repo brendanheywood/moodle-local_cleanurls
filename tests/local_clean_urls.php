@@ -175,10 +175,19 @@ class local_cleanurls_test extends advanced_testcase {
         $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
         $this->assertEquals($url, $unclean, "Unclean: user view url inside course");
 
+        $url = 'http://www.example.com/moodle/user/view.php?course=1&id=' . $this->staff->id;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/user/' . $this->staff->username . '?course=1',
+            $clean, "Clean: user profile url with username inside site course");
+
+        $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
+        $this->assertEquals($url, $unclean, "Unclean: user view url inside site course");
+
         $url = 'http://www.example.com/moodle/user/index.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/'.$this->course->shortname.'/user/', $clean,
+        $this->assertEquals('http://www.example.com/moodle/course/'.$this->course->shortname.'/user', $clean,
             "Clean: user list in course");
 
         $unclean = clean_moodle_url::unclean($clean)->orig_out(false);
