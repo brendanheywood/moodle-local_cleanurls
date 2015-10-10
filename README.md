@@ -178,21 +178,32 @@ git submodule add git@github.com:brendanheywood/moodle-local_cleanurls.git local
 ```
 
 
-Step 2: Edit /lib/weblb.php to intercept moodle_url serialization
------------------------------------------------------------------
+Step 2: Apply tiny patches to core
+-------------------------------
 
-Apply a tiny patch to core using git:
+Ideally all of this code would be in a plugin and only use core api's, or it
+would be bundled into core. In the mean time touches to two places are needed:
+
+1) moodle_url in lib/weblib.php to intercept outgoing urls
+2) standard_head_html() in lib/outputrenderers.php to include head related fixes
+
+You can apply it in one line:
 
 ```
-git apply local/cleanurls/weblib.patch
+git apply local/cleanurls/core.patch
 ```
 
+This patch it also available in github:
 
-Step 3: Add the head tag cleanup to your theme
-----------------------------------------------
+https://github.com/brendanheywood/moodle/tree/MDL-28030-cleanurls
 
+It was built using git like this
 
-Step 4: Add the apache rewrite to the custom router
+```
+git format-patch xyz123 --stdout > local/cleanurls/core.patch
+```
+
+Step 3: Add the apache rewrite to the custom router
 ---------------------------------------------------
 
 ```apache
@@ -206,6 +217,9 @@ Step 4: Add the apache rewrite to the custom router
 ```
 
 Now restart apache
+
+Step 4: Turn it on and configure
+---------------------------------------------------
 
 Go to the /admin/settings.php?section=local_cleanurls settings page and it
 should show a green success message if it detects the route rewrite is in
