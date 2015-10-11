@@ -231,17 +231,6 @@ If you have any issues then turn on the rewrite logging and tail your apache
 log for details.
 
 
-Todo
-====
-
-* [ ] rewrite modules using crumb trail heirarchy, too hard?
-* [ ] have a 'cautious' mode which cleans the url, then uncleans it on the fly to check it will work later
-* [ ] write a typial page render time
-* [ ] maximum expensive cleanings per request
-* [ ] add an admin debug page which shows all urls in the cache - can we even do this?
-* Protect against userid's and courseshortcodes which contains / ? # etc
-
-
 Contributing
 ============
 
