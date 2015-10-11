@@ -40,8 +40,9 @@ require_once('lib.php');
 
 global $CFG;
 
-clean_moodle_url::log("Router: \$_GET: ".$_GET['q']);
-$url = clean_moodle_url::unclean($CFG->wwwroot . '/' . $_GET['q']);
+$path = required_param('q', PARAM_PATH);
+clean_moodle_url::log("Router: \$_GET: ".$path);
+$url = clean_moodle_url::unclean($CFG->wwwroot . '/' . $path);
 
 foreach ($url->params() as $k => $v) {
     $_GET[$k] = $v;
