@@ -74,8 +74,8 @@ class clean_moodle_url extends moodle_url {
         $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME))+3;
         $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
         $moodle = '';
-        if ($slash) {
-            $moodle = substr($CFG->wwwroot, $slash);
+        if ($slashpos) {
+            $moodle = substr($CFG->wwwroot, $slashpos);
             $path = substr($path, strlen($moodle));
             self::log("Removed wwwroot from path: $path");
         }
@@ -242,6 +242,7 @@ class clean_moodle_url extends moodle_url {
         if ($slashpos) {
             $moodle = substr($CFG->wwwroot, $slashpos);
             $path = substr($path, strlen($moodle));
+            self::log("Removed wwwroot from path: $path");
         }
 
         // These regex's must be in order of higher specificity to lowest.
