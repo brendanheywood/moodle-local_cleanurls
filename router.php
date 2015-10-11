@@ -52,11 +52,16 @@ $file = $CFG->dirroot . $url->get_path();
 clean_moodle_url::log("Router: including file: ".$file);
 if (!is_file($file)) {
 
-    // TODO.
-    print "404!!! $file";
-    exit;
+    header("HTTP/1.0 404 Not Found");
+    $PAGE->set_url($url->get_path());
+    $PAGE->set_context(context_course::instance(SITEID));
+    $notfound = get_string('filenotfound', 'error');
+    $PAGE->set_title($notfound);
+    $PAGE->set_heading($notfound);
+    echo $OUTPUT->header();
+    echo $OUTPUT->footer();
+    die;
 }
-
 
 chdir(dirname($file));
 // TODO protect from intrusion attacks eg '../../../etc'.
