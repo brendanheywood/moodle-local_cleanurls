@@ -69,8 +69,9 @@ class clean_moodle_url extends moodle_url {
 
         self::log("Cleaning: " . $origurl . " Path is: $path");
 
-        // Remove the moodle dir if present.
-        $slash = strpos($CFG->wwwroot, '/', 8);
+        // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
+        // then remove the 'somepath/moodle' part and store for later.
+        $slash = strpos($CFG->wwwroot, '/', 9);
         $moodle = '';
         if ($slash) {
             $moodle = substr($CFG->wwwroot, $slash);
@@ -234,7 +235,7 @@ class clean_moodle_url extends moodle_url {
 
         // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
         // then remove the 'somepath/moodle' part and store for later.
-        $slashpos = strpos($CFG->wwwroot, '/', 8);
+        $slashpos = strpos($CFG->wwwroot, '/', 9);
         $moodle = '';
         if ($slashpos) {
             $moodle = substr($CFG->wwwroot, $slashpos);
