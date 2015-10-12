@@ -29,7 +29,10 @@
  */
 function local_cleanurls_url_rewrite($url) {
 
-    return clean_moodle_url::clean($url);
+    if (get_config('local_cleanurls', 'cleaningon')) {
+        return clean_moodle_url::clean($url);
+    }
+    return $url;
 
 }
 
