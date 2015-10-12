@@ -53,7 +53,7 @@ function local_cleanurls_pre_head_content() {
     } else {
 
         $clean = $PAGE->url->out();
-        $orig = $PAGE->url->raw_out();
+        $orig = $PAGE->url->raw_out(false);
         if ($orig != $clean) {
 
             // If we have just loaded a legacy url AND we can clean it, instead of
@@ -121,11 +121,12 @@ class clean_moodle_url extends moodle_url {
 
         $config = get_config('local_cleanurls');
 
-        $origurl = $orig->raw_out();
+        $origurl = $orig->raw_out(false);
+
         $cache = cache::make('local_cleanurls', 'outgoing');
         $cached = $cache->get($origurl);
         if ($cached) {
-            $clean = new moodle_url($cached);
+            $clean = new clean_moodle_url($cached);
             self::log("Found cached:" . $origurl . " => " . $cached);
             return $clean;
         }
@@ -274,7 +275,7 @@ class clean_moodle_url extends moodle_url {
         $clean->remove_all_params();
         $clean->params($params);
 
-        $cleaned = $clean->raw_out();
+        $cleaned = $clean->raw_out(false);
         $cache->set($origurl, $cleaned);
 
         self::log("Clean:".$cleaned);
@@ -321,7 +322,7 @@ class clean_moodle_url extends moodle_url {
             }
 
         } else if (preg_match("/^\/course\/(.+)\/user\/?$/", $path, $matches)) {
-            // Clean up user profile urls inside course.
+            // Clean up course user list urls inside course.
             if (!is_dir ($CFG->dirroot . '/user/' . $matches[1]) &&
                 !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")) {
                 $path = "/user/index.php";
