@@ -1,67 +1,85 @@
-From 840010c44f6fc091ee3ce511ec1ac25e5aa807e9 Mon Sep 17 00:00:00 2001
+From ccf27824e19fd906b35df333f2b21f08efc57700 Mon Sep 17 00:00:00 2001
 From: Brendan Heywood <brendan@catalyst-au.net>
-Date: Fri, 9 Oct 2015 11:13:30 +1100
-Subject: [PATCH] MDL-28030 local_cleanurls: tiny patches enabling clean urls
+Date: Mon, 12 Oct 2015 22:48:44 +1100
+Subject: [PATCH 1/2] MDL-28030 themes: Add pre_head_content hook
 
-See here for more details:
-https://github.com/brendanheywood/moodle-local_cleanurls
 ---
- lib/outputrenderers.php |    2 ++
- lib/weblib.php          |   21 ++++++++++++++++++++-
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ lib/outputrenderers.php |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/lib/outputrenderers.php b/lib/outputrenderers.php
-index 97abc70..1e6a9a7 100644
+index a42d377..3a8f1ab 100644
 --- a/lib/outputrenderers.php
 +++ b/lib/outputrenderers.php
-@@ -480,6 +480,8 @@ class core_renderer extends renderer_base {
-         // This is only set by the {@link redirect()} method
-         $output .= $this->metarefreshtag;
+@@ -475,6 +475,15 @@ class core_renderer extends renderer_base {
+         }
  
-+        include("$CFG->dirroot/local/cleanurls/head.php");
+         $output = '';
 +
-         // Check if a periodic refresh delay has been set and make sure we arn't
-         // already meta refreshing
-         if ($this->metarefreshtag=='' && $this->page->periodicrefreshdelay!==null) {
++        // Give plugins a hook to add dynamic head
++        $pluginswithfunction = get_plugins_with_function('pre_head_content', 'lib.php');
++        foreach ($pluginswithfunction as $plugins) {
++            foreach ($plugins as $function) {
++                $output .= $function();
++            }
++        }
++
+         $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . "\n";
+         $output .= '<meta name="keywords" content="moodle, ' . $this->page->title . '" />' . "\n";
+         // This is only set by the {@link redirect()} method
+-- 
+1.7.9.5
+
+
+From ecd4aa80b1786bf9817f301bfb6106df0e4c981b Mon Sep 17 00:00:00 2001
+From: Brendan Heywood <brendan@catalyst-au.net>
+Date: Mon, 12 Oct 2015 22:49:25 +1100
+Subject: [PATCH 2/2] MDL-28030 weblib: Add url_rewrite hook
+
+---
+ lib/weblib.php |   29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+
 diff --git a/lib/weblib.php b/lib/weblib.php
-index 81b075d..a84ffb9 100644
+index 81b075d..6c35408 100644
 --- a/lib/weblib.php
 +++ b/lib/weblib.php
-@@ -543,6 +543,25 @@ class moodle_url {
-     }
+@@ -557,6 +557,35 @@ class moodle_url {
+             debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
+         }
  
-     /**
-+     * Output clean urls.
++        // Give plugins an opportunity to rewrite the url.
++        $url = $this;
++        $pluginswithfunction = get_plugins_with_function('url_rewrite', 'lib.php');
++        foreach ($pluginswithfunction as $plugins) {
++            foreach ($plugins as $function) {
++                if (($pluginurl = $function($url)) && ($pluginurl instanceof moodle_url)) {
++                    $url = $pluginurl;
++                }
++            }
++        }
++
++        return $url->raw_out($escaped, $overrideparams);
++
++    }
++
++    /**
++     * Output url without any rewrites
 +     *
-+     * This is a proxy of the core method to rewrite urls into clean urls
++     * This is identical in signature and use to out() but doesn't call the rewrite hook.
 +     *
 +     * @param bool $escaped Use &amp; as params separator instead of plain &
 +     * @param array $overrideparams params to add to the output url, these override existing ones with the same name.
 +     * @return string Resulting URL
 +     */
-+    public function out($escaped = true, array $overrideparams = null) {
-+        global $CFG;
-+        require_once($CFG->dirroot.'/local/cleanurls/lib.php');
-+        $murl = $this;
-+        if (get_config('local_cleanurls', 'cleaningon')) {
-+            $murl = clean_moodle_url::clean($murl);
++    public function raw_out($escaped = true, array $overrideparams = null) {
++        if (!is_bool($escaped)) {
++            debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
 +        }
-+        return $murl->orig_out($escaped, $overrideparams);
-+    }
 +
-+    /**
-      * Output url.
-      *
-      * If you use the returned URL in HTML code, you want the escaped ampersands. If you use
-@@ -552,7 +571,7 @@ class moodle_url {
-      * @param array $overrideparams params to add to the output url, these override existing ones with the same name.
-      * @return string Resulting URL
-      */
--    public function out($escaped = true, array $overrideparams = null) {
-+    public function orig_out($escaped = true, array $overrideparams = null) {
-         if (!is_bool($escaped)) {
-             debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
-         }
+         $uri = $this->out_omit_querystring().$this->slashargument;
+ 
+         $querystring = $this->get_query_string($escaped, $overrideparams);
 -- 
 1.7.9.5
 
