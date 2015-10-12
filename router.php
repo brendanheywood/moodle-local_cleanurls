@@ -65,7 +65,6 @@ if (!is_file($file)) {
 }
 
 chdir(dirname($file));
-// TODO protect from intrusion attacks eg '../../../etc'.
-$CFG->uncleanedurl = $url->orig_out(false);
+$CFG->uncleanedurl = $url->raw_out(false);
 require($file);
 

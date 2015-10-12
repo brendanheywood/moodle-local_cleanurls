@@ -21,6 +21,63 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Convert moodle_urls into clean_moodle_urls if possible
+ *
+ * @param $url moodle_url a url to potentially rewrite
+ * @return moodle_url
+ */
+function local_cleanurls_url_rewrite($url) {
+
+    return clean_moodle_url::clean($url);
+
+}
+
+function local_cleanurls_pre_head_content() {
+
+    global $CFG, $PAGE;
+
+    $output = '';
+
+    if (isset($CFG->uncleanedurl)) {
+
+        // One issue is that when rewriting urls we change their nesting and depth
+        // which means legacy urls in the codebase which do NOT use moodle_url and
+        // which are also relative links can be broken. To fix this we set the
+        // base href to the original uncleaned url.
+        $output .= "<base href='$CFG->uncleanedurl'>\n";
+
+    } else {
+
+        $clean = $PAGE->url->out();
+        $orig = $PAGE->url->raw_out();
+        if ($orig != $clean) {
+
+            // If we have just loaded a legacy url AND we can clean it, instead of
+            // cleaning the url, caching it, and waiting for the user or someone
+            // else to come back again to see the good url, we can use html5
+            // replaceState to fix it imeditately without a page reload.
+            //
+            // Importantly this needs to happen before any JS on the page uses it,
+            // such as any analytics tracking.
+            $output .= "<script>history.replaceState && history.replaceState({}, '', '$clean');</script>\n";
+
+            // Now that each page has two valid urls, we need to tell robots like
+            // GoogleBot that they are the same, otherwise Google may think they
+            // are low quality duplicates and possibly split pagerank between them.
+            //
+            // We specify that the clean one is the 'canonical' url so this is what
+            // will be shown in google search results pages.
+            $output .= "<link rel='canonical' href='$clean' />\n";
+
+            apache_note('CLEANURL', $clean);
+
+        }
+
+    }
+    return $output;
+}
+
 class clean_moodle_url extends moodle_url {
 
     /*
@@ -46,10 +103,13 @@ class clean_moodle_url extends moodle_url {
     }
 
     /*
-     * Takes a moodle_url and either returns a cloned object with cleaned properties
-     * of if nothing is done the original object
+     * Takes a moodle_url and either returns a clean_moodle_url object with
+     * clean cloned properties or if nothing is done the original object.
+     *
+     * @param $orig moodle_url
+     * @return moodle_url
      */
-    public static function clean($orig) {
+    public static function clean(moodle_url $orig) {
 
         global $DB, $CFG;
 
@@ -58,7 +118,7 @@ class clean_moodle_url extends moodle_url {
 
         $config = get_config('local_cleanurls');
 
-        $origurl = $orig->orig_out();
+        $origurl = $orig->raw_out();
         $cache = cache::make('local_cleanurls', 'outgoing');
         $cached = $cache->get($origurl);
         if ($cached) {
@@ -71,7 +131,7 @@ class clean_moodle_url extends moodle_url {
 
         // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
         // then remove the 'somepath/moodle' part and store for later.
-        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME))+3;
+        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME)) + 3;
         $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
         $moodle = '';
         if ($slashpos) {
@@ -206,16 +266,16 @@ class clean_moodle_url extends moodle_url {
             return $orig;
         }
 
-        $clone = new moodle_url($orig);
-        $clone->path = $moodle . $path;
-        $clone->remove_all_params();
-        $clone->params($params);
+        $clean = new clean_moodle_url($orig);
+        $clean->path = $moodle . $path;
+        $clean->remove_all_params();
+        $clean->params($params);
 
-        $cleaned = $clone->out();
+        $cleaned = $clean->raw_out();
         $cache->set($origurl, $cleaned);
 
         self::log("Clean:".$cleaned);
-        return $clone;
+        return $clean;
 
     }
 
@@ -236,7 +296,7 @@ class clean_moodle_url extends moodle_url {
 
         // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
         // then remove the 'somepath/moodle' part and store for later.
-        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME))+3;
+        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME)) + 3;
         $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
         $moodle = '';
         if ($slashpos) {
@@ -320,4 +380,5 @@ class clean_moodle_url extends moodle_url {
         return $url;
 
     }
+
 }
