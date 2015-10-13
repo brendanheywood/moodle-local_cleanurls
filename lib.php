@@ -144,6 +144,12 @@ class clean_moodle_url extends moodle_url {
             self::log("Removed wwwroot from path: $path");
         }
 
+        // Ignore any admin urls for safety.
+        if (substr($path, 0, 6) == '/admin') {
+            self::log("Ignoring admin url");
+            return $orig;
+        }
+
         // Ignore any theme files.
         if (substr($path, 0, 6) == '/theme') {
             self::log("Ignoring theme file");
