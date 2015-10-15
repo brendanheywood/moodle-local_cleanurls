@@ -90,13 +90,13 @@ removing extaneous information such as the php extension. eg
 /course/MATH101/lesson/6-how-to-do-matrix-multiplication
 
 Note we have also added redundant heirarchical information, ie the course path
-compents. This immediately gives context, but is also useful to non humans,
-such as for Google Analytics to create 'dill down' reports.
+components. This immediately gives context, but is also useful to non humans,
+such as for Google Analytics to create 'drill down' reports.
 
 Automatic
 ---------
 Moodle already has rich meta data which we can leverage to produce clean
-url's. We don't want the site admins, let along the teachers, to have to do
+url's. We don't want the site admins, let alone the teachers, to have to do
 anything extra. It should Just Work.
 
 How it works
@@ -105,11 +105,11 @@ How it works
 Rewrite outgoing links
 ----------------------
 
-This plugins add a very small hack to the ```moodle_url->out()``` method which
+This plugin adds a very small hack to the ```moodle_url->out()``` method which
 cleans the links that moodle renders onto a page. It applies a variety of safe
 tranformations, and if the more aggressive settings are on, it applies some
 much deeper tranformations by reaching into the moodle navigation heirarchy to
-add extra redundant path elements to the url. Unfortunely we can often read
+add extra redundant path elements to the url. Unfortunately we can't often read
 this information until we are on the page that uses them, or a nearby page, so
 the first time we render that page we clean the url and cache it for next time.
 
@@ -125,8 +125,8 @@ Base href
 ---------
 
 Not every moodle link uses moodle_url, and some may also use relative links.
-Because the clean url may be wildy different to the original these legacy links
-will break. To fix this we add a base href tag of the original url to any pages
+Because the clean url may be wildy different to the original, these legacy links
+will break. To fix this, we add a base href tag of the original url to any pages
 with a rewritten url. An example of these are the module index pages which use
 relative links to the discussions.
 
@@ -151,7 +151,7 @@ history.replaceState
 --------------------
 
 The are many ways a url gets shared, copy and paste, a 'share' widget etc. We
-want the url to be correct as soon as possibly, so even if the link we clicked
+want the url to be correct as soon as possible, so even if the link we clicked
 on was an normal moodle url, we replace this as soon as possible using html5
 history.replaceState()
 
