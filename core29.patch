@@ -1,0 +1,65 @@
+From 32ef940a4ae9b256373f6957252e6347c0e12c9d Mon Sep 17 00:00:00 2001
+From: Marcus Boon <marcus@catalyst-au.net>
+Date: Thu, 15 Oct 2015 13:38:02 +1000
+Subject: [PATCH] Applied patch to lib/outputrenderers.php and lib/weblib.php
+ for local_cleanurls to work
+
+---
+ lib/outputrenderers.php |  5 +++++
+ lib/weblib.php          | 24 ++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+
+diff --git a/lib/outputrenderers.php b/lib/outputrenderers.php
+index df87d34..5d2474f 100644
+--- a/lib/outputrenderers.php
++++ b/lib/outputrenderers.php
+@@ -474,6 +474,11 @@ class core_renderer extends renderer_base {
+         }
+ 
+         $output = '';
++
++        // Give plugins a hook to add dynamic head
++        require_once($CFG->dirroot.'/local/cleanurls/lib.php');
++        $output .= local_cleanurls_pre_head_content();
++
+         $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . "\n";
+         $output .= '<meta name="keywords" content="moodle, ' . $this->page->title . '" />' . "\n";
+         // This is only set by the {@link redirect()} method
+diff --git a/lib/weblib.php b/lib/weblib.php
+index 28f7566..68dbabe 100644
+--- a/lib/weblib.php
++++ b/lib/weblib.php
+@@ -577,6 +577,30 @@ class moodle_url {
+      * @return string Resulting URL
+      */
+     public function out($escaped = true, array $overrideparams = null) {
++        global $CFG;
++
++        if (!is_bool($escaped)) {
++            debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
++        }
++
++        // Give plugins an opportunity to rewrite the url.
++        require_once($CFG->dirroot.'/local/cleanurls/lib.php');
++        $url = local_cleanurls_url_rewrite($this);
++
++        return $url->raw_out($escaped, $overrideparams);
++
++    }
++
++    /**
++     * Output url without any rewrites
++     *
++     * This is identical in signature and use to out() but doesn't call the rewrite hook.
++     *
++     * @param bool $escaped Use &amp; as params separator instead of plain &
++     * @param array $overrideparams params to add to the output url, these override existing ones with the same name.
++     * @return string Resulting URL
++     */
++    public function raw_out($escaped = true, array $overrideparams = null) {
+         if (!is_bool($escaped)) {
+             debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
+         }
+-- 
+2.6.1
+
