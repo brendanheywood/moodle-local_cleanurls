@@ -190,8 +190,16 @@ time touches to two places are needed:
 
 You can apply it in one line:
 
+For Moodle 3.0 and above:
+
 ```
-git apply local/cleanurls/core.patch
+git apply local/cleanurls/core30.patch
+```
+
+For Moodle 2.9:
+
+```
+git apply local/cleanurls/core29.patch
 ```
 
 This patch it also available in github:
