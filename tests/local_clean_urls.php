@@ -67,6 +67,7 @@ class local_cleanurls_test extends advanced_testcase {
         $this->assertEquals($url, $clean, "Urls shouldn't be touched if cleaning setting is off");
 
         set_config('cleaningon', 1, 'local_cleanurls');
+        set_config('enableurlrewrite', 1);
 
         $url = 'http://www.example.com/moodle/theme/whatever.php';
         $murl = new moodle_url($url);
@@ -77,6 +78,11 @@ class local_cleanurls_test extends advanced_testcase {
         $murl = new moodle_url($url);
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: Lib files should not be touched");
+
+        $url = 'http://www.example.com/moodle/help.php?blah=foo';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals($url, $clean, "Nothing: Help files should not be touched");
 
         $url = 'http://www.example.com/moodle/course/view.php?edit=1&id=' . $this->course->id;
         $murl = new moodle_url($url);

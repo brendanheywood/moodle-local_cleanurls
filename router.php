@@ -40,7 +40,7 @@ require_once('lib.php');
 
 global $CFG;
 
-$path = required_param('q', PARAM_PATH);
+$path = required_param('q', PARAM_PATH); // TODO should use PARAM_SAFEPATH instead?
 clean_moodle_url::log("Router: \$_GET: ".$path);
 $url = clean_moodle_url::unclean($CFG->wwwroot . '/' . $path);
 
@@ -66,5 +66,8 @@ if (!is_file($file)) {
 
 chdir(dirname($file));
 $CFG->uncleanedurl = $url->raw_out(false);
+
+// If we require any file which defines NO_MOODLE_COOKIES then it will complain
+// so perhaps safer to black list these. May be similar issue with other defines.
 require($file);
 

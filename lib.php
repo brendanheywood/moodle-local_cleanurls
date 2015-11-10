@@ -150,6 +150,12 @@ class clean_moodle_url extends moodle_url {
             return $orig;
         }
 
+        // Ignore any help urls for safety.
+        if (substr($path, 0, 5) == '/help') {
+            self::log("Ignoring help url");
+            return $orig;
+        }
+
         // Ignore any theme files.
         if (substr($path, 0, 6) == '/theme') {
             self::log("Ignoring theme file");

@@ -237,4 +237,5 @@ Contributing
 * Pull requests welcome!
 * You may find that certain links in moodle core, or particular plugins don't use moodle_url - so best patch them and push back upstream
 
+TODO global settings check in settings page
 
