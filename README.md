@@ -181,16 +181,14 @@ git submodule add git@github.com:brendanheywood/moodle-local_cleanurls.git local
 Step 2: Apply tiny patches to core
 -------------------------------
 
-Ideally all of this code would be in a plugin and only use core api's (but the
-api's we need don't exist yet), or it would be bundled into core. In the mean
-time touches to two places are needed:
+This plugin uses core api's which were only added 3.1 - two new hooks in:
 
 1) moodle_url in lib/weblib.php to intercept outgoing urls
 2) standard_head_html() in lib/outputrenderers.php to include head related fixes
 
-You can apply it in one line:
+You can apply it in one line for 2.9 and 3.0:
 
-For Moodle 3.0 and above:
+For Moodle 3.0:
 
 ```
 git apply local/cleanurls/core30.patch
@@ -230,9 +228,11 @@ Now restart apache
 Step 4: Turn it on and configure
 ---------------------------------------------------
 
-Go to the /admin/settings.php?section=local_cleanurls settings page and it
+1) Search for an admin setting 'enableurlrewrite' and enable it.
+
+2) Go to the /admin/settings.php?section=local_cleanurls settings page and it
 should show a green success message if it detects the router rewrite is in
-place and working.
+place and working. If not check step 3.
 
 Now you can Tick the box turning on the rewrites and tune the other options
 If you have any issues then turn on the rewrite logging and tail your apache

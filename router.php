@@ -24,7 +24,6 @@
 
 This is what all traffic should be routed to in apache, which doesn't match an existing file or directory
 
-
  <Directory /var/www/example.com>
    RewriteEngine on
    RewriteBase /
@@ -53,19 +52,23 @@ $file = $CFG->dirroot . $url->get_path();
 clean_moodle_url::log("Router: including file: ".$file);
 if (!is_file($file)) {
 
-    header("HTTP/1.0 404 Not Found");
-    $PAGE->set_url($url->get_path());
-    $PAGE->set_context(context_course::instance(SITEID));
-    $notfound = get_string('filenotfound', 'error');
-    $PAGE->set_title($notfound);
-    $PAGE->set_heading($notfound);
-    echo $OUTPUT->header();
-    echo $OUTPUT->footer();
-    die;
+    // header("HTTP/1.0 404 Not Found");
+    // $PAGE->set_url($url->get_path());
+    // $PAGE->set_context(context_course::instance(SITEID));
+    // $notfound = get_string('filenotfound', 'error');
+    // $PAGE->set_title($notfound);
+    // $PAGE->set_heading($notfound);
+    // echo $OUTPUT->header();
+    // echo $OUTPUT->footer();
+    // die;
+    $file = $CFG->dirroot . '/error/index.php';
+    clean_moodle_url::log("Router: Not found, showing 404 instead: ".$file);
 }
 
 chdir(dirname($file));
 $CFG->uncleanedurl = $url->raw_out(false);
+
+e($CFG->libdir);
 
 // If we require any file which defines NO_MOODLE_COOKIES then it will complain
 // so perhaps safer to black list these. May be similar issue with other defines.
