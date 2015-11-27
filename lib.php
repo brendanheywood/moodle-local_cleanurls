@@ -28,10 +28,12 @@
  * @return moodle_url
  */
 function local_cleanurls_url_rewrite($url) {
-
-    if (get_config('local_cleanurls', 'cleaningon')) {
-        return clean_moodle_url::clean($url);
+    if (!empty($CFG->upgraderunning)) {
+        if (get_config('local_cleanurls', 'cleaningon')) {
+            return clean_moodle_url::clean($url);
+        }
     }
+
     return $url;
 
 }
