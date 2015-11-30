@@ -52,17 +52,17 @@ $file = $CFG->dirroot . $url->get_path();
 clean_moodle_url::log("Router: including file: ".$file);
 if (!is_file($file)) {
 
-    // header("HTTP/1.0 404 Not Found");
-    // $PAGE->set_url($url->get_path());
-    // $PAGE->set_context(context_course::instance(SITEID));
-    // $notfound = get_string('filenotfound', 'error');
-    // $PAGE->set_title($notfound);
-    // $PAGE->set_heading($notfound);
-    // echo $OUTPUT->header();
-    // echo $OUTPUT->footer();
-    // die;
-    $file = $CFG->dirroot . '/error/index.php';
     clean_moodle_url::log("Router: Not found, showing 404 instead: ".$file);
+    header("HTTP/1.0 404 Not Found");
+    $PAGE->set_url($url->get_path());
+    $PAGE->set_context(context_course::instance(SITEID));
+    $notfound = get_string('filenotfound', 'error');
+    $PAGE->set_title($notfound);
+    $PAGE->set_heading($notfound);
+    echo $OUTPUT->header();
+    echo $OUTPUT->footer();
+    die;
+    // TODO change core /error/index.php so we can forward to it.
 }
 
 chdir(dirname($file));

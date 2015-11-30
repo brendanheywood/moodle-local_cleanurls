@@ -89,7 +89,9 @@ class clean_moodle_url extends moodle_url {
     public static function log($msg) {
 
         $debug = get_config('local_cleanurls', 'debugging');
+        // @codingStandardsIgnoreStart
         $debug && error_log($msg);
+        // @codingStandardsIgnoreEnd
 
     }
 
