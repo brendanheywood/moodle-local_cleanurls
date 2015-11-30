@@ -1,3 +1,8 @@
+<a href="https://travis-ci.org/brendanheywood/moodle-local_cleanurls">
+<img src="https://travis-ci.org/brendanheywood/moodle-tool_local_cleanurls.svg?branch=master">
+</a>
+
+
 * [What this plugin does](#what-this-plugin-does)
 * [Why bother?](#why-bother)
 * [Design principals](#design-principals)
