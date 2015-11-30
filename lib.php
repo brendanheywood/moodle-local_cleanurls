@@ -150,6 +150,12 @@ class clean_moodle_url extends moodle_url {
             return $orig;
         }
 
+        // Ignore any auth urls for safety.
+        if (substr($path, 0, 5) == '/auth') {
+            self::log("Ignoring auth url");
+            return $orig;
+        }
+
         // Ignore any help urls for safety.
         if (substr($path, 0, 5) == '/help') {
             self::log("Ignoring help url");

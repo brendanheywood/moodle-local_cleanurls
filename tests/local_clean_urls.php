@@ -30,8 +30,6 @@ class local_cleanurls_test extends advanced_testcase {
     private $course;
 
     protected function setUp() {
-        global $DB;
-        global $CFG;
         parent::setup();
         $this->resetAfterTest(true);
 
@@ -54,7 +52,7 @@ class local_cleanurls_test extends advanced_testcase {
     }
 
     public function test_local_cleanurls_simple() {
-        global $DB, $CFG;
+        global $CFG;
         $this->resetAfterTest(true);
         require_once("$CFG->dirroot/local/cleanurls/lib.php");
 
@@ -125,7 +123,12 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/admin/settings.php?section=local_cleanurls';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals($url, $clean, "Clean: Don't clean when clash with directory");
+        $this->assertEquals($url, $clean, "Clean: Don't clean any admin paths");
+
+        $url = 'http://www.example.com/moodle/auth/foo/bar.php';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals($url, $clean, "Clean: Don't clean any auth paths");
 
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
@@ -164,7 +167,7 @@ class local_cleanurls_test extends advanced_testcase {
 
         set_config('cleanusernames', 1, 'local_cleanurls');
 
-        // If we change url config then we need to throw away the cache
+        // If we change url config then we need to throw away the cache.
         purge_all_caches();
 
         $url = 'http://www.example.com/moodle/user/profile.php?id=' . $this->staff->id;
