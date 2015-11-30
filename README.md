@@ -1,5 +1,5 @@
 <a href="https://travis-ci.org/brendanheywood/moodle-local_cleanurls">
-<img src="https://travis-ci.org/brendanheywood/moodle-tool_local_cleanurls.svg?branch=master">
+<img src="https://travis-ci.org/brendanheywood/moodle-local_cleanurls.svg?branch=master">
 </a>
 
 
