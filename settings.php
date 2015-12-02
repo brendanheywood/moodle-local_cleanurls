@@ -34,21 +34,32 @@ if ($hassiteconfig) {
 
         $section = optional_param('section', '', PARAM_RAW);
 
-        $routertest = '';
+        $test = '';
 
         // If we are on the settings page then also run a router test.
         if ($section == 'local_cleanurls') {
             $result = @file_get_contents($CFG->wwwroot . '/local/cleanurls/tests/file');
             if ($result == 'OK') {
-                $routertest = $OUTPUT->notification(get_string('routerok', 'local_cleanurls'), 'notifysuccess');
+                $test .= $OUTPUT->notification(get_string('routerok', 'local_cleanurls'), 'notifysuccess');
             } else {
-                $routertest = $OUTPUT->notification(get_string('routerbroken', 'local_cleanurls'), 'notifyfailure');
+                $test .= $OUTPUT->notification(get_string('routerbroken', 'local_cleanurls'), 'notifyfailure');
             }
         }
 
+        $rewritetest = false;
+        $result = isset($CFG->urlrewritefunction)  && $CFG->urlrewritefunction == 'local_cleanurls_url_rewrite' &&
+            isset($CFG->urlrewritefile) && $CFG->urlrewritefile == "local/cleanurls/lib.php";
+
+        if ($result) {
+            $test .= $OUTPUT->notification(get_string('rewriteok', 'local_cleanurls'), 'notifysuccess');
+        } else {
+            $test .= $OUTPUT->notification(get_string('rewritebroken', 'local_cleanurls'), 'notifyfailure');
+        }
+
+
         $settings->add(new admin_setting_configcheckbox('local_cleanurls/cleaningon',
                         new lang_string('cleaningon',         'local_cleanurls'),
-                        new lang_string('cleaningonhelp',     'local_cleanurls') . $routertest, 0));
+                        new lang_string('cleaningonhelp',     'local_cleanurls') . $test, 0));
 
         $settings->add(new admin_setting_configcheckbox('local_cleanurls/cleanusernames',
                         new lang_string('cleanusernames',     'local_cleanurls'),
