@@ -31,7 +31,7 @@ $string['cleaningonhelp'] = 'Off by default until the routing is added to apache
 $string['routerok'] = 'Rewrite router is working';
 $string['routerbroken'] = 'Rewrite router is NOT working';
 $string['rewriteok'] = 'Rewrite function is configured properly';
-$string['rewritebroken'] = 'Rewrite router is NOT configured, please add this to your config.php:<br>
+$string['rewritebroken'] = 'Rewrite function is NOT configured, please add this to your config.php:<br>
 <pre>
 $CFG->urlrewritefunction = "local_cleanurls_url_rewrite";
 $CFG->urlrewritefile = "local/cleanurls/lib.php";
