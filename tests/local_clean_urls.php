@@ -59,6 +59,9 @@ class local_cleanurls_test extends advanced_testcase {
         set_config('cleaningon', 0, 'local_cleanurls');
         set_config('cleanusernames', 0, 'local_cleanurls');
 
+        $CFG->urlrewritefunction = "local_cleanurls_url_rewrite";
+        $CFG->urlrewritefile = 'local/cleanurls/lib.php';
+
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
