@@ -31,7 +31,7 @@ use \moodle_url;
 /**
  * A clean url rewriter
  */
-class url_rewrite {
+class url_rewriter {
 
     /**
      * Convert moodle_urls into clean_moodle_urls if possible
@@ -40,6 +40,8 @@ class url_rewrite {
      * @return moodle_url
      */
     static function url_rewrite(moodle_url $url) {
+
+        global $CFG;
 
         if (empty($CFG->upgraderunning)) {
             if (get_config('local_cleanurls', 'cleaningon')) {

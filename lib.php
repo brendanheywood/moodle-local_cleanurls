@@ -67,7 +67,7 @@ function local_cleanurls_pre_head_content() {
             // data. To workaround this we publish an apache note so that we can
             // put the clean url into the logs like this:
             //
-            //  LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" formatname
+            //  LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" ...
             apache_note('CLEANURL', $clean);
 
         }
