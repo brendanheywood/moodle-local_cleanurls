@@ -31,7 +31,7 @@ use \moodle_url;
 /**
  * A clean url rewriter
  */
-class url_rewriter {
+class url_rewriter implements \core\output\url_rewriter {
 
     /**
      * Convert moodle_urls into clean_moodle_urls if possible
@@ -39,7 +39,7 @@ class url_rewriter {
      * @param $url moodle_url a url to potentially rewrite
      * @return moodle_url
      */
-    public static function url_rewrite(moodle_url $url) {
+    public static function url_rewrite(\moodle_url $url) {
 
         global $CFG;
 
