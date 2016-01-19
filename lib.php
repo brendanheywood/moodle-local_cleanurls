@@ -59,6 +59,15 @@ function local_cleanurls_pre_head_content() {
             // will be shown in google search results pages.
             $output .= "<link rel='canonical' href='$clean' />\n";
 
+            // At this point the url is already clean, so analytics which run in
+            // the page like Google Analytics will only use clean urls and so you
+            // will get nice drill down reports etc. However analytics software
+            // that parses the apache logs will see the raw original url. Worse
+            // it will see some as clean and some as unclean and get inconsistent
+            // data. To workaround this we publish an apache note so that we can
+            // put the clean url into the logs like this:
+            //
+            //  LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" formatname
             apache_note('CLEANURL', $clean);
 
         }
