@@ -15,8 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    local
- * @subpackage cleanurls
+ * The url_rewriter which should be configured in config.php
+ *
+ * @package    local_cleanurls
  * @author     Brendan Heywood <brendan@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,6 +31,10 @@ use \moodle_url;
 
 /**
  * A clean url rewriter
+ *
+ * @author     Brendan Heywood <brendan@catalyst-au.net>
+ * @copyright  Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class url_rewriter implements \core\output\url_rewriter {
 

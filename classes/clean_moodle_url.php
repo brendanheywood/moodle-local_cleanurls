@@ -13,9 +13,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * @package    local
- * @subpackage cleanurls
+ * The main cleaning and uncleaning logic
+ *
+ * @package    local_cleanurls
  * @author     Brendan Heywood <brendan@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,10 +27,20 @@ namespace local_cleanurls;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * The main cleaning and uncleaning logic
+ *
+ * @package    local_cleanurls
+ * @author     Brendan Heywood <brendan@catalyst-au.net>
+ * @copyright  Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class clean_moodle_url extends \moodle_url {
 
-    /*
+    /**
+     * A log util for debugging
      *
+     * @param $msg an log message
      */
     public static function log($msg) {
 
@@ -39,6 +51,13 @@ class clean_moodle_url extends \moodle_url {
 
     }
 
+    /**
+     * A util for crafting human readable url components
+     *
+     * @param $string string a string to url escape and prettify
+     * @param $dash boolean if present a dash is prepended
+     * @return string
+     */
     public static function sluggify($string, $dash) {
 
         $string = strtolower($string);
@@ -51,7 +70,7 @@ class clean_moodle_url extends \moodle_url {
 
     }
 
-    /*
+    /**
      * Takes a moodle_url and either returns a clean_moodle_url object with
      * clean cloned properties or if nothing is done the original object.
      *
@@ -247,8 +266,11 @@ class clean_moodle_url extends \moodle_url {
 
     }
 
-    /*
+    /**
      * Takes a string and converts it into an unclean moodle_url object
+     *
+     * @param $clean the incoming url
+     * @return \moodle_url the original moodle_url
      */
     public static function unclean($clean) {
 

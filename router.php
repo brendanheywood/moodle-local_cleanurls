@@ -13,26 +13,23 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * @package    local
- * @subpackage cleanurls
+ * An apache rewrite handler for all incoming urls which doesn't match an existing file or directory
+ *
+ * <Directory /var/www/example.com>
+ *   RewriteEngine on
+ *   RewriteBase /
+ *   RewriteCond %{REQUEST_FILENAME} !-f
+ *   RewriteCond %{REQUEST_FILENAME} !-d
+ *   RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,QSA]
+ * </Directory>
+ *
+ * @package    local_cleanurls
  * @author     Brendan Heywood <brendan@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-/*
-
-This is what all traffic should be routed to in apache, which doesn't match an existing file or directory
-
- <Directory /var/www/example.com>
-   RewriteEngine on
-   RewriteBase /
-   RewriteCond %{REQUEST_FILENAME} !-f
-   RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,QSA]
-</Directory>
-
-*/
 
 require('../../config.php');
 require_once('lib.php');

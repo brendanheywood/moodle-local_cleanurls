@@ -14,21 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * @package    local
- * @subpackage cleanurls
+ * Tests
+ *
+ * @package    local_cleanurls
  * @author     Brendan Heywood <brendan@catalyst-au.net>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden');
+
+/**
+ * Tests
+ *
+ * @package    local_cleanurls
+ * @author     Brendan Heywood <brendan@catalyst-au.net>
+ * @copyright  Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class local_cleanurls_test extends advanced_testcase {
 
+    /** @var A course category */
     private $category;
+
+    /** @var A test course */
     private $course;
 
+    /**
+     * Create some test users, courses and modules
+     */
     protected function setUp() {
         parent::setup();
         $this->resetAfterTest(true);
@@ -51,6 +66,9 @@ class local_cleanurls_test extends advanced_testcase {
 
     }
 
+    /**
+     * Test the cleaning and uncleaning rules
+     */
     public function test_local_cleanurls_simple() {
         global $CFG;
         $this->resetAfterTest(true);
