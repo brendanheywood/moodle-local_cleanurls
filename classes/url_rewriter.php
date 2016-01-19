@@ -41,7 +41,7 @@ class url_rewriter implements \core\output\url_rewriter {
     /**
      * Convert moodle_urls into clean_moodle_urls if possible
      *
-     * @param $url moodle_url a url to potentially rewrite
+     * @param moodle_url $url a url to potentially rewrite
      * @return moodle_url
      */
     public static function url_rewrite(\moodle_url $url) {

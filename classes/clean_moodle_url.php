@@ -40,7 +40,7 @@ class clean_moodle_url extends \moodle_url {
     /**
      * A log util for debugging
      *
-     * @param $msg an log message
+     * @param string $msg an log message
      */
     public static function log($msg) {
 
@@ -54,8 +54,8 @@ class clean_moodle_url extends \moodle_url {
     /**
      * A util for crafting human readable url components
      *
-     * @param $string string a string to url escape and prettify
-     * @param $dash boolean if present a dash is prepended
+     * @param string $string a string to url escape and prettify
+     * @param boolean $dash if present a dash is prepended
      * @return string
      */
     public static function sluggify($string, $dash) {
@@ -74,7 +74,7 @@ class clean_moodle_url extends \moodle_url {
      * Takes a moodle_url and either returns a clean_moodle_url object with
      * clean cloned properties or if nothing is done the original object.
      *
-     * @param $orig moodle_url
+     * @param moodle_url $orig a url to clean
      * @return moodle_url
      */
     public static function clean(\moodle_url $orig) {
@@ -269,7 +269,7 @@ class clean_moodle_url extends \moodle_url {
     /**
      * Takes a string and converts it into an unclean moodle_url object
      *
-     * @param $clean the incoming url
+     * @param string $clean the incoming url
      * @return \moodle_url the original moodle_url
      */
     public static function unclean($clean) {
