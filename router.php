@@ -40,8 +40,8 @@ require_once('lib.php');
 global $CFG;
 
 $path = required_param('q', PARAM_PATH); // TODO should use PARAM_SAFEPATH instead?
-clean_moodle_url::log("Router: \$_GET: ".$path);
-$url = clean_moodle_url::unclean($CFG->wwwroot . '/' . $path);
+local_cleanurls\clean_moodle_url::log("Router: \$_GET: ".$path);
+$url = local_cleanurls\clean_moodle_url::unclean($CFG->wwwroot . '/' . $path);
 
 foreach ($url->params() as $k => $v) {
     $_GET[$k] = $v;
@@ -49,7 +49,7 @@ foreach ($url->params() as $k => $v) {
 
 $file = $CFG->dirroot . $url->get_path();
 
-clean_moodle_url::log("Router: including file: ".$file);
+local_cleanurls\clean_moodle_url::log("Router: including file: ".$file);
 if (!is_file($file)) {
 
     clean_moodle_url::log("Router: Not found, showing 404 instead: ".$file);
@@ -67,8 +67,6 @@ if (!is_file($file)) {
 
 chdir(dirname($file));
 $CFG->uncleanedurl = $url->raw_out(false);
-
-e($CFG->libdir);
 
 // If we require any file which defines NO_MOODLE_COOKIES then it will complain
 // so perhaps safer to black list these. May be similar issue with other defines.

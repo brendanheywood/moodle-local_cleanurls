@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * @package    local
  * @subpackage cleanurls
@@ -23,21 +22,32 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_cleanurls;
+
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Clean URLs';
-$string['cleaningon'] = 'Cleaning on';
-$string['cleaningonhelp'] = 'Off by default until the routing is added to apache first<br>';
-$string['routerok'] = 'Rewrite router is working';
-$string['routerbroken'] = 'Rewrite router is NOT working';
-$string['rewriteok'] = 'Rewrite function is configured properly';
-$string['rewritebroken'] = 'Rewrite function is NOT configured, please add this to your config.php:<br>
-<pre>
-$CFG->urlrewriteclass = "\local_cleanurls\url_rewrite";
-</pre>';
-$string['cleanusernames'] = 'Rewrite userid\'s into usernames?';
-$string['cleanusernameshelp'] = '<p>If username\'s change this is not recommended.</p><p>If on this may also be a privacy issue if your usernames expose anything sensitive.</p>';
-$string['debugging'] = 'Debugging on';
-$string['debugginghelp'] = 'Logs rewrite process to php error log';
-$string['cachedef_outgoing'] = 'Cleaned url mapping';
+use \moodle_url;
+
+/**
+ * A clean url rewriter
+ */
+class url_rewrite {
+
+    /**
+     * Convert moodle_urls into clean_moodle_urls if possible
+     *
+     * @param $url moodle_url a url to potentially rewrite
+     * @return moodle_url
+     */
+    static function url_rewrite(moodle_url $url) {
+
+        if (empty($CFG->upgraderunning)) {
+            if (get_config('local_cleanurls', 'cleaningon')) {
+                return clean_moodle_url::clean($url);
+            }
+        }
+
+        return $url;
+    }
+}
 

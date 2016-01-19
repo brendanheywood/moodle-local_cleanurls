@@ -47,8 +47,7 @@ if ($hassiteconfig) {
         }
 
         $rewritetest = false;
-        $result = isset($CFG->urlrewritefunction)  && $CFG->urlrewritefunction == 'local_cleanurls_url_rewrite' &&
-            isset($CFG->urlrewritefile) && $CFG->urlrewritefile == "local/cleanurls/lib.php";
+        $result = isset($CFG->urlrewriteclass)  && $CFG->urlrewriteclass == '\local_cleanurls\url_rewrite';
 
         if ($result) {
             $test .= $OUTPUT->notification(get_string('rewriteok', 'local_cleanurls'), 'notifysuccess');
