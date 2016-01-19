@@ -39,7 +39,7 @@ class url_rewriter {
      * @param $url moodle_url a url to potentially rewrite
      * @return moodle_url
      */
-    static function url_rewrite(moodle_url $url) {
+    public static function url_rewrite(moodle_url $url) {
 
         global $CFG;
 
