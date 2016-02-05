@@ -56,5 +56,66 @@ class url_rewriter implements \core\output\url_rewriter {
 
         return $url;
     }
+
+    /**
+     * Gives a url rewriting plugin a chance to rewrite the current page url
+     * avoiding redirects and improving performance.
+     *
+     * @return void
+     */
+    public static function html_head_setup() {
+        global $CFG, $PAGE;
+
+        $output = '';
+
+        if (isset($CFG->uncleanedurl)) {
+
+            // One issue is that when rewriting urls we change their nesting and depth
+            // which means legacy urls in the codebase which do NOT use moodle_url and
+            // which are also relative links can be broken. To fix this we set the
+            // base href to the original uncleaned url.
+            $output .= "<base href='$CFG->uncleanedurl'>\n";
+
+        } else {
+
+            $clean = $PAGE->url->out();
+            $orig = $PAGE->url->raw_out(false);
+            if ($orig != $clean) {
+
+                // If we have just loaded a legacy url AND we can clean it, instead of
+                // cleaning the url, caching it, and waiting for the user or someone
+                // else to come back again to see the good url, we can use html5
+                // replaceState to fix it imeditately without a page reload.
+                //
+                // Importantly this needs to happen before any JS on the page uses it,
+                // such as any analytics tracking.
+                $output .= "<script>history.replaceState && history.replaceState({}, '', '$clean');</script>\n";
+
+                // Now that each page has two valid urls, we need to tell robots like
+                // GoogleBot that they are the same, otherwise Google may think they
+                // are low quality duplicates and possibly split pagerank between them.
+                //
+                // We specify that the clean one is the 'canonical' url so this is what
+                // will be shown in google search results pages.
+                $output .= "<link rel='canonical' href='$clean' />\n";
+
+                // At this point the url is already clean, so analytics which run in
+                // the page like Google Analytics will only use clean urls and so you
+                // will get nice drill down reports etc. However analytics software
+                // that parses the apache logs will see the raw original url. Worse
+                // it will see some as clean and some as unclean and get inconsistent
+                // data. To workaround this we publish an apache note so that we can
+                // put the clean url into the logs like this:
+                //
+                //  LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" ...
+                if (function_exists('apache_note')) {
+                    apache_note('CLEANURL', $clean);
+                }
+
+            }
+
+        }
+        return $output;
+    }
 }
 

@@ -49,7 +49,7 @@ $file = $CFG->dirroot . $url->get_path();
 local_cleanurls\clean_moodle_url::log("Router: including file: ".$file);
 if (!is_file($file)) {
 
-    clean_moodle_url::log("Router: Not found, showing 404 instead: ".$file);
+    \local_cleanurls\clean_moodle_url::log("Router: Not found, showing 404 instead: ".$file);
     header("HTTP/1.0 404 Not Found");
     $PAGE->set_url($url->get_path());
     $PAGE->set_context(context_course::instance(SITEID));

@@ -235,8 +235,7 @@ Step 4: Turn it on and configure
 
 1) Add this to, or uncomment it in, your config.php file:
 
-$CFG->urlrewritefunction = 'local_cleanurls_url_rewrite';
-$CFG->urlrewritefile = 'local/cleanurls/lib.php';
+$CFG->urlrewriteclass = '\local_cleanurls\url_rewrite';
 
 2) Go to the /admin/settings.php?section=local_cleanurls settings page and it
 should show a green success message if it detects the router rewrite is in

@@ -33,7 +33,7 @@ $string['routerbroken'] = 'Rewrite router is NOT working';
 $string['rewriteok'] = 'Rewrite function is configured properly';
 $string['rewritebroken'] = 'Rewrite function is NOT configured, please add this to your config.php:<br>
 <pre>
-$CFG->urlrewriteclass = "\local_cleanurls\url_rewrite";
+$CFG->urlrewriteclass = "\local_cleanurls\url_rewriter";
 </pre>';
 $string['cleanusernames'] = 'Rewrite userid\'s into usernames?';
 $string['cleanusernameshelp'] = '<p>If username\'s change this is not recommended.</p><p>If on this may also be a privacy issue if your usernames expose anything sensitive.</p>';
