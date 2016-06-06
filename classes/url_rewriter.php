@@ -107,7 +107,7 @@ class url_rewriter implements \core\output\url_rewriter {
                 // data. To workaround this we publish an apache note so that we can
                 // put the clean url into the logs like this:
                 //
-                //  LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" ...
+                // LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" ...
                 if (function_exists('apache_note')) {
                     apache_note('CLEANURL', $clean);
                 }
