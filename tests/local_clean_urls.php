@@ -96,7 +96,7 @@ class local_cleanurls_test extends advanced_testcase {
         $murl = new moodle_url($url);
         $clean = $murl->out();
         $this->assertEquals(
-            'http://www.example.com/moodle/course/view?id=' . $this->publishcourse->id,
+            'http://www.example.com/moodle/course/view.php?id=' . $this->publishcourse->id,
             $clean,
             "Urls to course with name \"publish\" are not supposed to be altered. Because there are Moodle system paths like ...course/publish/"
         );
@@ -128,7 +128,7 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/foo/bar.php';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/foo/bar', $clean, "Clean: Remove php extension");
+        $this->assertEquals('http://www.example.com/moodle/foo/bar.php', $clean, "Clean: Don't remove php extension");
 
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back");
@@ -136,7 +136,7 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/foo/bar.php?ding=pop';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/foo/bar?ding=pop', $clean, "Clean: Remove php extension with params");
+        $this->assertEquals('http://www.example.com/moodle/foo/bar.php?ding=pop', $clean, "Clean: Do not remove php extension with params");
 
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with params");
@@ -144,7 +144,7 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/foo/bar.php#hash';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/foo/bar#hash', $clean, "Clean: Remove php extension with hash");
+        $this->assertEquals('http://www.example.com/moodle/foo/bar.php#hash', $clean, "Clean: Don't remove php extension with hash");
 
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
@@ -175,11 +175,8 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->mancourse->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/view?id=' . $this->mancourse->id, $clean,
+        $this->assertEquals('http://www.example.com/moodle/course/view.php?id=' . $this->mancourse->id, $clean,
             "Clean: course is ignored because it's shortname clashes with dir or file");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
-        $this->assertEquals($url, $unclean, "Unclean: course is ignored as clashed with php file");
 
         $url = 'http://www.example.com/moodle/course/index.php';
         $murl = new moodle_url($url);
@@ -191,12 +188,12 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/user/profile.php?id=' . $this->staff->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals($clean, $url, "Not Cleaned: user profile url with username");
-        $url = 'http://www.example.com/moodle/user/view.php?id=' . $this->staff->id . '&course=' . $this->course->id;
+        $this->assertEquals($url, $clean, "Not Cleaned: user profile url with username");
 
+        $url = 'http://www.example.com/moodle/user/view.php?id=' . $this->staff->id . '&course=' . $this->course->id;
         $murl = new moodle_url($url);
         $clean = $murl->out(false);
-        $this->assertEquals('http://www.example.com/moodle/user/view?id=' . $this->staff->id . '&course=' . $this->course->id,
+        $this->assertEquals('http://www.example.com/moodle/user/view.php?id=' . $this->staff->id . '&course=' . $this->course->id,
             $clean, "Not Cleaned: user profile url with username inside course");
 
         set_config('cleanusernames', 1, 'local_cleanurls');
