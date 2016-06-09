@@ -158,7 +158,7 @@ class clean_moodle_url extends \moodle_url {
             // Clean up course urls.
 
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
-
+            $slug = urlencode($slug);
             $newpath = "/course/$slug";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
                 $path = $newpath;
@@ -170,7 +170,7 @@ class clean_moodle_url extends \moodle_url {
             // Clean up user course list urls.
 
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
-
+            $slug = urlencode($slug);
             $newpath = "/course/$slug/user";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
                 $path = $newpath;
@@ -185,7 +185,7 @@ class clean_moodle_url extends \moodle_url {
             $mod = $matches[1];
 
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
-
+            $slug = urlencode($slug);
             $newpath = "/course/$slug/$mod";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
                 $path = $newpath;
@@ -202,7 +202,7 @@ class clean_moodle_url extends \moodle_url {
             list ($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
 
             $slug = self::sluggify($cm->name, true);
-            $shortcode = $course->shortname;
+            $shortcode = urlencode($course->shortname);
 
             $newpath = "/course/$shortcode/$mod/$id$slug";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
@@ -219,6 +219,7 @@ class clean_moodle_url extends \moodle_url {
             // In profile urls.
             if ($path == "/user/profile" && $params['id'] ) {
                 $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
+                $slug = urlencode($slug);
                 $newpath = "/user/$slug";
 
                 if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
@@ -231,6 +232,7 @@ class clean_moodle_url extends \moodle_url {
             // Clean up user profile urls inside course.
             if ($path == "/user/view" && $params['id'] && $params['course']) {
                 $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
+                $slug = urlencode($slug);
                 $newpath = "/user/$slug";
 
                 if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
@@ -238,6 +240,7 @@ class clean_moodle_url extends \moodle_url {
 
                     if ($params['course'] != 1) {
                         $slug = $DB->get_field('course', 'shortname', array('id' => $params['course'] ));
+                        $slug = urlencode($slug);
                         $path = "/course/$slug$path";
                         unset ($params['course']);
                     }
@@ -302,8 +305,8 @@ class clean_moodle_url extends \moodle_url {
             if (!is_dir ($CFG->dirroot . '/user/' . $matches[2]) &&
                 !is_file($CFG->dirroot . '/user/' . $matches[2] . ".php")) {
                 $path = "/user/view.php";
-                $params['id']     = $DB->get_field('user',   'id', array('username'  => $matches[2] ));
-                $params['course'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
+                $params['id']     = $DB->get_field('user',   'id', array('username'  => urldecode($matches[2]) ));
+                $params['course'] = $DB->get_field('course', 'id', array('shortname' => urldecode($matches[1]) ));
                 self::log("Rewritten to: $path");
             }
 
@@ -312,7 +315,7 @@ class clean_moodle_url extends \moodle_url {
             if (!is_dir ($CFG->dirroot . '/user/' . $matches[1]) &&
                 !is_file($CFG->dirroot . '/user/' . $matches[1] . ".php")) {
                 $path = "/user/index.php";
-                $params['id'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
+                $params['id'] = $DB->get_field('course', 'id', array('shortname' => urldecode($matches[1]) ));
                 self::log("Rewritten to: $path");
             }
 
@@ -324,7 +327,7 @@ class clean_moodle_url extends \moodle_url {
                 if (isset($params['course'])) {
                     $path = "/user/view.php";
                 }
-                $params['id'] = $DB->get_field('user', 'id', array('username' => $matches[1] ));
+                $params['id'] = $DB->get_field('user', 'id', array('username' => urldecode($matches[1]) ));
                 self::log("Rewritten to: $path");
             }
 
@@ -343,7 +346,7 @@ class clean_moodle_url extends \moodle_url {
             if (!is_dir ($CFG->dirroot . '/course/' . $matches[1]) &&
                 !is_file($CFG->dirroot . '/course/' . $matches[1] . ".php")) {
                 $path = "/mod/$matches[2]/index.php";
-                $params['id'] = $DB->get_field('course', 'id', array('shortname' => $matches[1] ));
+                $params['id'] = $DB->get_field('course', 'id', array('shortname' => urldecode($matches[1]) ));
                 self::log("Rewritten to: $path");
             }
 
