@@ -145,16 +145,13 @@ class clean_moodle_url extends \moodle_url {
             return $orig;
         }
 
-        // Remove the php extension.
-        $path = substr($path, 0, -4);
-
-        // Remove /index from end.
-        if (substr($path, -6) == '/index') {
-            self::log("Removing /index");
-            $path = substr($path, 0, -5);
+        // Remove /index.php from end.
+        if (substr($path, -10) == '/index.php') {
+            self::log("Removing /index.php");
+            $path = substr($path, 0, -9);
         }
 
-        if ($path == "/course/view" && $params['id'] ) {
+        if ($path == "/course/view.php" && $params['id'] ) {
             // Clean up course urls.
 
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
@@ -194,7 +191,7 @@ class clean_moodle_url extends \moodle_url {
                 self::log("Rewrite mod view: $path");
             }
 
-        } else if (preg_match("/^\/mod\/(\w+)\/view$/", $path, $matches) && isset($params['id']) ) {
+        } else if (preg_match("/^\/mod\/(\w+)\/view.php$/", $path, $matches) && isset($params['id']) ) {
             // Clean up mod view pages.
 
             $id = $params['id'];
@@ -217,7 +214,7 @@ class clean_moodle_url extends \moodle_url {
         if ($config->cleanusernames) {
 
             // In profile urls.
-            if ($path == "/user/profile" && $params['id'] ) {
+            if ($path == "/user/profile.php" && $params['id'] ) {
                 $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
                 $slug = urlencode($slug);
                 $newpath = "/user/$slug";
@@ -230,7 +227,7 @@ class clean_moodle_url extends \moodle_url {
             }
 
             // Clean up user profile urls inside course.
-            if ($path == "/user/view" && $params['id'] && $params['course']) {
+            if ($path == "/user/view.php" && $params['id'] && $params['course']) {
                 $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
                 $slug = urlencode($slug);
                 $newpath = "/user/$slug";
