@@ -37,13 +37,21 @@ global $CFG;
 
 $path = required_param('q', PARAM_PATH); // TODO should use PARAM_SAFEPATH instead?
 local_cleanurls\clean_moodle_url::log("Router: \$_GET: ".$path);
-$url = local_cleanurls\clean_moodle_url::unclean($CFG->wwwroot . '/' . $path);
+$unclean = $CFG->wwwroot . '/' . $path;
+$url = local_cleanurls\clean_moodle_url::unclean($unclean);
 
 foreach ($url->params() as $k => $v) {
     $_GET[$k] = $v;
 }
 
-$file = $CFG->dirroot . $url->get_path();
+$file = $url->out_omit_querystring();
+if (strpos($file, $CFG->wwwroot) === 0) {
+    $file = substr($file, strlen($CFG->wwwroot));
+    $file = $CFG->dirroot . $file;
+} else {
+    // Uncleaned url isn't a moodle url!
+    $file = null;
+}
 
 local_cleanurls\clean_moodle_url::log("Router: including file: ".$file);
 if (!is_file($file)) {
