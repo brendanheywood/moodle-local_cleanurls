@@ -219,7 +219,7 @@ Step 3: Add the apache rewrite to the custom router
 ---------------------------------------------------
 
 ```apache
-<Directory /var/www/your/moodle/path>
+<Directory /var/www/moodle>
    RewriteEngine on
    RewriteBase /
    RewriteCond %{REQUEST_FILENAME} !-f
@@ -229,6 +229,32 @@ Step 3: Add the apache rewrite to the custom router
 ```
 
 Now restart apache
+
+If you have moodle installed into a subdirectory then modify the
+RewriteRule to include this path, for example if your path is:
+
+http://moodle.com/sub1/sub2
+
+Then your RewriteRule should look like:
+
+```apache
+DocumentRoot /var/www/shared/
+
+<Directory /var/www/shared>
+    RewriteEngine on
+    RewriteBase /
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^sub1/sub2/(.*)$ sub1/sub2/local/cleanurls/router.php?q=$1 [L,QSA,END]
+</Directory>
+```
+
+If you are having issues with rewrite's not working, turn on full apache rewrite debugging:
+
+```apache
+# This is for apache 2.4+
+LogLevel debug rewrite:trace8
+```
 
 Step 4: Turn it on and configure
 ---------------------------------------------------
