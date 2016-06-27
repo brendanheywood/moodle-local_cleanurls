@@ -35,12 +35,13 @@ require('../../config.php');
 
 global $CFG;
 
-$path = required_param('q', PARAM_PATH); // TODO should use PARAM_SAFEPATH instead?
-local_cleanurls\clean_moodle_url::log("Router: \$_GET: ".$path);
+$path = required_param('q', PARAM_RAW); // TODO should use PARAM_SAFEPATH instead?
+local_cleanurls\clean_moodle_url::log("Router: \$_GET: '".$path."'");
 $unclean = $CFG->wwwroot . '/' . $path;
 $url = local_cleanurls\clean_moodle_url::unclean($unclean);
 
 foreach ($url->params() as $k => $v) {
+    $v = str_replace('+', ' ', $v);
     $_GET[$k] = $v;
 }
 

@@ -224,7 +224,7 @@ Step 3: Add the apache rewrite to the custom router
    RewriteBase /
    RewriteCond %{REQUEST_FILENAME} !-f
    RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,QSA]
+   RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,B,QSA]
 </Directory>
 ```
 
@@ -245,7 +245,7 @@ DocumentRoot /var/www/shared/
     RewriteBase /
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^sub1/sub2/(.*)$ sub1/sub2/local/cleanurls/router.php?q=$1 [L,QSA,END]
+    RewriteRule ^sub1/sub2/(.*)$ sub1/sub2/local/cleanurls/router.php?q=$1 [L,B,QSA,END]
 </Directory>
 ```
 
