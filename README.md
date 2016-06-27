@@ -61,7 +61,8 @@ still many reasons why clean urls are a good thing:
 * More resilient links when migrating systems (eg backup and restore to a
   new moodle but mostly keep your urls the same)
 * Deterministic linking in from external pages, (eg deep link from a course
-  catalog or staff directly into moodle)
+  catalog or staff directory into moodle)
+* Easier management of robots.txt
 
 
 Design principals
