@@ -139,6 +139,12 @@ class clean_moodle_url extends \moodle_url {
             return $orig;
         }
 
+        // Ignore any plugin files.
+        if (substr($path, 0, 15) == '/pluginfile.php') {
+            self::log("Ignoring pluginfile urls");
+            return $orig;
+        }
+
         // Ignore non .php files.
         if (substr($path, -4) !== ".php") {
             self::log("Ignoring non .php file");

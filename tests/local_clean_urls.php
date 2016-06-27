@@ -116,6 +116,11 @@ class local_cleanurls_test extends advanced_testcase {
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: Help files should not be touched");
 
+        $url = 'http://www.example.com/moodle/pluginfile.php/12345/foo/bar';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals($url, $clean, "Nothing: Plugin files should not be touched");
+
         $url = 'http://www.example.com/moodle/course/view.php?edit=1&id=' . $this->course->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
