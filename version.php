@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015101001;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2015101003;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2013110500;        // Requires this Moodle version
 $plugin->component = 'local_cleanurls'; // To check on upgrade, that module sits in correct place.
 
