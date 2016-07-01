@@ -98,7 +98,7 @@ class local_cleanurls_test extends advanced_testcase {
         $this->assertEquals(
             'http://www.example.com/moodle/course/view.php?id=' . $this->publishcourse->id,
             $clean,
-            "Urls to course with name \"publish\" are not supposed to be altered. Because there are Moodle system paths like ...course/publish/"
+            "Urls to course with name \"publish\" are not supposed to be cleaned because they clash with a directory."
         );
 
         $url = 'http://www.example.com/moodle/theme/whatever.php';
@@ -141,7 +141,8 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/foo/bar.php?ding=pop';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/foo/bar.php?ding=pop', $clean, "Clean: Do not remove php extension with params");
+        $this->assertEquals('http://www.example.com/moodle/foo/bar.php?ding=pop', $clean,
+                "Clean: Do not remove php extension with params");
 
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with params");
@@ -149,7 +150,8 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/foo/bar.php#hash';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/foo/bar.php#hash', $clean, "Clean: Don't remove php extension with hash");
+        $this->assertEquals('http://www.example.com/moodle/foo/bar.php#hash', $clean,
+                "Clean: Don't remove php extension with hash");
 
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
