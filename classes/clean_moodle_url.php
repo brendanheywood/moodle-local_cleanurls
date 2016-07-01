@@ -159,6 +159,10 @@ class clean_moodle_url extends \moodle_url {
         // which breaks the router. There is no simple, or possibly no way,
         // to workaround this so for now we just never clean these url's.
         // TODO This is reasonably expensive so need to cache this negative result.
+        $file = $CFG->dirroot . $path;
+        if (!file_exists($file)) {
+            return $orig;
+        }
         $dest = file_get_contents($CFG->dirroot . $path, false, null, 0, 3000);
         preg_match('/require.*?config\.php/', $dest, $matches);
         if (!isset($matches[0]) || substr($matches[0], 0, 12) !== 'require_once') {

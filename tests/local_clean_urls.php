@@ -156,10 +156,10 @@ class local_cleanurls_test extends advanced_testcase {
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
 
-        $url = 'http://www.example.com/moodle/one/two/three/index.php?foo=bar#hash';
+        $url = 'http://www.example.com/moodle/course/index.php?foo=bar#hash';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/one/two/three/?foo=bar#hash', $clean, "Clean: Remove index");
+        $this->assertEquals('http://www.example.com/moodle/course/?foo=bar#hash', $clean, "Clean: Remove index");
 
         $url = 'http://www.example.com/moodle/admin/settings.php?section=local_cleanurls';
         $murl = new moodle_url($url);
