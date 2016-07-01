@@ -200,6 +200,23 @@ class clean_moodle_url extends \moodle_url {
                 self::log("Rewrite user profile");
             }
 
+        } else if ($path == "/course/" && isset($params['categoryid']) ) {
+
+            // Clean up category list urls.
+            $catid = $params['categoryid'];
+            $path = '';
+
+            // Grab all ancestor slugs.
+            while ($catid) {
+                $cat = $DB->get_record('course_categories', array('id' => $catid));
+                $slug = self::sluggify($cat->name, false);
+                $path = '/' . $slug . '-' . $catid . $path;
+                $catid = $cat->parent;
+            }
+            $path = '/category' .  $path;
+            unset ($params['categoryid']);
+            self::log("Rewrite category page");
+
         } else if (preg_match("/^\/mod\/(\w+)\/$/", $path, $matches) && $params['id'] ) {
             // Clean up mod view pages /index has already been removed earlier.
 
@@ -379,6 +396,12 @@ class clean_moodle_url extends \moodle_url {
                 $params['name'] = $matches[1];
                 self::log("Rewritten to: $path");
             }
+
+        } else if (preg_match("/^\/category\/.*-(\d+)$/", $path, $matches)) {
+            // Clean up category urls.
+            $path = "/course/index.php";
+            $params['categoryid'] = $matches[1];
+            self::log("Rewritten to: $path");
         }
 
         // Put back .php extension if doesn't end in .php or slash.
