@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version info
+ * Event observer for local_cleanurls.
  *
  * @package    local_cleanurls
  * @author     Brendan Heywood <brendan@catalyst-au.net>
@@ -23,9 +23,31 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_cleanurls;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016070100;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2013110500;        // Requires this Moodle version
-$plugin->component = 'local_cleanurls'; // To check on upgrade, that module sits in correct place.
+/**
+ * Event observer for local_cleanurls.
+ *
+ * @package    local_cleanurls
+ * @author     Brendan Heywood <brendan@catalyst-au.net>
+ * @copyright  Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class observer {
+
+    /**
+     * Triggered via course_updated event.
+     *
+     * @param \core\event\course_updated $event
+     */
+    public static function course_updated(\core\event\course_updated $event) {
+        $courseid = $event->get_data()['objectid'];
+        $url = new \moodle_url('/course/view.php', array('id' => $courseid));
+        $cache = \cache::make('local_cleanurls', 'outgoing');
+        $cache->delete($url->raw_out(false));
+    }
+
+}
 

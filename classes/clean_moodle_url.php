@@ -54,6 +54,10 @@ class clean_moodle_url extends \moodle_url {
     /**
      * A util for crafting human readable url components
      *
+     * This is non reversible and only used to augment a url to make it more
+     * obvious, but isn't used at all for routing. Usually it is prefixed
+     * with and id such as /page/1234-some-nice-name
+     *
      * @param string $string a string to url escape and prettify
      * @param boolean $dash if present a dash is prepended
      * @return string
