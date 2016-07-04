@@ -209,6 +209,29 @@ class local_cleanurls_test extends advanced_testcase {
         // If we change url config then we need to throw away the cache.
         purge_all_caches();
 
+        $url = 'http://www.example.com/moodle/mod/forum/user.php?' . 'mode=discussions' . '&id=' . $this->staff->id;
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals(
+            'http://www.example.com/moodle/user/head1/discussions',
+            $clean,
+            "Clean: Forum posts for user page"
+        );
+        $url = 'http://www.example.com/moodle/mod/forum/user.php?id=' . $this->staff->id . '&mode=discussions';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals(
+            'http://www.example.com/moodle/user/head1/discussions',
+            $clean,
+            "Clean: Forum posts for user page"
+        );
+        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
+        $this->assertEquals(
+            $url,
+            $unclean,
+            "Unclean: Forum posts for user page"
+        );
+
         $url = 'http://www.example.com/moodle/user/profile.php?id=' . $this->staff->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
