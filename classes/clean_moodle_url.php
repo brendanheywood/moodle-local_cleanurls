@@ -286,6 +286,20 @@ class clean_moodle_url extends \moodle_url {
                     self::log("Rewrite user profile");
                 }
             }
+
+            // Clean up user profile urls in forum posts.
+            // ie http://moodle.com/mod/forum/user.php?id=123&mode=discussions should become http://moodle.com/user/username/discussions.
+            if ($path == "/mod/forum/user.php" && $params['id'] && (isset($params['mode']) && $params['mode'] == 'discussions')) {
+                $slug = $DB->get_field('user', 'username', array('id' => $params['id']));
+                $slug = urlencode($slug);
+                $newpath = "/user/$slug";
+                if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+                    $path = $newpath . '/' . $params['mode'];
+                    unset ($params['id']);
+                    unset ($params['mode']);
+                    self::log("Rewrite user profile");
+                }
+            }
         }
 
         // Ignore if clashes with a directory.
@@ -356,6 +370,13 @@ class clean_moodle_url extends \moodle_url {
                 $params['id'] = $DB->get_field('course', 'id', array('shortname' => urldecode($matches[1]) ));
                 self::log("Rewritten to: $path");
             }
+
+        } else if (preg_match("/^\/user\/(\w+)\/(discussions)$/", $path, $matches)) {
+            // Unclean paths e.g.: http://moodle.com/user/username/discussions into http://moodle.com/mod/forum/user.php?id=123&mode=discussions
+            $path = "/mod/forum/user.php";
+            $params['id'] = $DB->get_field('user', 'id', array('username'  => urldecode($matches[1]) ));
+            $params['mode'] = $matches[2];
+            self::log("Rewritten to: $path");
 
         } else if (preg_match("/^\/user\/(.+)$/", $path, $matches)) {
             // Clean up user profile urls.
