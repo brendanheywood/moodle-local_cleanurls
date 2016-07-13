@@ -250,6 +250,27 @@ DocumentRoot /var/www/shared/
 </Directory>
 ```
 
+If you need to use a .htaccess file this is fine too:
+
+Apache conf:
+
+```apache
+<Directory /var/www/moodle.local>
+    AllowOverride All
+</Directory>
+```
+
+.htaaccess file:
+
+```apache
+RewriteEngine on
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,B,QSA]
+
+```
+
 If you are having issues with rewrite's not working, turn on full apache rewrite debugging:
 
 ```apache
