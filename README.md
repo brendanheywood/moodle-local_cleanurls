@@ -255,12 +255,12 @@ If you need to use a .htaccess file this is fine too:
 Apache conf:
 
 ```apache
-<Directory /var/www/moodle.local>
+<Directory /var/www/moodle>
     AllowOverride All
 </Directory>
 ```
 
-.htaaccess file:
+/var/www/moodle/.htaccess file:
 
 ```apache
 RewriteEngine on
