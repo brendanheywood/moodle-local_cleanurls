@@ -281,11 +281,27 @@ LogLevel debug rewrite:trace8
 Step 4: Turn it on and configure
 ---------------------------------------------------
 
-1) Add this to, or uncomment it in, your config.php file:
+1) Change the first couple lines of config.php to this:
+
+```php
+<?php  // Moodle configuration file
+
+global $CFG;
+if (!isset($CFG)) {
+    $CFG = new stdClass();
+}
+
+... normal config
+```
+
+This allows the router to bootstrap moodle, and then defer the real page.
+
+
+2) Add this to, or uncomment it in, your config.php file:
 
 $CFG->urlrewriteclass = '\local_cleanurls\url_rewriter';
 
-2) Go to the /admin/settings.php?section=local_cleanurls settings page and it
+3) Go to the /admin/settings.php?section=local_cleanurls settings page and it
 should show a green success message if it detects the router rewrite is in
 place and working. If not check step 3.
 
