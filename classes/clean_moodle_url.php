@@ -161,7 +161,11 @@ class clean_moodle_url extends \moodle_url {
             $path = substr($path, 0, -9);
         }
 
-        if ($path == "/course/view.php" && $params['id'] ) {
+        if ($path == '/local/cleanurls/tests/foo.php') {
+            $newpath = '/local/cleanurls/tests/bar';
+            self::log("Rewrite test url");
+
+        } else if ($path == "/course/view.php" && $params['id'] ) {
             // Clean up course urls.
 
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
@@ -338,7 +342,10 @@ class clean_moodle_url extends \moodle_url {
 
         // These regex's must be in order of higher specificity to lowest.
 
-        if (preg_match("/^\/course\/(.+)\/user\/(.+)$/", $path, $matches)) {
+        if ($path == '/local/cleanurls/tests/bar') {
+            $path = '/local/cleanurls/tests/foo.php';
+            self::log("Rewritten to: $path");
+        } else if (preg_match("/^\/course\/(.+)\/user\/(.+)$/", $path, $matches)) {
             // Clean up user profile urls inside course.
             if (!is_dir ($CFG->dirroot . '/user/' . $matches[2]) &&
                 !is_file($CFG->dirroot . '/user/' . $matches[2] . ".php")) {
