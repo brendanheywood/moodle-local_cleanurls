@@ -48,6 +48,12 @@ if ($hassiteconfig) {
         $rewritetest = false;
         $result = isset($CFG->urlrewriteclass)  && $CFG->urlrewriteclass == '\local_cleanurls\url_rewriter';
 
+        // Now test that not only is the router configured but it is cleaning urls correctly. Note
+        // that this particular test url is cleaned even if cleaning is off.
+        if ($result) {
+            $result = substr((new moodle_url('/local/cleanurls/tests/foo.php'))->out(false), -4) == '/bar';
+        }
+
         if ($result) {
             $test .= $OUTPUT->notification(get_string('rewriteok', 'local_cleanurls'), 'notifysuccess');
         } else {

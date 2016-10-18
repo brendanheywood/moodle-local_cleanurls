@@ -89,6 +89,11 @@ class local_cleanurls_test extends advanced_testcase {
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Urls shouldn't be touched if cleaning setting is off");
 
+        $url = 'http://www.example.com/moodle/local/cleanurls/tests/foo.php';
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/local/cleanurls/tests/bar', $clean, "Test url should be cleaned even if cleaning is off");
+
         set_config('cleaningon', 1, 'local_cleanurls');
         set_config('enableurlrewrite', 1);
         purge_all_caches();

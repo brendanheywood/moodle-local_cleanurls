@@ -86,9 +86,22 @@ class clean_moodle_url extends \moodle_url {
         global $DB, $CFG;
 
         $path   = $orig->path;
-        $params = $orig->params();
+
+        // This is a special case which will always be cleaned even if the
+        // cleaner is off, used for confirming that it all works.
+        if (substr($path, -30) == '/local/cleanurls/tests/foo.php') {
+            self::log("Rewrite test url");
+            return new clean_moodle_url('/local/cleanurls/tests/bar');
+        }
 
         $config = get_config('local_cleanurls');
+
+        if (empty($config->cleaningon)) {
+            self::log("Cleaning is not on");
+            return $orig;
+        }
+
+        $params = $orig->params();
 
         $origurl = $orig->raw_out(false);
 
@@ -161,11 +174,7 @@ class clean_moodle_url extends \moodle_url {
             $path = substr($path, 0, -9);
         }
 
-        if ($path == '/local/cleanurls/tests/foo.php') {
-            $newpath = '/local/cleanurls/tests/bar';
-            self::log("Rewrite test url");
-
-        } else if ($path == "/course/view.php" && $params['id'] ) {
+        if ($path == "/course/view.php" && $params['id'] ) {
             // Clean up course urls.
 
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
