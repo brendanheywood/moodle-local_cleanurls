@@ -52,12 +52,13 @@ if ($hassiteconfig) {
         // that this particular test url is cleaned even if cleaning is off.
         if ($result) {
             $result = substr((new moodle_url('/local/cleanurls/tests/foo.php'))->out(false), -4) == '/bar';
-        }
-
-        if ($result) {
-            $test .= $OUTPUT->notification(get_string('rewriteok', 'local_cleanurls'), 'notifysuccess');
+            if ($result) {
+                $test .= $OUTPUT->notification(get_string('rewriteok', 'local_cleanurls'), 'notifysuccess');
+            } else {
+                $test .= $OUTPUT->notification(get_string('rewritebroken', 'local_cleanurls'), 'notifyfailure');
+            }
         } else {
-            $test .= $OUTPUT->notification(get_string('rewritebroken', 'local_cleanurls'), 'notifyfailure');
+            $test .= $OUTPUT->notification(get_string('rewritenoconfig', 'local_cleanurls'), 'notifyfailure');
         }
 
 

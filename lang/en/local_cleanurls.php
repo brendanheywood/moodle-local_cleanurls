@@ -31,7 +31,8 @@ $string['cleaningonhelp'] = 'Off by default until the routing is added to apache
 $string['routerok'] = 'Rewrite router is working (inbound links)';
 $string['routerbroken'] = 'Rewrite router is NOT working (inbound links)';
 $string['rewriteok'] = 'Rewrite function is configured properly (outbound links)';
-$string['rewritebroken'] = 'Rewrite function is NOT configured (outbound links), please add this to your config.php:<br>
+$string['rewritebroken'] = 'Rewrite function is NOT working (outbound links), if you are running a moodle before 3.1 ensure the patch has been applied properly.';
+$string['rewritenoconfig'] = 'Rewrite function is NOT configured (outbound links), please add this to your config.php:<br>
 <pre>
 $CFG->urlrewriteclass = "\local_cleanurls\url_rewriter";
 </pre>';
