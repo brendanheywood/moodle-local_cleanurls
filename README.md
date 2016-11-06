@@ -328,6 +328,14 @@ sudo service apache2 restart
 apache2ctl -M | grep rewrite
 ```
 
+If not then enable it:
+
+```bash
+sudo a2enmod rewrite
+sudo service apache2 restart
+```
+
+
 * Is the apache rewrite rule actually working? Turn on on full apache rewrite debugging:
 
 ```apache
