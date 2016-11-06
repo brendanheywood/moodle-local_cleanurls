@@ -21,6 +21,8 @@
   * [Apply tiny patches to core](#step-2-apply-tiny-patches-to-core)
   * [Add the apache rewrite to the custom router](#step-3-add-the-apache-rewrite-to-the-custom-router)
   * [Turn it on and configure](#step-4-turn-it-on-and-configure)
+* [Trouble shooting](#trouble-shooting)
+
 * [Contributing](#contributing)
 
 What this plugin does:
@@ -276,12 +278,7 @@ RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,B,QSA]
 
 ```
 
-If you are having issues with rewrite's not working, turn on full apache rewrite debugging:
 
-```apache
-# This is for apache 2.4+
-LogLevel debug rewrite:trace8
-```
 
 Step 4: Turn it on and configure
 ---------------------------------------------------
@@ -313,6 +310,44 @@ place and working. If not check step 3.
 Now you can Tick the box turning on the rewrites and tune the other options
 If you have any issues then turn on the rewrite logging and tail your apache
 log for details.
+
+Trouble shooting
+================
+
+1) If the incoming url rewriting isn't working:
+
+* Have you restarted apache?
+
+```bash
+sudo service apache2 restart
+```
+
+* Is the apache rewrite module enabled?
+
+```bash
+apache2ctl -M | grep rewrite
+```
+
+* Is the apache rewrite rule actually working? Turn on on full apache rewrite debugging:
+
+```apache
+# This is for apache 2.4+
+LogLevel debug rewrite:trace8
+```
+
+You should see items like this in your apache error logs for **every** page load, even ones which do not get rewritten. If you do not see this then the logging is not working. If you do see this then isolate a single page load, trace through the regex logic and see what rules are being matched and why they did or did not match and rewrite.
+
+```
+[rewrite:trace3] [pid 24024] mod_rewrite.c(476): [client 127.0.0.1:49658] 127.0.0.1 - - [moodle.local/sid#7f06654cacd8][rid#7f06653eb0a0/initial] [perdir /var/www/moodle.local/] strip per-dir prefix: /var/www/moodle.local/blah -> blah
+[rewrite:trace3] [pid 24024] mod_rewrite.c(476): [client 127.0.0.1:49658] 127.0.0.1 - - [moodle.local/sid#7f06654cacd8][rid#7f06653eb0a0/initial] [perdir /var/www/moodle.local/] applying pattern '^(.*)$' to uri 'blah'
+[rewrite:trace4] [pid 24024] mod_rewrite.c(476): [client 127.0.0.1:49658] 127.0.0.1 - - [moodle.local/sid#7f06654cacd8][rid#7f06653eb0a0/initial] [perdir /var/www/moodle.local/] RewriteCond: input='/var/www/moodle.local/blah' pattern='!-f' => matched
+[rewrite:trace4] [pid 24024] mod_rewrite.c(476): [client 127.0.0.1:49658] 127.0.0.1 - - [moodle.local/sid#7f06654cacd8][rid#7f06653eb0a0/initial] [perdir /var/www/moodle.local/] RewriteCond: input='/var/www/moodle.local/blah' pattern='!-d' => matched
+```
+
+* Try going to a url which doesn't exist but is inside your moodle eg: http://moodle.local/blah
+
+Do you get a themed Moodle error page? Or an 404 error page from apache?
+
 
 
 Contributing
