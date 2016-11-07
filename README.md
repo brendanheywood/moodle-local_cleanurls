@@ -190,6 +190,14 @@ eg using git submodule:
 git submodule add git@github.com:brendanheywood/moodle-local_cleanurls.git local/cleanurls
 ```
 
+OR you can download as a zip from github
+
+https://github.com/brendanheywood/moodle-local_cleanurls/archive/master.zip
+
+Extract this into /var/www/yourmoodle/local/cleanurls/
+
+Then run the moodle upgrade as normal.
+
 
 Step 2: Apply tiny patches to core
 -------------------------------
