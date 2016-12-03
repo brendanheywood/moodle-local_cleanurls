@@ -162,6 +162,12 @@ class clean_moodle_url extends \moodle_url {
             return $orig;
         }
 
+        // Ignore any draft files.
+        if (substr($path, 0, 14) == '/draftfile.php') {
+            self::log("Ignoring draftfile urls");
+            return $orig;
+        }
+
         // Ignore non .php files.
         if (substr($path, -4) !== ".php") {
             self::log("Ignoring non .php file");
