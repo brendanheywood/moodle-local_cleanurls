@@ -126,47 +126,8 @@ class clean_moodle_url extends \moodle_url {
             self::log("Removed wwwroot from path: $path");
         }
 
-        // Ignore any admin urls for safety.
-        if (substr($path, 0, 6) == '/admin') {
-            self::log("Ignoring admin url");
-            return $orig;
-        }
-
-        // Ignore any auth urls for safety.
-        if (substr($path, 0, 5) == '/auth') {
-            self::log("Ignoring auth url");
-            return $orig;
-        }
-
-        // Ignore any help urls for safety.
-        if (substr($path, 0, 5) == '/help') {
-            self::log("Ignoring help url");
-            return $orig;
-        }
-
-        // Ignore any theme files.
-        if (substr($path, 0, 6) == '/theme') {
-            self::log("Ignoring theme file");
-            return $orig;
-        }
-
-        // Ignore any lib files.
-        if (substr($path, 0, 4) == '/lib') {
-            self::log("Ignoring lib file");
-            return $orig;
-        }
-
-        // Ignore any plugin files.
-        if (substr($path, 0, 15) == '/pluginfile.php') {
-            self::log("Ignoring pluginfile urls");
-            return $orig;
-        }
-
-        // Ignore non .php files.
-        if (substr($path, -4) !== ".php") {
-            self::log("Ignoring non .php file");
-            return $orig;
-        }
+        // Remember the original path before rewriting it.
+        $originalpath = $path;
 
         // Remove /index.php from end.
         if (substr($path, -10) == '/index.php') {
@@ -301,9 +262,8 @@ class clean_moodle_url extends \moodle_url {
             }
         }
 
-        // Ignore if clashes with a directory.
-        if (is_dir($CFG->dirroot . $path ) && substr($path, -1) != '/') {
-            self::log("Ignoring dir clash");
+        // URL was not rewritten.
+        if ($path == $originalpath) {
             return $orig;
         }
 
