@@ -41,7 +41,7 @@ if ($hassiteconfig) {
             if ($result == 'OK') {
                 $test .= $OUTPUT->notification(get_string('routerok', 'local_cleanurls'), 'notifysuccess');
             } else {
-                $test .= $OUTPUT->notification(get_string('routerbroken', 'local_cleanurls'), 'notifyfailure');
+                $test .= $OUTPUT->notification(get_string('routerbroken', 'local_cleanurls'), 'notifyerror');
             }
         }
 
@@ -55,10 +55,10 @@ if ($hassiteconfig) {
             if ($result) {
                 $test .= $OUTPUT->notification(get_string('rewriteok', 'local_cleanurls'), 'notifysuccess');
             } else {
-                $test .= $OUTPUT->notification(get_string('rewritebroken', 'local_cleanurls'), 'notifyfailure');
+                $test .= $OUTPUT->notification(get_string('rewritebroken', 'local_cleanurls'), 'notifyerror');
             }
         } else {
-            $test .= $OUTPUT->notification(get_string('rewritenoconfig', 'local_cleanurls'), 'notifyfailure');
+            $test .= $OUTPUT->notification(get_string('rewritenoconfig', 'local_cleanurls'), 'notifyerror');
         }
 
 

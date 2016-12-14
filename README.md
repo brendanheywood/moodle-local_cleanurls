@@ -309,7 +309,7 @@ This allows the router to bootstrap moodle, and then defer the real page.
 
 2) Add this to, or uncomment it in, your config.php file:
 
-$CFG->urlrewriteclass = '\local_cleanurls\url_rewriter';
+$CFG->urlrewriteclass = '\\local_cleanurls\\url_rewriter';
 
 3) Go to the /admin/settings.php?section=local_cleanurls settings page and it
 should show a green success message if it detects the router rewrite is in

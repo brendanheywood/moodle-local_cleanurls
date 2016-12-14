@@ -34,7 +34,7 @@ $string['rewriteok'] = 'Rewrite function is configured properly (outbound links)
 $string['rewritebroken'] = 'Rewrite function is NOT working (outbound links), if you are running a moodle before 3.1 ensure the patch has been applied properly.';
 $string['rewritenoconfig'] = 'Rewrite function is NOT configured (outbound links), please add this to your config.php:<br>
 <pre>
-$CFG->urlrewriteclass = "\local_cleanurls\url_rewriter";
+$CFG->urlrewriteclass = \'\\\\local_cleanurls\\\\url_rewriter\';
 </pre>';
 $string['cleanusernames'] = 'Rewrite userid\'s into usernames?';
 $string['cleanusernameshelp'] = '<p>If username\'s change this is not recommended.</p><p>If on this may also be a privacy issue if your usernames expose anything sensitive.</p>';
