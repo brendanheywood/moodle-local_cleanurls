@@ -76,7 +76,7 @@ class url_rewriter implements \core\output\url_rewriter {
 
         } else {
 
-            $clean = $PAGE->url->out();
+            $clean = $PAGE->url->out(false);
             $orig = $PAGE->url->raw_out(false);
             if ($orig != $clean) {
 
@@ -95,7 +95,8 @@ class url_rewriter implements \core\output\url_rewriter {
                 //
                 // We specify that the clean one is the 'canonical' url so this is what
                 // will be shown in google search results pages.
-                $output .= "<link rel='canonical' href='$clean' />\n";
+                $cleanescaped = $PAGE->url->out(true);
+                $output .= "<link rel='canonical' href='$cleanescaped' />\n";
 
                 // At this point the url is already clean, so analytics which run in
                 // the page like Google Analytics will only use clean urls and so you
