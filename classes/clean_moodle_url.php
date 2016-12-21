@@ -380,10 +380,10 @@ class clean_moodle_url extends \moodle_url {
                 self::log("Rewritten to: $path");
             }
 
-        } else if (preg_match("/^\/category\/.*-(\d+)$/", $path, $matches)) {
+        } else if (preg_match('/^\/category(\/.*-(\d+))?$/', $path, $matches)) {
             // Clean up category urls.
             $path = "/course/index.php";
-            $params['categoryid'] = $matches[1];
+            $params['categoryid'] = isset($matches[1]) ? $matches[1] : 0;
             self::log("Rewritten to: $path");
         }
 
