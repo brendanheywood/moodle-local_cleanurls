@@ -1,17 +1,83 @@
-From ccf27824e19fd906b35df333f2b21f08efc57700 Mon Sep 17 00:00:00 2001
-From: Brendan Heywood <brendan@catalyst-au.net>
-Date: Mon, 12 Oct 2015 22:48:44 +1100
-Subject: [PATCH 1/2] MDL-28030 themes: Add pre_head_content hook
+From d6b05da05f800485bcff648d614026df1366c5a8 Mon Sep 17 00:00:00 2001
+From: Daniel Thee Roperto <danielroperto@catalyst-au.net>
+Date: Thu, 5 Jan 2017 10:38:08 +1100
+Subject: [PATCH] Clean URLs patch for MOODLE 30
 
 ---
- lib/outputrenderers.php |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ lib/classes/output/url_rewriter.php | 58 +++++++++++++++++++++++++++++++++++++
+ lib/outputrenderers.php             |  9 ++++++
+ lib/weblib.php                      | 32 ++++++++++++++++++++
+ 3 files changed, 99 insertions(+)
+ create mode 100644 lib/classes/output/url_rewriter.php
 
+diff --git a/lib/classes/output/url_rewriter.php b/lib/classes/output/url_rewriter.php
+new file mode 100644
+index 0000000..435bd55
+--- /dev/null
++++ b/lib/classes/output/url_rewriter.php
+@@ -0,0 +1,57 @@
++<?php
++// This file is part of Moodle - http://moodle.org/
++//
++// Moodle is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation, either version 3 of the License, or
++// (at your option) any later version.
++//
++// Moodle is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
++
++/**
++ * URL rewriter base.
++ *
++ * @package    core
++ * @author     Brendan Heywood <brendan@catalyst-au.net>
++ * @copyright  Catalyst IT
++ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
++ */
++
++namespace core\output;
++
++defined('MOODLE_INTERNAL') || die();
++
++/**
++ * URL rewriter interface
++ *
++ * @package    core
++ * @author     Brendan Heywood <brendan@catalyst-au.net>
++ * @copyright  Catalyst IT
++ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
++ */
++interface url_rewriter {
++
++    /**
++     * Rewrite moodle_urls into another form.
++     *
++     * @param moodle_url $url a url to potentially rewrite
++     * @return moodle_url Returns a new, or the original, moodle_url;
++     */
++    public static function url_rewrite(\moodle_url $url);
++
++    /**
++     * Gives a url rewriting plugin a chance to rewrite the current page url
++     * avoiding redirects and improving performance.
++     *
++     * @return void
++     */
++    public static function html_head_setup();
++
++
++}
 diff --git a/lib/outputrenderers.php b/lib/outputrenderers.php
-index a42d377..3a8f1ab 100644
+index 43b59d2..284a5d1 100644
 --- a/lib/outputrenderers.php
 +++ b/lib/outputrenderers.php
-@@ -475,6 +475,15 @@ class core_renderer extends renderer_base {
+@@ -477,6 +477,15 @@ class core_renderer extends renderer_base {
          }
  
          $output = '';
@@ -27,35 +93,29 @@ index a42d377..3a8f1ab 100644
          $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . "\n";
          $output .= '<meta name="keywords" content="moodle, ' . $this->page->title . '" />' . "\n";
          // This is only set by the {@link redirect()} method
--- 
-1.7.9.5
-
-
-From ecd4aa80b1786bf9817f301bfb6106df0e4c981b Mon Sep 17 00:00:00 2001
-From: Brendan Heywood <brendan@catalyst-au.net>
-Date: Mon, 12 Oct 2015 22:49:25 +1100
-Subject: [PATCH 2/2] MDL-28030 weblib: Add url_rewrite hook
-
----
- lib/weblib.php |   29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
-
 diff --git a/lib/weblib.php b/lib/weblib.php
-index 81b075d..6c35408 100644
+index e4508a7..692640c 100644
 --- a/lib/weblib.php
 +++ b/lib/weblib.php
-@@ -557,6 +557,35 @@ class moodle_url {
-             debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
-         }
- 
-+        // Give plugins an opportunity to rewrite the url.
+@@ -553,6 +553,38 @@ class moodle_url {
+      * @return string Resulting URL
+      */
+     public function out($escaped = true, array $overrideparams = null) {
++
++        global $CFG;
++
++        if (!is_bool($escaped)) {
++            debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
++        }
++
 +        $url = $this;
-+        $pluginswithfunction = get_plugins_with_function('url_rewrite', 'lib.php');
-+        foreach ($pluginswithfunction as $plugins) {
-+            foreach ($plugins as $function) {
-+                if (($pluginurl = $function($url)) && ($pluginurl instanceof moodle_url)) {
-+                    $url = $pluginurl;
-+                }
++
++        // Allow url's to be rewritten by a plugin.
++        if (isset($CFG->urlrewriteclass) && !isset($CFG->upgraderunning)) {
++            $class = $CFG->urlrewriteclass;
++            $pluginurl = $class::url_rewrite($url);
++            if ($pluginurl instanceof moodle_url) {
++                $url = $pluginurl;
 +            }
 +        }
 +
@@ -66,20 +126,16 @@ index 81b075d..6c35408 100644
 +    /**
 +     * Output url without any rewrites
 +     *
-+     * This is identical in signature and use to out() but doesn't call the rewrite hook.
++     * This is identical in signature and use to out() but doesn't call the rewrite handler.
 +     *
 +     * @param bool $escaped Use &amp; as params separator instead of plain &
 +     * @param array $overrideparams params to add to the output url, these override existing ones with the same name.
 +     * @return string Resulting URL
 +     */
 +    public function raw_out($escaped = true, array $overrideparams = null) {
-+        if (!is_bool($escaped)) {
-+            debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
-+        }
-+
-         $uri = $this->out_omit_querystring().$this->slashargument;
- 
-         $querystring = $this->get_query_string($escaped, $overrideparams);
+         if (!is_bool($escaped)) {
+             debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
+         }
 -- 
-1.7.9.5
+2.7.4
 

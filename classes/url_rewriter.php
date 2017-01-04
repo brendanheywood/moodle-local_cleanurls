@@ -117,4 +117,3 @@ class url_rewriter implements \core\output\url_rewriter {
         return $output;
     }
 }
-

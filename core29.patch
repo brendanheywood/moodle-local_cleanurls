@@ -1,47 +1,123 @@
-From 32ef940a4ae9b256373f6957252e6347c0e12c9d Mon Sep 17 00:00:00 2001
-From: Marcus Boon <marcus@catalyst-au.net>
-Date: Thu, 15 Oct 2015 13:38:02 +1000
-Subject: [PATCH] Applied patch to lib/outputrenderers.php and lib/weblib.php
- for local_cleanurls to work
+From 5e7331a7ae3f73eef156e1c63a7b8ebdb8389754 Mon Sep 17 00:00:00 2001
+From: Daniel Thee Roperto <danielroperto@catalyst-au.net>
+Date: Thu, 5 Jan 2017 10:38:08 +1100
+Subject: [PATCH] Clean URLs patch for MOODLE 29
 
 ---
- lib/outputrenderers.php |  5 +++++
- lib/weblib.php          | 24 ++++++++++++++++++++++++
- 2 files changed, 29 insertions(+)
+ lib/classes/output/url_rewriter.php | 58 +++++++++++++++++++++++++++++++++++++
+ lib/outputrenderers.php             |  9 ++++++
+ lib/weblib.php                      | 32 ++++++++++++++++++++
+ 3 files changed, 99 insertions(+)
+ create mode 100644 lib/classes/output/url_rewriter.php
 
+diff --git a/lib/classes/output/url_rewriter.php b/lib/classes/output/url_rewriter.php
+new file mode 100644
+index 0000000..435bd55
+--- /dev/null
++++ b/lib/classes/output/url_rewriter.php
+@@ -0,0 +1,57 @@
++<?php
++// This file is part of Moodle - http://moodle.org/
++//
++// Moodle is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation, either version 3 of the License, or
++// (at your option) any later version.
++//
++// Moodle is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
++
++/**
++ * URL rewriter base.
++ *
++ * @package    core
++ * @author     Brendan Heywood <brendan@catalyst-au.net>
++ * @copyright  Catalyst IT
++ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
++ */
++
++namespace core\output;
++
++defined('MOODLE_INTERNAL') || die();
++
++/**
++ * URL rewriter interface
++ *
++ * @package    core
++ * @author     Brendan Heywood <brendan@catalyst-au.net>
++ * @copyright  Catalyst IT
++ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
++ */
++interface url_rewriter {
++
++    /**
++     * Rewrite moodle_urls into another form.
++     *
++     * @param moodle_url $url a url to potentially rewrite
++     * @return moodle_url Returns a new, or the original, moodle_url;
++     */
++    public static function url_rewrite(\moodle_url $url);
++
++    /**
++     * Gives a url rewriting plugin a chance to rewrite the current page url
++     * avoiding redirects and improving performance.
++     *
++     * @return void
++     */
++    public static function html_head_setup();
++
++
++}
 diff --git a/lib/outputrenderers.php b/lib/outputrenderers.php
-index df87d34..5d2474f 100644
+index 0fdb493..ee858b4 100644
 --- a/lib/outputrenderers.php
 +++ b/lib/outputrenderers.php
-@@ -474,6 +474,11 @@ class core_renderer extends renderer_base {
+@@ -474,6 +474,15 @@ class core_renderer extends renderer_base {
          }
  
          $output = '';
 +
 +        // Give plugins a hook to add dynamic head
-+        require_once($CFG->dirroot.'/local/cleanurls/lib.php');
-+        $output .= local_cleanurls_pre_head_content();
++        $pluginswithfunction = get_plugins_with_function('pre_head_content', 'lib.php');
++        foreach ($pluginswithfunction as $plugins) {
++            foreach ($plugins as $function) {
++                $output .= $function();
++            }
++        }
 +
          $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . "\n";
          $output .= '<meta name="keywords" content="moodle, ' . $this->page->title . '" />' . "\n";
          // This is only set by the {@link redirect()} method
 diff --git a/lib/weblib.php b/lib/weblib.php
-index 28f7566..68dbabe 100644
+index 63371f2..bbe22e3 100644
 --- a/lib/weblib.php
 +++ b/lib/weblib.php
-@@ -577,6 +577,30 @@ class moodle_url {
+@@ -577,6 +577,38 @@ class moodle_url {
       * @return string Resulting URL
       */
      public function out($escaped = true, array $overrideparams = null) {
++
 +        global $CFG;
 +
 +        if (!is_bool($escaped)) {
 +            debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
 +        }
 +
-+        // Give plugins an opportunity to rewrite the url.
-+        require_once($CFG->dirroot.'/local/cleanurls/lib.php');
-+        $url = local_cleanurls_url_rewrite($this);
++        $url = $this;
++
++        // Allow url's to be rewritten by a plugin.
++        if (isset($CFG->urlrewriteclass) && !isset($CFG->upgraderunning)) {
++            $class = $CFG->urlrewriteclass;
++            $pluginurl = $class::url_rewrite($url);
++            if ($pluginurl instanceof moodle_url) {
++                $url = $pluginurl;
++            }
++        }
 +
 +        return $url->raw_out($escaped, $overrideparams);
 +
@@ -50,7 +126,7 @@ index 28f7566..68dbabe 100644
 +    /**
 +     * Output url without any rewrites
 +     *
-+     * This is identical in signature and use to out() but doesn't call the rewrite hook.
++     * This is identical in signature and use to out() but doesn't call the rewrite handler.
 +     *
 +     * @param bool $escaped Use &amp; as params separator instead of plain &
 +     * @param array $overrideparams params to add to the output url, these override existing ones with the same name.
@@ -61,5 +137,5 @@ index 28f7566..68dbabe 100644
              debugging('Escape parameter must be of type boolean, '.gettype($escaped).' given instead.');
          }
 -- 
-2.6.1
+2.7.4
 
