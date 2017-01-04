@@ -69,20 +69,33 @@ class local_cleanurls_test extends advanced_testcase {
         $this->staff = $this->getDataGenerator()->create_user(array('email' => 'head1@example.com', 'username' => 'head1'));
         $this->setUser($this->staff);
 
+        $this->enable_cleaner();
     }
+
+    public function test_it_should_clean_as_expected() {
+        $c1 = $this->category->id;
+        $c2 = $this->category2->id;
+        $url = "http://www.example.com/moodle/course/index.php?categoryid=$c2";
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals("http://www.example.com/moodle/category/sciences-$c1/compsci-$c2", $clean, "Clean: category index page");
+
+        $expectations = [];
+        foreach ($expectations as $input => $expected) {
+            $this->assertEquals($expected, (new moodle_url($input))->out());
+        }
+    }
+
 
     /**
      * Test the cleaning and uncleaning rules
      */
     public function test_local_cleanurls_simple() {
-        global $CFG;
         $this->resetAfterTest(true);
 
         set_config('cleaningon', 0, 'local_cleanurls');
         set_config('cleanusernames', 0, 'local_cleanurls');
         purge_all_caches();
-
-        $CFG->urlrewriteclass = "local_cleanurls\url_rewriter";
 
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->course->id;
         $murl = new moodle_url($url);
@@ -94,9 +107,7 @@ class local_cleanurls_test extends advanced_testcase {
         $clean = $murl->out();
         $this->assertEquals('http://www.example.com/moodle/local/cleanurls/tests/bar', $clean, "Test url should be cleaned even if cleaning is off");
 
-        set_config('cleaningon', 1, 'local_cleanurls');
-        set_config('enableurlrewrite', 1);
-        purge_all_caches();
+        $this->enable_cleaner();
 
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $this->publishcourse->id;
         $murl = new moodle_url($url);
@@ -305,9 +316,15 @@ class local_cleanurls_test extends advanced_testcase {
 
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals($url, $unclean, "Unclean: category page");
-
-        // If slash arguments are used then just skip it.
-
     }
 
+    private function enable_cleaner() {
+        global $CFG;
+
+        $CFG->urlrewriteclass = local_cleanurls\url_rewriter::class;
+
+        set_config('cleaningon', 1, 'local_cleanurls');
+        set_config('enableurlrewrite', 1);
+        purge_all_caches();
+    }
 }
