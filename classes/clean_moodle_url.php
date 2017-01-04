@@ -383,7 +383,10 @@ class clean_moodle_url extends \moodle_url {
         } else if (preg_match('/^\/category(\/.*-(\d+))?$/', $path, $matches)) {
             // Clean up category urls.
             $path = "/course/index.php";
-            $params['categoryid'] = isset($matches[1]) ? $matches[1] : 0;
+
+            // We need at least 2 matches to get a valid id. Use the last match (last part of path).
+            $params['categoryid'] = (count($matches) <= 1) ? 0 : array_pop($matches);
+
             self::log("Rewritten to: $path");
         }
 
