@@ -92,7 +92,7 @@ class clean_moodle_url extends \moodle_url {
         $title = self::utf8_uri_encode($title, 200);
         $title = strtolower($title);
 
-        $title = preg_replace('/&.+?;/', '', $title); // kill entities
+        $title = preg_replace('/&.+?;/', '', $title); // Kill entities.
         $title = str_replace('.', '-', $title);
         $title = preg_replace('/[^%a-z0-9 _-]/', '', $title);
         $title = preg_replace('/\s+/', '-', $title);
@@ -104,42 +104,42 @@ class clean_moodle_url extends \moodle_url {
     /**
      * Borrowed from WordPress
      *
-     * @param string $utf8_string
+     * @param string $utf8string
      * @return string
      *
      * https://developer.wordpress.org/reference/functions/utf8_uri_encode/
      */
-    private static function utf8_uri_encode($utf8_string) {
+    private static function utf8_uri_encode($utf8string) {
         $unicode = '';
         $values = [];
-        $num_octets = 1;
-        $unicode_length = 0;
+        $numoctets = 1;
+        $unicodelength = 0;
         self::mbstring_binary_safe_encoding();
-        $string_length = strlen($utf8_string);
+        $stringlength = strlen($utf8string);
         self::reset_mbstring_encoding();
-        for ($i = 0; $i < $string_length; $i++) {
-            $value = ord($utf8_string[$i]);
+        for ($i = 0; $i < $stringlength; $i++) {
+            $value = ord($utf8string[$i]);
             if ($value < 128) {
                 $unicode .= chr($value);
-                $unicode_length++;
+                $unicodelength++;
             } else {
                 if (count($values) == 0) {
                     if ($value < 224) {
-                        $num_octets = 2;
-                    } elseif ($value < 240) {
-                        $num_octets = 3;
+                        $numoctets = 2;
+                    } else if ($value < 240) {
+                        $numoctets = 3;
                     } else {
-                        $num_octets = 4;
+                        $numoctets = 4;
                     }
                 }
                 $values[] = $value;
-                if (count($values) == $num_octets) {
-                    for ($j = 0; $j < $num_octets; $j++) {
+                if (count($values) == $numoctets) {
+                    for ($j = 0; $j < $numoctets; $j++) {
                         $unicode .= '%'.dechex($values[$j]);
                     }
-                    $unicode_length += $num_octets * 3;
+                    $unicodelength += $numoctets * 3;
                     $values = [];
-                    $num_octets = 1;
+                    $numoctets = 1;
                 }
             }
         }
@@ -359,8 +359,9 @@ class clean_moodle_url extends \moodle_url {
                 }
             }
 
-            // Clean up user profile urls in forum posts.
-            // ie http://moodle.com/mod/forum/user.php?id=123&mode=discussions should become http://moodle.com/user/username/discussions.
+            // Clean up user profile urls in forum posts
+            // ie http://moodle.com/mod/forum/user.php?id=123&mode=discussions
+            // should become http://moodle.com/user/username/discussions .
             if ($path == "/mod/forum/user.php" && $params['id'] && (isset($params['mode']) && $params['mode'] == 'discussions')) {
                 $slug = $DB->get_field('user', 'username', array('id' => $params['id']));
                 $slug = urlencode($slug);
@@ -446,7 +447,9 @@ class clean_moodle_url extends \moodle_url {
             }
 
         } else if (preg_match("/^\/user\/(\w+)\/(discussions)$/", $path, $matches)) {
-            // Unclean paths e.g.: http://moodle.com/user/username/discussions into http://moodle.com/mod/forum/user.php?id=123&mode=discussions
+            // Unclean paths
+            // e.g.: http://moodle.com/user/username/discussions
+            // into http://moodle.com/mod/forum/user.php?id=123&mode=discussions .
             $path = "/mod/forum/user.php";
             $params['id'] = $DB->get_field('user', 'id', array('username'  => urldecode($matches[1]) ));
             $params['mode'] = $matches[2];
