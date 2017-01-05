@@ -63,15 +63,127 @@ class clean_moodle_url extends \moodle_url {
      * @return string
      */
     public static function sluggify($string, $dash) {
-
-        $string = strtolower($string);
-        $string = str_replace(' ', '-', $string);
+        $string = self::sanitize_title_with_dashes($string);
 
         if ($dash) {
             return '-' . $string;
         }
         return $string;
 
+    }
+
+    /**
+     * Borrowed from WordPress
+     *
+     * https://developer.wordpress.org/reference/functions/sanitize_title_with_dashes/
+     *
+     * @param string $title
+     * @return string
+     */
+    private static function sanitize_title_with_dashes($title) {
+        $title = strip_tags($title);
+        // Preserve escaped octets.
+        $title = preg_replace('|%([a-fA-F0-9][a-fA-F0-9])|', '---$1---', $title);
+        // Remove percent signs that are not part of an octet.
+        $title = str_replace('%', '', $title);
+        // Restore octets.
+        $title = preg_replace('|---([a-fA-F0-9][a-fA-F0-9])---|', '%$1', $title);
+        $title = mb_strtolower($title, 'UTF-8');
+        $title = self::utf8_uri_encode($title, 200);
+        $title = strtolower($title);
+
+        $title = preg_replace('/&.+?;/', '', $title); // kill entities
+        $title = str_replace('.', '-', $title);
+        $title = preg_replace('/[^%a-z0-9 _-]/', '', $title);
+        $title = preg_replace('/\s+/', '-', $title);
+        $title = preg_replace('|-+|', '-', $title);
+        $title = trim($title, '-');
+        return $title;
+    }
+
+    /**
+     * Borrowed from WordPress
+     *
+     * @param string $utf8_string
+     * @return string
+     *
+     * https://developer.wordpress.org/reference/functions/utf8_uri_encode/
+     */
+    private static function utf8_uri_encode($utf8_string) {
+        $unicode = '';
+        $values = [];
+        $num_octets = 1;
+        $unicode_length = 0;
+        self::mbstring_binary_safe_encoding();
+        $string_length = strlen($utf8_string);
+        self::reset_mbstring_encoding();
+        for ($i = 0; $i < $string_length; $i++) {
+            $value = ord($utf8_string[$i]);
+            if ($value < 128) {
+                $unicode .= chr($value);
+                $unicode_length++;
+            } else {
+                if (count($values) == 0) {
+                    if ($value < 224) {
+                        $num_octets = 2;
+                    } elseif ($value < 240) {
+                        $num_octets = 3;
+                    } else {
+                        $num_octets = 4;
+                    }
+                }
+                $values[] = $value;
+                if (count($values) == $num_octets) {
+                    for ($j = 0; $j < $num_octets; $j++) {
+                        $unicode .= '%'.dechex($values[$j]);
+                    }
+                    $unicode_length += $num_octets * 3;
+                    $values = [];
+                    $num_octets = 1;
+                }
+            }
+        }
+        return $unicode;
+    }
+
+    /**
+     * Borrowed from WordPress
+     *
+     * https://developer.wordpress.org/reference/functions/mbstring_binary_safe_encoding/
+     *
+     * @param bool $reset
+     */
+    private static function mbstring_binary_safe_encoding($reset = false) {
+        static $encodings = [];
+        static $overloaded = null;
+
+        if (is_null($overloaded)) {
+            $overloaded = function_exists('mb_internal_encoding') && (ini_get('mbstring.func_overload') & 2);
+        }
+
+        if (false === $overloaded) {
+            return;
+        }
+
+        if (!$reset) {
+            $encoding = mb_internal_encoding();
+            array_push($encodings, $encoding);
+            mb_internal_encoding('ISO-8859-1');
+        }
+
+        if ($reset && $encodings) {
+            $encoding = array_pop($encodings);
+            mb_internal_encoding($encoding);
+        }
+    }
+
+    /**
+     * Borrowed from WordPress
+     *
+     * https://developer.wordpress.org/reference/functions/reset_mbstring_encoding/
+     */
+    private static function reset_mbstring_encoding() {
+        self::mbstring_binary_safe_encoding(true);
     }
 
     /**

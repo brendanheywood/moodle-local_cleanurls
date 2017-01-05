@@ -64,28 +64,13 @@ class local_cleanurls_test extends advanced_testcase {
             'visible' => 1, 'category' => $this->category->id));
 
         $this->forum = $this->getDataGenerator()->create_module('forum',
-            array('course' => $this->course->id, 'name' => 'A!test@FORUM'));
+            array('course' => $this->course->id, 'name' => 'A!test@FORUM#5'));
 
         $this->staff = $this->getDataGenerator()->create_user(array('email' => 'head1@example.com', 'username' => 'head1'));
         $this->setUser($this->staff);
 
         $this->enable_cleaner();
     }
-
-    public function test_it_should_clean_as_expected() {
-        $c1 = $this->category->id;
-        $c2 = $this->category2->id;
-        $url = "http://www.example.com/moodle/course/index.php?categoryid=$c2";
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals("http://www.example.com/moodle/category/sciences-$c1/compsci-$c2", $clean, "Clean: category index page");
-
-        $expectations = [];
-        foreach ($expectations as $input => $expected) {
-            $this->assertEquals($expected, (new moodle_url($input))->out());
-        }
-    }
-
 
     /**
      * Test the cleaning and uncleaning rules
@@ -292,7 +277,8 @@ class local_cleanurls_test extends advanced_testcase {
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $this->forum->cmid;
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/short%23course/forum/' . $this->forum->cmid . '-a!test@forum',
+        $this->assertEquals(
+            'http://www.example.com/moodle/course/short%23course/forum/' . $this->forum->cmid . '-atestforum5',
             $clean, "Clean: Module view page");
 
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
