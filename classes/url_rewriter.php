@@ -79,6 +79,11 @@ class url_rewriter implements \core\output\url_rewriter {
             $clean = $PAGE->url->out(false);
             $orig = $PAGE->url->raw_out(false);
             if ($orig != $clean) {
+                // One issue is that when rewriting urls we change their nesting and depth
+                // which means legacy urls in the codebase which do NOT use moodle_url and
+                // which are also relative links can be broken. To fix this we set the
+                // base href to our current uncleaned url.
+                $output .= "<base href='$orig'>\n";
 
                 // If we have just loaded a legacy url AND we can clean it, instead of
                 // cleaning the url, caching it, and waiting for the user or someone
