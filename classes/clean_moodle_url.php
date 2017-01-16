@@ -247,7 +247,7 @@ class clean_moodle_url extends \moodle_url {
             $path = substr($path, 0, -9);
         }
 
-        if ($path == "/course/view.php" && $params['id'] ) {
+        if ($path == "/course/view.php" && !empty($params['id']) ) {
             // Clean up course urls.
 
             $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
@@ -257,6 +257,16 @@ class clean_moodle_url extends \moodle_url {
                 $path = $newpath;
                 unset ($params['id']);
                 self::log("Rewrite course");
+            }
+        } else if ($path == "/course/view.php" && !empty($params['name']) ) {
+            // Clean up course urls.
+
+            $slug = urlencode($params['name']);
+            $newpath = "/course/$slug";
+            if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+                $path = $newpath;
+                unset ($params['name']);
+                self::log("Rewrite course by name.");
             }
 
         } else if ($path == "/user/" && $params['id'] ) {

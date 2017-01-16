@@ -184,6 +184,11 @@ class local_cleanurls_test extends advanced_testcase {
         $clean = $murl->out();
         $this->assertEquals('http://www.example.com/moodle/course/short%23course', $clean, "Clean: course");
 
+        $url = 'http://www.example.com/moodle/course/view.php?name=' . urlencode($this->course->shortname);
+        $murl = new moodle_url($url);
+        $clean = $murl->out();
+        $this->assertEquals('http://www.example.com/moodle/course/short%23course', $clean, "Clean: course by name");
+
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals('http://www.example.com/moodle/course/view.php?name=short%2523course', $unclean, "Unclean: course");
 
