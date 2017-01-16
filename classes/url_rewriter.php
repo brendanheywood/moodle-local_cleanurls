@@ -64,7 +64,24 @@ class url_rewriter implements \core\output\url_rewriter {
     public static function html_head_setup() {
         global $CFG, $PAGE;
 
+        $clean = $PAGE->url->out(false);
         $output = '';
+        $anchorfixjs = <<<HTML
+<script>
+document.addEventListener('click', function (event) {
+    var element = event.srcElement;
+    while (element.tagName != 'A') {
+        if (!element.parentElement) {
+            return;
+        }
+        element = element.parentElement;
+    }
+    if (element.getAttribute('href').charAt(0) == '#') {
+        element.href = '$clean' + element.getAttribute('href');
+    }
+}, true);
+</script>
+HTML;
 
         if (isset($CFG->uncleanedurl)) {
 
@@ -74,9 +91,11 @@ class url_rewriter implements \core\output\url_rewriter {
             // base href to the original uncleaned url.
             $output .= "<base href='$CFG->uncleanedurl'>\n";
 
+            // Use the canonical URL for anchors, not the base href.
+            $output .= $anchorfixjs;
+
         } else {
 
-            $clean = $PAGE->url->out(false);
             $orig = $PAGE->url->raw_out(false);
             if ($orig != $clean) {
                 // One issue is that when rewriting urls we change their nesting and depth
@@ -93,6 +112,9 @@ class url_rewriter implements \core\output\url_rewriter {
                 // Importantly this needs to happen before any JS on the page uses it,
                 // such as any analytics tracking.
                 $output .= "<script>history.replaceState && history.replaceState({}, '', '$clean');</script>\n";
+
+                // Use the replaced URL for anchors, not the base href.
+                $output .= $anchorfixjs;
 
                 // Now that each page has two valid urls, we need to tell robots like
                 // GoogleBot that they are the same, otherwise Google may think they
