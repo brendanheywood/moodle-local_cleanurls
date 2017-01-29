@@ -25,6 +25,8 @@
 
 namespace local_cleanurls;
 
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -36,12 +38,11 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class uncleaner {
-
     /**
      * Takes a string and converts it into an unclean moodle_url object
      *
      * @param string $clean the incoming url
-     * @return \moodle_url the original moodle_url
+     * @return moodle_url the original moodle_url
      */
     public static function unclean($clean) {
         $uncleaner = new self();
@@ -110,41 +111,31 @@ class uncleaner {
     private function unclean_test_url() {
         if ($this->path == '/local/cleanurls/tests/bar') {
             $this->path = '/local/cleanurls/tests/foo.php';
-            clean_moodle_url::log("Rewritten to: $this->path");
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
     }
 
     private function unclean_user_in_course() {
-        global $DB, $CFG;
+        global $DB;
 
-        if (preg_match("/^\/course\/(.+)\/user\/(.+)$/", $this->path, $matches)) {
-            // Clean up user profile urls inside course.
-            if (!is_dir($CFG->dirroot.'/user/'.$matches[2]) &&
-                !is_file($CFG->dirroot.'/user/'.$matches[2].".php")
-            ) {
-                $this->path = "/user/view.php";
-                $this->params['id'] = $DB->get_field('user', 'id', ['username' => urldecode($matches[2])]);
-                $this->params['course'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
-                clean_moodle_url::log("Rewritten to: $this->path");
-            }
+        if (preg_match('#^/course/(.+)/user/(.+)$#', $this->path, $matches)) {
+            $this->path = "/user/view.php";
+            $this->params['id'] = $DB->get_field('user', 'id', ['username' => urldecode($matches[2])]);
+            $this->params['course'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
     }
 
     private function unclean_course_users() {
-        global $DB, $CFG;
-        if (preg_match("/^\/course\/(.+)\/user\/?$/", $this->path, $matches)) {
-            // Clean up course user list urls inside course.
-            if (!is_dir($CFG->dirroot.'/user/'.$matches[1]) &&
-                !is_file($CFG->dirroot.'/user/'.$matches[1].".php")
-            ) {
-                $this->path = "/user/index.php";
-                $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
-                clean_moodle_url::log("Rewritten to: $this->path");
-            }
+        global $DB;
+        if (preg_match('#^/course/(.+)/user/?$#', $this->path, $matches)) {
+            $this->path = "/user/index.php";
+            $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
@@ -153,84 +144,63 @@ class uncleaner {
     private function unclean_user_in_forum() {
         global $DB;
 
-        if (preg_match("/^\/user\/(\w+)\/(discussions)$/", $this->path, $matches)) {
+        if (preg_match('#^/user/(\w+)/(discussions)$#', $this->path, $matches)) {
             // Unclean paths
             // e.g.: http://moodle.com/user/username/discussions
             // into http://moodle.com/mod/forum/user.php?id=123&mode=discussions .
             $this->path = "/mod/forum/user.php";
             $this->params['id'] = $DB->get_field('user', 'id', ['username' => urldecode($matches[1])]);
             $this->params['mode'] = $matches[2];
-            clean_moodle_url::log("Rewritten to: $this->path");
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
     }
 
     private function unclean_user_profile_or_in_course() {
-        global $DB, $CFG;
+        global $DB;
 
-        if (preg_match("/^\/user\/(.+)$/", $this->path, $matches)) {
+        if (preg_match('#^/user/(.+)$#', $this->path, $matches)) {
             // Clean up user profile urls.
-            if (!is_dir($CFG->dirroot.'/user/'.$matches[1]) &&
-                !is_file($CFG->dirroot.'/user/'.$matches[1].".php")
-            ) {
-                $this->path = "/user/profile.php";
-                if (isset($this->params['course'])) {
-                    $this->path = "/user/view.php";
-                }
-                $this->params['id'] = $DB->get_field('user', 'id', ['username' => urldecode($matches[1])]);
-                clean_moodle_url::log("Rewritten to: $this->path");
+            $this->path = "/user/profile.php";
+            if (isset($this->params['course'])) {
+                $this->path = "/user/view.php";
             }
+            $this->params['id'] = $DB->get_field('user', 'id', ['username' => urldecode($matches[1])]);
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
     }
 
     private function unclean_course_module_view() {
-        global $CFG;
-        if (preg_match("/^\/course\/(.+)\/(\w+)\/(\d+)(-.*)?$/", $this->path, $matches)) {
-            // Clean up course mod view.
-            if (!is_dir($CFG->dirroot.'/course/'.$matches[1]) &&
-                !is_file($CFG->dirroot.'/course/'.$matches[1].".php")
-            ) {
-                $this->path = "/mod/$matches[2]/view.php";
-                $this->params['id'] = $matches[3];
-                clean_moodle_url::log("Rewritten to: $this->path");
-            }
+        if (preg_match('#^/course/(.+)/(\w+)/(\d+)(-.*)?$#', $this->path, $matches)) {
+            $this->path = "/mod/$matches[2]/view.php";
+            $this->params['id'] = $matches[3];
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
     }
 
     private function unclean_course_modules() {
-        global $DB, $CFG;
+        global $DB;
 
-        if (preg_match("/^\/course\/(.+)\/(\w+)\/?$/", $this->path, $matches)) {
-
+        if (preg_match('#^/course/(.+)/(\w+)/?$#', $this->path, $matches)) {
             // Clean up course mod index.
-            if (!is_dir($CFG->dirroot.'/course/'.$matches[1]) &&
-                !is_file($CFG->dirroot.'/course/'.$matches[1].".php")
-            ) {
-                $this->path = "/mod/$matches[2]/index.php";
-                $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
-                clean_moodle_url::log("Rewritten to: $this->path");
-            }
+            $this->path = "/mod/$matches[2]/index.php";
+            $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
     }
 
     private function unclean_course() {
-        global $CFG, $CFG;
-        if (preg_match("/^\/course\/(.+)$/", $this->path, $matches)) {
-            // Clean up course urls.
-            if (!is_dir($CFG->dirroot.'/course/'.$matches[1]) &&
-                !is_file($CFG->dirroot.'/course/'.$matches[1].".php")
-            ) {
-                $this->path = "/course/view.php";
-                $this->params['name'] = $matches[1];
-                clean_moodle_url::log("Rewritten to: $this->path");
-            }
+        if (preg_match('#^/course/(.+)$#', $this->path, $matches)) {
+            $this->path = "/course/view.php";
+            $this->params['name'] = $matches[1];
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
@@ -238,13 +208,10 @@ class uncleaner {
 
     private function unclean_category() {
         if (preg_match('/^\/category(\/.*-(\d+))?$/', $this->path, $matches)) {
-            // Clean up category urls.
             $this->path = "/course/index.php";
-
             // We need at least 2 matches to get a valid id. Use the last match (last part of path).
             $this->params['categoryid'] = (count($matches) <= 1) ? 0 : array_pop($matches);
-
-            clean_moodle_url::log("Rewritten to: $this->path");
+            clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
         return false;
