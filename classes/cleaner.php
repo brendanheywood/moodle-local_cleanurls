@@ -117,6 +117,11 @@ class cleaner {
 
     private function clean_category() {
         global $DB;
+
+        if (!isset($this->params['categoryid'])) {
+            return false;
+        }
+
         // Clean up category list urls.
         $catid = $this->params['categoryid'];
         $this->path = '';
@@ -131,10 +136,16 @@ class cleaner {
         $this->path = '/category' .  $this->path;
         unset ($this->params['categoryid']);
         clean_moodle_url::log("Rewrite category page");
+        return true;
     }
 
     private function clean_course_by_id() {
         global $DB, $CFG;
+
+        if (empty($this->params['id'])) {
+            return false;
+        }
+
         $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
         $slug = urlencode($slug);
         $newpath = "/course/$slug";
@@ -143,10 +154,15 @@ class cleaner {
             unset ($this->params['id']);
             clean_moodle_url::log("Rewrite course");
         }
+        return true;
     }
 
     private function clean_course_by_name() {
         global $CFG;
+        if (empty($this->params['name'])) {
+            return false;
+        }
+
         $slug = urlencode($this->params['name']);
         $newpath = "/course/$slug";
         if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
@@ -154,11 +170,16 @@ class cleaner {
             unset ($this->params['name']);
             clean_moodle_url::log("Rewrite course by name.");
         }
+        return true;
     }
 
     private function clean_course_module_view($mod) {
         global $CFG;
         // Clean up mod view pages.
+
+        if (empty($this->params['id'])) {
+            return false;
+        }
 
         $id = $this->params['id'];
         list ($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
@@ -173,11 +194,15 @@ class cleaner {
 
             clean_moodle_url::log("Rewrite mod view: $this->path");
         }
+        return true;
     }
 
     private function clean_course_modules($mod) {
         global $DB, $CFG;
         // Clean up mod view pages /index has already been removed earlier.
+        if (empty($this->params['id'])) {
+            return false;
+        }
 
         $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
         $slug = urlencode($slug);
@@ -188,10 +213,17 @@ class cleaner {
 
             clean_moodle_url::log("Rewrite mod view: $this->path");
         }
+        return true;
     }
 
     private function clean_course_users() {
         global $DB, $CFG;
+
+        if (empty($this->params['id'])) {
+            return false;
+        }
+
+
         // Clean up user course list urls.
 
         $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
@@ -203,10 +235,16 @@ class cleaner {
 
             clean_moodle_url::log("Rewrite user profile");
         }
+        return true;
     }
 
     private function clean_user_in_course() {
         global $DB, $CFG;
+
+        if (empty($this->params['id']) || empty($this->params['course'])) {
+            return false;
+        }
+
         // Clean up user profile urls inside course.
         $slug = $DB->get_field('user', 'username', array('id' => $this->params['id'] ));
         $slug = urlencode($slug);
@@ -224,10 +262,19 @@ class cleaner {
             unset ($this->params['id']);
             clean_moodle_url::log("Rewrite user profile");
         }
+
+        return true;
     }
 
     private function clean_user_in_forum() {
         global $CFG, $DB;
+
+        $userid = empty($this->params['id']) ? null : $this->params['id'];
+        $mode = empty($this->params['mode']) ? null : $this->params['mode'];
+        if (is_null($userid) || ($mode != 'discussions')) {
+            return false;
+        }
+
         // Clean up user profile urls in forum posts
         // ie http://moodle.com/mod/forum/user.php?id=123&mode=discussions
         // should become http://moodle.com/user/username/discussions .
@@ -240,10 +287,15 @@ class cleaner {
             unset ($this->params['mode']);
             clean_moodle_url::log("Rewrite user profile");
         }
+
+        return true;
     }
 
     private function clean_user_profile() {
         global $CFG, $DB;
+        if (empty($this->params['id'])) {
+            return false;
+        }
         // In profile urls.
         $slug = $DB->get_field('user', 'username', array('id' => $this->params['id'] ));
         $slug = urlencode($slug);
@@ -254,6 +306,8 @@ class cleaner {
             unset ($this->params['id']);
             clean_moodle_url::log("Rewrite user profile");
         }
+
+        return true;
     }
 
     private function create_cleaned_url() {
@@ -303,31 +357,45 @@ class cleaner {
     }
 
     private function clean_path() {
-        if ($this->path == "/course/view.php" && !empty($this->params['id']) ) {
-            $this->clean_course_by_id();
-        } else if ($this->path == "/course/view.php" && !empty($this->params['name']) ) {
-            $this->clean_course_by_name();
-        } else if ($this->path == "/user/" && $this->params['id'] ) {
-            $this->clean_course_users();
-        } else if ($this->path == "/course/" && isset($this->params['categoryid']) ) {
-            $this->clean_category();
-        } else if (preg_match("/^\/mod\/(\w+)\/$/", $this->path, $matches) && $this->params['id'] ) {
-            $this->clean_course_modules($matches[1]);
-        } else if (preg_match("/^\/mod\/(\w+)\/view.php$/", $this->path, $matches) && isset($this->params['id']) ) {
-            $this->clean_course_module_view($matches[1]);
+        switch ($this->path) {
+            case '/course/view.php':
+                $this->clean_course_by_id() || $this->clean_course_by_name();
+                return;
+            case '/user/':
+                $this->clean_course_users();
+                return;
+            case '/course/':
+                $this->clean_category();
+                return;
         }
 
-        // Clean up user id's into usernmes?
-        if ($this->config->cleanusernames) {
-            if ($this->path == "/user/profile.php" && $this->params['id'] ) {
+        if (preg_match('#^/mod/(\w+)/$#', $this->path, $matches)) {
+            $this->clean_course_modules($matches[1]);
+            return;
+        }
+
+        if (preg_match('#^/mod/(\w+)/view.php$#', $this->path, $matches)) {
+            $this->clean_course_module_view($matches[1]);
+            return;
+        }
+
+        if (!empty($this->config->cleanusernames) && $this->config->cleanusernames) {
+            $this->clean_user();
+            return;
+        }
+    }
+
+    private function clean_user() {
+        switch ($this->path) {
+            case '/user/profile.php':
                 $this->clean_user_profile();
-            }
-            if ($this->path == "/user/view.php" && $this->params['id'] && $this->params['course']) {
+                return;
+            case '/user/view.php':
                 $this->clean_user_in_course();
-            }
-            if ($this->path == "/mod/forum/user.php" && $this->params['id'] && (isset($this->params['mode']) && $this->params['mode'] == 'discussions')) {
+                return;
+            case '/mod/forum/user.php':
                 $this->clean_user_in_forum();
-            }
+                return;
         }
     }
 
