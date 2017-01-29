@@ -104,6 +104,12 @@ class cleaner {
         return false;
     }
 
+    private function check_path_allowed($path) {
+        global $CFG;
+
+        return (!is_dir($CFG->dirroot.$path) && !is_file($CFG->dirroot.$path.".php"));
+    }
+
     private function check_test_url() {
         // This is a special case which will always be cleaned even if the
         // cleaner is off, used for confirming that it all works.
@@ -124,150 +130,144 @@ class cleaner {
 
         // Clean up category list urls.
         $catid = $this->params['categoryid'];
-        $this->path = '';
+        $newpath = '';
 
         // Grab all ancestor slugs.
         while ($catid) {
-            $cat = $DB->get_record('course_categories', array('id' => $catid));
+            $cat = $DB->get_record('course_categories', ['id' => $catid]);
             $slug = clean_moodle_url::sluggify($cat->name, false);
-            $this->path = '/' . $slug . '-' . $catid . $this->path;
+            $newpath = '/'.$slug.'-'.$catid.$newpath;
             $catid = $cat->parent;
         }
-        $this->path = '/category' .  $this->path;
-        unset ($this->params['categoryid']);
-        clean_moodle_url::log("Rewrite category page");
+        $newpath = '/category'.$newpath;
+
+        if ($this->check_path_allowed($newpath)) {
+            $this->path = $newpath;
+            unset ($this->params['categoryid']);
+            clean_moodle_url::log("Rewrite category page");
+        }
+
         return true;
     }
 
     private function clean_course_by_id() {
-        global $DB, $CFG;
+        global $DB;
 
         if (empty($this->params['id'])) {
             return false;
         }
 
-        $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
-        $slug = urlencode($slug);
-        $newpath = "/course/$slug";
-        if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+        $slug = $DB->get_field('course', 'shortname', ['id' => $this->params['id']]);
+        $newpath = '/course/'.urlencode($slug);
+        if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
-            unset ($this->params['id']);
+            unset($this->params['id']);
             clean_moodle_url::log("Rewrite course");
         }
         return true;
     }
 
     private function clean_course_by_name() {
-        global $CFG;
         if (empty($this->params['name'])) {
             return false;
         }
 
-        $slug = urlencode($this->params['name']);
-        $newpath = "/course/$slug";
-        if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+        $newpath = '/course/'.urlencode($this->params['name']);
+        if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
-            unset ($this->params['name']);
+            unset($this->params['name']);
             clean_moodle_url::log("Rewrite course by name.");
         }
         return true;
     }
 
     private function clean_course_module_view($mod) {
-        global $CFG;
-        // Clean up mod view pages.
-
         if (empty($this->params['id'])) {
             return false;
         }
 
         $id = $this->params['id'];
-        list ($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
+        list($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
 
-        $slug = clean_moodle_url::sluggify($cm->name, true);
-        $shortcode = urlencode($course->shortname);
+        $title = clean_moodle_url::sluggify($cm->name, true);
+        $shortname = urlencode($course->shortname);
 
-        $newpath = "/course/$shortcode/$mod/$id$slug";
-        if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+        $newpath = "/course/{$shortname}/{$mod}/{$id}{$title}";
+        if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
-            unset ($this->params['id']);
-
-            clean_moodle_url::log("Rewrite mod view: $this->path");
+            unset($this->params['id']);
+            clean_moodle_url::log("Rewrite mod view: {$this->path}");
         }
+
         return true;
     }
 
     private function clean_course_modules($mod) {
-        global $DB, $CFG;
-        // Clean up mod view pages /index has already been removed earlier.
+        global $DB;
+
         if (empty($this->params['id'])) {
             return false;
         }
 
-        $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
+        $slug = $DB->get_field('course', 'shortname', ['id' => $this->params['id']]);
         $slug = urlencode($slug);
-        $newpath = "/course/$slug/$mod";
-        if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+        $newpath = "/course/{$slug}/{$mod}";
+        if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
-            unset ($this->params['id']);
-
-            clean_moodle_url::log("Rewrite mod view: $this->path");
+            unset($this->params['id']);
+            clean_moodle_url::log("Rewrite mod view: {$this->path}");
         }
+
         return true;
     }
 
     private function clean_course_users() {
-        global $DB, $CFG;
+        global $DB;
 
         if (empty($this->params['id'])) {
             return false;
         }
 
-
-        // Clean up user course list urls.
-
-        $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
-        $slug = urlencode($slug);
-        $newpath = "/course/$slug/user";
-        if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+        $newpath = $DB->get_field('course', 'shortname', ['id' => $this->params['id']]);
+        $newpath = '/course/'.urlencode($newpath).'/user';
+        if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
-            unset ($this->params['id']);
-
-            clean_moodle_url::log("Rewrite user profile");
+            unset($this->params['id']);
+            clean_moodle_url::log('Rewrite course users');
         }
+
         return true;
     }
 
     private function clean_user_in_course() {
-        global $DB, $CFG;
+        global $DB;
 
         if (empty($this->params['id']) || empty($this->params['course'])) {
             return false;
         }
 
-        // Clean up user profile urls inside course.
-        $slug = $DB->get_field('user', 'username', array('id' => $this->params['id'] ));
-        $slug = urlencode($slug);
-        $newpath = "/user/$slug";
+        $username = $DB->get_field('user', 'username', ['id' => $this->params['id']]);
+        $username = urlencode($username);
+        $newpath = "/user/{$username}";
 
-        if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+        if ($this->params['course'] != 1) {
+            $coursename = $DB->get_field('course', 'shortname', ['id' => $this->params['course']]);
+            $coursename = urlencode($coursename);
+            $newpath = "/course/{$coursename}{$newpath}";
+            unset($this->params['course']);
+        }
+
+        if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
-
-            if ($this->params['course'] != 1) {
-                $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['course'] ));
-                $slug = urlencode($slug);
-                $this->path = "/course/$slug$this->path";
-                unset ($this->params['course']);
-            }
-            unset ($this->params['id']);
-            clean_moodle_url::log("Rewrite user profile");
+            unset($this->params['id']);
+            clean_moodle_url::log('Rewrite user profile in course');
         }
 
         return true;
     }
 
     private function clean_user_in_forum() {
-        global $CFG, $DB;
+        global $DB;
 
         $userid = empty($this->params['id']) ? null : $this->params['id'];
         $mode = empty($this->params['mode']) ? null : $this->params['mode'];
@@ -275,36 +275,33 @@ class cleaner {
             return false;
         }
 
-        // Clean up user profile urls in forum posts
-        // ie http://moodle.com/mod/forum/user.php?id=123&mode=discussions
-        // should become http://moodle.com/user/username/discussions .
-        $slug = $DB->get_field('user', 'username', array('id' => $this->params['id']));
-        $slug = urlencode($slug);
-        $newpath = "/user/$slug";
-        if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-            $this->path = $newpath . '/' . $this->params['mode'];
-            unset ($this->params['id']);
+        $username = $DB->get_field('user', 'username', ['id' => $this->params['id']]);
+        $username = urlencode($username);
+        $mode = urlencode($mode);
+        $newpath = "/user/{$username}/{$mode}";
+
+        if ($this->check_path_allowed($newpath)) {
+            $this->path = $newpath;
+            unset($this->params['id']);
             unset ($this->params['mode']);
-            clean_moodle_url::log("Rewrite user profile");
+            clean_moodle_url::log('Rewrite user profile in forum');
         }
 
         return true;
     }
 
     private function clean_user_profile() {
-        global $CFG, $DB;
+        global $DB;
+
         if (empty($this->params['id'])) {
             return false;
         }
-        // In profile urls.
-        $slug = $DB->get_field('user', 'username', array('id' => $this->params['id'] ));
-        $slug = urlencode($slug);
-        $newpath = "/user/$slug";
-
-        if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
+        $newpath = $DB->get_field('user', 'username', ['id' => $this->params['id']]);
+        $newpath = '/user/'.urlencode($newpath);
+        if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
-            unset ($this->params['id']);
-            clean_moodle_url::log("Rewrite user profile");
+            unset($this->params['id']);
+            clean_moodle_url::log('Rewrite user profile');
         }
 
         return true;
