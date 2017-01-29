@@ -25,7 +25,10 @@
 
 namespace local_cleanurls;
 
+use cache;
+use cache_application;
 use moodle_url;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,134 +45,178 @@ class cleaner {
      * Takes a moodle_url and either returns a clean_moodle_url object with
      * clean cloned properties or if nothing is done the original object.
      *
-     * @param moodle_url $orig a url to clean
+     * @param moodle_url $originalurl a url to clean
      * @return moodle_url
      */
-    public static function clean(\moodle_url $orig) {
+    public static function clean(moodle_url $originalurl) {
+        $cleaner = new self();
+        $cleaner->originalurl = $originalurl;
+        $cleaner->execute();
+        return $cleaner->cleanedurl;
+    }
 
-        global $DB, $CFG;
+    /** @var cache_application */
+    private $cache;
 
-        $path   = $orig->get_path();
+    /** @var moodle_url */
+    private $cleanedurl;
+
+    /** @var stdClass */
+    private $config;
+
+    /** @var string */
+    private $moodlepath;
+
+    /** @var string */
+    private $originalpath;
+
+    /** @var moodle_url */
+    private $originalurl;
+
+    /** @var string */
+    private $originalurlraw;
+
+    /** @var string[] */
+    private $params;
+
+    /** @var string */
+    private $path;
+
+    private function execute() {
+        global $CFG;
+
+        $this->originalurlraw = $this->originalurl->raw_out(false);
+        $this->originalpath = $this->originalurl->get_path(false);
+        $this->cleanedurl = null;
+        $this->config = get_config('local_cleanurls');
 
         // This is a special case which will always be cleaned even if the
         // cleaner is off, used for confirming that it all works.
-        if (substr($path, -30) == '/local/cleanurls/tests/foo.php') {
+        if (substr($this->originalpath, -30) == '/local/cleanurls/tests/foo.php') {
             clean_moodle_url::log("Rewrite test url");
-            return new clean_moodle_url('/local/cleanurls/tests/bar');
+            $this->cleanedurl = new clean_moodle_url('/local/cleanurls/tests/bar');
+            return;
         }
 
-        $config = get_config('local_cleanurls');
-
-        if (empty($config->cleaningon)) {
+        // Check if cleaning is on.
+        if (empty($this->config->cleaningon)) {
             clean_moodle_url::log("Cleaning is not on");
-            return $orig;
+            $this->cleanedurl = $this->originalurl;
+            return;
         }
 
-        $params = $orig->params();
-
-        $origurl = $orig->raw_out(false);
-
-        $cache = \cache::make('local_cleanurls', 'outgoing');
-        $cached = $cache->get($origurl);
+        // Check if cached.
+        $this->cache = cache::make('local_cleanurls', 'outgoing');
+        $cached = $this->cache->get($this->originalurlraw);
         if ($cached) {
             $clean = new clean_moodle_url($cached);
-            clean_moodle_url::log("Found cached:" . $origurl . " => " . $cached);
-            return $clean;
+            clean_moodle_url::log("Found cached: {$this->originalurlraw} => {$cached}");
+            $this->cleanedurl = $clean;
+            return;
         }
 
-        clean_moodle_url::log("Cleaning: " . $origurl . " Path is: $path");
+        clean_moodle_url::log("Cleaning: {$this->originalurlraw} Path is: {$this->originalpath}");
+
+        $this->path = $this->originalpath;
+        $this->params = $this->originalurl->params();
 
         // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
         // then remove the 'somepath/moodle' part and store for later.
         $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME)) + 3;
         $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
-        $moodle = '';
+
+        $this->moodlepath = '';
         if ($slashpos) {
-            $moodle = substr($CFG->wwwroot, $slashpos);
-            $path = substr($path, strlen($moodle));
-            clean_moodle_url::log("Removed wwwroot from path: $path");
+            $this->moodlepath = substr($CFG->wwwroot, $slashpos);
+            $this->path = substr($this->path, strlen($this->moodlepath));
+            clean_moodle_url::log("Removed wwwroot ({$this->moodlepath}) from path: {$this->path}");
         }
 
-        // Remember the original path before rewriting it.
-        $originalpath = $path;
+        $this->clean_path();
+    }
+
+    private function clean_path() {
+        global $DB, $CFG;
+
+        $originalpath = $this->path;
 
         // Remove /index.php from end.
-        if (substr($path, -10) == '/index.php') {
+        if (substr($this->path, -10) == '/index.php') {
             clean_moodle_url::log("Removing /index.php");
-            $path = substr($path, 0, -9);
+            $this->path = substr($this->path, 0, -9);
         }
 
-        if ($path == "/course/view.php" && !empty($params['id']) ) {
+        if ($this->path == "/course/view.php" && !empty($this->params['id']) ) {
             // Clean up course urls.
 
-            $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
+            $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
             $slug = urlencode($slug);
             $newpath = "/course/$slug";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                $path = $newpath;
-                unset ($params['id']);
+                $this->path = $newpath;
+                unset ($this->params['id']);
                 clean_moodle_url::log("Rewrite course");
             }
-        } else if ($path == "/course/view.php" && !empty($params['name']) ) {
+        } else if ($this->path == "/course/view.php" && !empty($this->params['name']) ) {
             // Clean up course urls.
 
-            $slug = urlencode($params['name']);
+            $slug = urlencode($this->params['name']);
             $newpath = "/course/$slug";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                $path = $newpath;
-                unset ($params['name']);
+                $this->path = $newpath;
+                unset ($this->params['name']);
                 clean_moodle_url::log("Rewrite course by name.");
             }
 
-        } else if ($path == "/user/" && $params['id'] ) {
+        } else if ($this->path == "/user/" && $this->params['id'] ) {
             // Clean up user course list urls.
 
-            $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
+            $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
             $slug = urlencode($slug);
             $newpath = "/course/$slug/user";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                $path = $newpath;
-                unset ($params['id']);
+                $this->path = $newpath;
+                unset ($this->params['id']);
 
                 clean_moodle_url::log("Rewrite user profile");
             }
 
-        } else if ($path == "/course/" && isset($params['categoryid']) ) {
+        } else if ($this->path == "/course/" && isset($this->params['categoryid']) ) {
 
             // Clean up category list urls.
-            $catid = $params['categoryid'];
-            $path = '';
+            $catid = $this->params['categoryid'];
+            $this->path = '';
 
             // Grab all ancestor slugs.
             while ($catid) {
                 $cat = $DB->get_record('course_categories', array('id' => $catid));
                 $slug = clean_moodle_url::sluggify($cat->name, false);
-                $path = '/' . $slug . '-' . $catid . $path;
+                $this->path = '/' . $slug . '-' . $catid . $this->path;
                 $catid = $cat->parent;
             }
-            $path = '/category' .  $path;
-            unset ($params['categoryid']);
+            $this->path = '/category' .  $this->path;
+            unset ($this->params['categoryid']);
             clean_moodle_url::log("Rewrite category page");
 
-        } else if (preg_match("/^\/mod\/(\w+)\/$/", $path, $matches) && $params['id'] ) {
+        } else if (preg_match("/^\/mod\/(\w+)\/$/", $this->path, $matches) && $this->params['id'] ) {
             // Clean up mod view pages /index has already been removed earlier.
 
             $mod = $matches[1];
 
-            $slug = $DB->get_field('course', 'shortname', array('id' => $params['id'] ));
+            $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['id'] ));
             $slug = urlencode($slug);
             $newpath = "/course/$slug/$mod";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                $path = $newpath;
-                unset ($params['id']);
+                $this->path = $newpath;
+                unset ($this->params['id']);
 
-                clean_moodle_url::log("Rewrite mod view: $path");
+                clean_moodle_url::log("Rewrite mod view: $this->path");
             }
 
-        } else if (preg_match("/^\/mod\/(\w+)\/view.php$/", $path, $matches) && isset($params['id']) ) {
+        } else if (preg_match("/^\/mod\/(\w+)\/view.php$/", $this->path, $matches) && isset($this->params['id']) ) {
             // Clean up mod view pages.
 
-            $id = $params['id'];
+            $id = $this->params['id'];
             $mod = $matches[1];
             list ($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
 
@@ -178,45 +225,45 @@ class cleaner {
 
             $newpath = "/course/$shortcode/$mod/$id$slug";
             if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                $path = $newpath;
-                unset ($params['id']);
+                $this->path = $newpath;
+                unset ($this->params['id']);
 
-                clean_moodle_url::log("Rewrite mod view: $path");
+                clean_moodle_url::log("Rewrite mod view: $this->path");
             }
         }
 
         // Clean up user id's into usernmes?
-        if ($config->cleanusernames) {
+        if ($this->config->cleanusernames) {
 
             // In profile urls.
-            if ($path == "/user/profile.php" && $params['id'] ) {
-                $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
+            if ($this->path == "/user/profile.php" && $this->params['id'] ) {
+                $slug = $DB->get_field('user', 'username', array('id' => $this->params['id'] ));
                 $slug = urlencode($slug);
                 $newpath = "/user/$slug";
 
                 if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                    $path = $newpath;
-                    unset ($params['id']);
+                    $this->path = $newpath;
+                    unset ($this->params['id']);
                     clean_moodle_url::log("Rewrite user profile");
                 }
             }
 
             // Clean up user profile urls inside course.
-            if ($path == "/user/view.php" && $params['id'] && $params['course']) {
-                $slug = $DB->get_field('user', 'username', array('id' => $params['id'] ));
+            if ($this->path == "/user/view.php" && $this->params['id'] && $this->params['course']) {
+                $slug = $DB->get_field('user', 'username', array('id' => $this->params['id'] ));
                 $slug = urlencode($slug);
                 $newpath = "/user/$slug";
 
                 if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                    $path = $newpath;
+                    $this->path = $newpath;
 
-                    if ($params['course'] != 1) {
-                        $slug = $DB->get_field('course', 'shortname', array('id' => $params['course'] ));
+                    if ($this->params['course'] != 1) {
+                        $slug = $DB->get_field('course', 'shortname', array('id' => $this->params['course'] ));
                         $slug = urlencode($slug);
-                        $path = "/course/$slug$path";
-                        unset ($params['course']);
+                        $this->path = "/course/$slug$this->path";
+                        unset ($this->params['course']);
                     }
-                    unset ($params['id']);
+                    unset ($this->params['id']);
                     clean_moodle_url::log("Rewrite user profile");
                 }
             }
@@ -224,34 +271,34 @@ class cleaner {
             // Clean up user profile urls in forum posts
             // ie http://moodle.com/mod/forum/user.php?id=123&mode=discussions
             // should become http://moodle.com/user/username/discussions .
-            if ($path == "/mod/forum/user.php" && $params['id'] && (isset($params['mode']) && $params['mode'] == 'discussions')) {
-                $slug = $DB->get_field('user', 'username', array('id' => $params['id']));
+            if ($this->path == "/mod/forum/user.php" && $this->params['id'] && (isset($this->params['mode']) && $this->params['mode'] == 'discussions')) {
+                $slug = $DB->get_field('user', 'username', array('id' => $this->params['id']));
                 $slug = urlencode($slug);
                 $newpath = "/user/$slug";
                 if (!is_dir($CFG->dirroot . $newpath) && !is_file($CFG->dirroot . $newpath . ".php")) {
-                    $path = $newpath . '/' . $params['mode'];
-                    unset ($params['id']);
-                    unset ($params['mode']);
+                    $this->path = $newpath . '/' . $this->params['mode'];
+                    unset ($this->params['id']);
+                    unset ($this->params['mode']);
                     clean_moodle_url::log("Rewrite user profile");
                 }
             }
         }
 
         // URL was not rewritten.
-        if ($path == $originalpath) {
-            return $orig;
+        if ($this->path == $originalpath) {
+            $this->cleanedurl = $this->originalurl;
+            return;
         }
 
-        $clean = new clean_moodle_url($orig);
-        $clean->set_path($moodle . $path);
+        $clean = new clean_moodle_url($this->originalurl);
+        $clean->set_path($this->moodlepath . $this->path);
         $clean->remove_all_params();
-        $clean->params($params);
+        $clean->params($this->params);
 
         $cleaned = $clean->raw_out(false);
-        $cache->set($origurl, $cleaned);
+        $this->cache->set($this->originalurlraw, $cleaned);
 
         clean_moodle_url::log("Clean:".$cleaned);
-        return $clean;
-
+        $this->cleanedurl = $clean;
     }
 }
