@@ -82,36 +82,69 @@ class cleaner {
     /** @var string */
     private $path;
 
-    private function execute() {
-        global $CFG;
-
-        $this->originalurlraw = $this->originalurl->raw_out(false);
-        $this->originalpath = $this->originalurl->get_path(false);
-        $this->cleanedurl = null;
-        $this->config = get_config('local_cleanurls');
-
-        // This is a special case which will always be cleaned even if the
-        // cleaner is off, used for confirming that it all works.
-        if (substr($this->originalpath, -30) == '/local/cleanurls/tests/foo.php') {
-            clean_moodle_url::log("Rewrite test url");
-            $this->cleanedurl = new clean_moodle_url('/local/cleanurls/tests/bar');
-            return;
-        }
-
-        // Check if cleaning is on.
-        if (empty($this->config->cleaningon)) {
-            clean_moodle_url::log("Cleaning is not on");
-            $this->cleanedurl = $this->originalurl;
-            return;
-        }
-
-        // Check if cached.
+    private function check_cached() {
         $this->cache = cache::make('local_cleanurls', 'outgoing');
         $cached = $this->cache->get($this->originalurlraw);
         if ($cached) {
             $clean = new clean_moodle_url($cached);
             clean_moodle_url::log("Found cached: {$this->originalurlraw} => {$cached}");
             $this->cleanedurl = $clean;
+            return true;
+        }
+        return false;
+    }
+
+    private function check_cleaner_disabled() {
+        // Check if cleaning is on.
+        if (empty($this->config->cleaningon)) {
+            clean_moodle_url::log("Cleaning is not on");
+            $this->cleanedurl = $this->originalurl;
+            return true;
+        }
+        return false;
+    }
+
+    private function check_test_url() {
+        // This is a special case which will always be cleaned even if the
+        // cleaner is off, used for confirming that it all works.
+        if (substr($this->originalpath, -30) == '/local/cleanurls/tests/foo.php') {
+            clean_moodle_url::log("Rewrite test url");
+            $this->cleanedurl = new clean_moodle_url('/local/cleanurls/tests/bar');
+            return true;
+        }
+        return false;
+    }
+
+    private function create_cleaned_url() {
+        // Add back moodle path.
+        $this->path = $this->moodlepath.$this->path;
+
+        // URL was not rewritten.
+        if ($this->path == $this->originalpath) {
+            $this->cleanedurl = $this->originalurl;
+            return;
+        }
+
+        // Create new URL.
+        $this->cleanedurl = new clean_moodle_url($this->originalurl);
+        $this->cleanedurl->set_path($this->path);
+        $this->cleanedurl->remove_all_params();
+        $this->cleanedurl->params($this->params);
+
+        // Cache and log it.
+        $cleaned = $this->cleanedurl->raw_out(false);
+        $this->cache->set($this->originalurlraw, $cleaned);
+        clean_moodle_url::log("Clean: {$cleaned}");
+    }
+
+    private function execute() {
+        $this->originalurlraw = $this->originalurl->raw_out(false);
+        $this->originalpath = $this->originalurl->get_path(false);
+        $this->cleanedurl = null;
+        $this->config = get_config('local_cleanurls');
+
+        // The order of the checks below is important.
+        if ($this->check_test_url() || $this->check_cleaner_disabled() || $this->check_cached()) {
             return;
         }
 
@@ -119,18 +152,7 @@ class cleaner {
 
         $this->path = $this->originalpath;
         $this->params = $this->originalurl->params();
-
-        // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
-        // then remove the 'somepath/moodle' part and store for later.
-        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME)) + 3;
-        $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
-
-        $this->moodlepath = '';
-        if ($slashpos) {
-            $this->moodlepath = substr($CFG->wwwroot, $slashpos);
-            $this->path = substr($this->path, strlen($this->moodlepath));
-            clean_moodle_url::log("Removed wwwroot ({$this->moodlepath}) from path: {$this->path}");
-        }
+        $this->extract_moodle_path();
 
         $this->clean_path();
     }
@@ -140,11 +162,7 @@ class cleaner {
 
         $originalpath = $this->path;
 
-        // Remove /index.php from end.
-        if (substr($this->path, -10) == '/index.php') {
-            clean_moodle_url::log("Removing /index.php");
-            $this->path = substr($this->path, 0, -9);
-        }
+        $this->remove_indexphp();
 
         if ($this->path == "/course/view.php" && !empty($this->params['id']) ) {
             // Clean up course urls.
@@ -284,21 +302,30 @@ class cleaner {
             }
         }
 
-        // URL was not rewritten.
-        if ($this->path == $originalpath) {
-            $this->cleanedurl = $this->originalurl;
-            return;
+        $this->create_cleaned_url();
+    }
+
+    private function remove_indexphp() {
+        // Remove /index.php from end.
+        if (substr($this->path, -10) == '/index.php') {
+            clean_moodle_url::log("Removing /index.php");
+            $this->path = substr($this->path, 0, -9);
         }
+    }
 
-        $clean = new clean_moodle_url($this->originalurl);
-        $clean->set_path($this->moodlepath . $this->path);
-        $clean->remove_all_params();
-        $clean->params($this->params);
+    private function extract_moodle_path() {
+        global $CFG;
 
-        $cleaned = $clean->raw_out(false);
-        $this->cache->set($this->originalurlraw, $cleaned);
+        // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
+        // then remove the 'somepath/moodle' part and store for later.
+        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME)) + 3;
+        $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
 
-        clean_moodle_url::log("Clean:".$cleaned);
-        $this->cleanedurl = $clean;
+        $this->moodlepath = '';
+        if ($slashpos) {
+            $this->moodlepath = substr($CFG->wwwroot, $slashpos);
+            $this->path = substr($this->path, strlen($this->moodlepath));
+            clean_moodle_url::log("Removed wwwroot ({$this->moodlepath}) from path: {$this->path}");
+        }
     }
 }
