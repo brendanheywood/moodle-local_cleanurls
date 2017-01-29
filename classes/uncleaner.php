@@ -71,6 +71,19 @@ class uncleaner {
     /** @var clean_moodle_url */
     private $uncleanurl;
 
+    private function create_uncleaned_url() {
+        // Put back .php extension if doesn't end in .php or slash.
+        if (substr($this->path, -1, 1) !== '/' && substr($this->path, -4) !== '.php') {
+            $this->path .= '.php';
+        }
+
+        clean_moodle_url::log("Rewritten to: {$this->path}");
+        $this->uncleanurl = new clean_moodle_url($this->cleanurl);;
+        $this->uncleanurl->set_path($this->moodlepath.$this->path);
+        $this->uncleanurl->remove_all_params();
+        $this->uncleanurl->params($this->params);
+    }
+
     private function execute() {
         global $CFG, $DB;
 
@@ -79,19 +92,8 @@ class uncleaner {
         $this->path = $this->cleanurl->get_path();
         $this->params = $this->cleanurl->params();
         $this->uncleanurl = null;
-
         clean_moodle_url::log("Incoming url: {$this->cleanurlraw} - Path: {$this->path}");
-
-        // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
-        // then remove the 'somepath/moodle' part and store for later.
-        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME)) + 3;
-        $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
-        $moodle = '';
-        if ($slashpos) {
-            $moodle = substr($CFG->wwwroot, $slashpos);
-            $this->path = substr($this->path, strlen($moodle));
-            clean_moodle_url::log("Removed wwwroot from path: $this->path");
-        }
+        clean_moodle_url::extract_moodle_path($this->path, $this->moodlepath);
 
         // These regex's must be in order of higher specificity to lowest.
 
@@ -176,15 +178,6 @@ class uncleaner {
             clean_moodle_url::log("Rewritten to: $this->path");
         }
 
-        // Put back .php extension if doesn't end in .php or slash.
-        if (substr($this->path, -1, 1) !== '/' && substr($this->path, -4) !== '.php') {
-            $this->path .= '.php';
-        }
-
-        clean_moodle_url::log("Rewritten to: {$this->path}");
-        $this->uncleanurl = new clean_moodle_url($this->cleanurl);;
-        $this->uncleanurl->set_path($moodle.$this->path);
-        $this->uncleanurl->remove_all_params();
-        $this->uncleanurl->params($this->params);
+        $this->create_uncleaned_url();
     }
 }
