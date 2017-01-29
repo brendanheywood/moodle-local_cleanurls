@@ -39,18 +39,33 @@ defined('MOODLE_INTERNAL') || die();
  */
 class clean_moodle_url extends moodle_url {
 
+    public static function extract_moodle_path(&$path, &$moodlepath) {
+        global $CFG;
+
+        // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
+        // then remove the 'somepath/moodle' part and store for later.
+        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME)) + 3;
+        $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
+
+        $moodlepath = '';
+        if ($slashpos) {
+            $moodlepath = substr($CFG->wwwroot, $slashpos);
+            $path = substr($path, strlen($moodlepath));
+            self::log("Removed wwwroot ({$moodlepath}) from path: {$path}");
+        }
+    }
+
     /**
      * A log util for debugging
      *
      * @param string $msg an log message
      */
     public static function log($msg) {
-
-        $debug = get_config('local_cleanurls', 'debugging');
-        // @codingStandardsIgnoreStart
-        $debug && error_log($msg);
-        // @codingStandardsIgnoreEnd
-
+        if (get_config('local_cleanurls', 'debugging')) {
+            // @codingStandardsIgnoreStart
+            error_log($msg);
+            // @codingStandardsIgnoreEnd
+        }
     }
 
     /**
@@ -60,18 +75,13 @@ class clean_moodle_url extends moodle_url {
      * obvious, but isn't used at all for routing. Usually it is prefixed
      * with and id such as /page/1234-some-nice-name
      *
-     * @param string $string a string to url escape and prettify
-     * @param boolean $dash if present a dash is prepended
+     * @param string  $string     a string to url escape and prettify
+     * @param boolean $dashprefix if present a dash is prepended
      * @return string
      */
-    public static function sluggify($string, $dash) {
+    public static function sluggify($string, $dashprefix) {
         $string = wordpress_util::sanitize_title_with_dashes($string);
-
-        if ($dash) {
-            return '-' . $string;
-        }
-        return $string;
-
+        return ($dashprefix ? '-' : '').$string;
     }
 
     /**

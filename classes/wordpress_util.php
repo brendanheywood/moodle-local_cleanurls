@@ -45,7 +45,7 @@ abstract class wordpress_util {
         // Restore octets.
         $title = preg_replace('|---([a-fA-F0-9][a-fA-F0-9])---|', '%$1', $title);
         $title = mb_strtolower($title, 'UTF-8');
-        $title = self::utf8_uri_encode($title, 200);
+        $title = self::utf8_uri_encode($title);
         $title = strtolower($title);
 
         $title = preg_replace('/&.+?;/', '', $title); // Kill entities.
@@ -82,10 +82,12 @@ abstract class wordpress_util {
                 if (count($values) == 0) {
                     if ($value < 224) {
                         $numoctets = 2;
-                    } else if ($value < 240) {
-                        $numoctets = 3;
                     } else {
-                        $numoctets = 4;
+                        if ($value < 240) {
+                            $numoctets = 3;
+                        } else {
+                            $numoctets = 4;
+                        }
                     }
                 }
                 $values[] = $value;

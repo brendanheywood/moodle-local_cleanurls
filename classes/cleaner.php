@@ -344,8 +344,7 @@ class cleaner {
 
         $this->path = $this->originalpath;
         $this->params = $this->originalurl->params();
-        $this->extract_moodle_path();
-
+        clean_moodle_url::extract_moodle_path($this->path, $this->moodlepath);
         $this->remove_indexphp();
 
         $this->clean_path();
@@ -401,22 +400,6 @@ class cleaner {
         if (substr($this->path, -10) == '/index.php') {
             clean_moodle_url::log("Removing /index.php");
             $this->path = substr($this->path, 0, -9);
-        }
-    }
-
-    private function extract_moodle_path() {
-        global $CFG;
-
-        // If moodle is installed inside a dir like example.com/somepath/moodle/index.php
-        // then remove the 'somepath/moodle' part and store for later.
-        $slashstart = strlen(parse_url($CFG->wwwroot, PHP_URL_SCHEME)) + 3;
-        $slashpos = strpos($CFG->wwwroot, '/', $slashstart);
-
-        $this->moodlepath = '';
-        if ($slashpos) {
-            $this->moodlepath = substr($CFG->wwwroot, $slashpos);
-            $this->path = substr($this->path, strlen($this->moodlepath));
-            clean_moodle_url::log("Removed wwwroot ({$this->moodlepath}) from path: {$this->path}");
         }
     }
 }
