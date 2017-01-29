@@ -22,6 +22,8 @@
 
 namespace local_cleanurls;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * The main cleaning and uncleaning logic
  *
