@@ -67,8 +67,8 @@ class webserver_tester {
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_HEADER, 1);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 5);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 1);
         $response = curl_exec($curl);
         $data->code = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
