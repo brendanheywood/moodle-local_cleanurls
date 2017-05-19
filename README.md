@@ -231,8 +231,11 @@ It was built using git like this
 git format-patch xyz123 --stdout > local/cleanurls/core.patch
 ```
 
-Step 3: Add the apache rewrite to the custom router
----------------------------------------------------
+Step 3: Add the webserver rewrite to the custom router
+------------------------------------------------------
+
+For more details or NGINX configuration, refer to:
+[WEBSERVER.md](WEBSERVER.md)
 
 ```apache
 <Directory /var/www/moodle>

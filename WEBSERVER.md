@@ -4,91 +4,46 @@ Web Server
 While Web Servers usually map a URL to a file, to have the semantic URLs
 from CleanURLs working in Moodle it is necessary to tweak that behaviour.
 
+We need to:
+
+* Keep the old URLs working - if the URL maps to a file, use it.
+* Redirect the requests that would be a 404 to `local/cleanurls/router.php`.
+* Add a query parameter `q` with the original requested URL.
+* Append (keep) all previous parameters if existing.
+
+If using apache, this is the suggested configuration:
+
 ```apache
-# APACHE - We will use the mod_rewrite.
-<Directory /var/www/moodle> 
-   RewriteEngine on     # Enable RewriteEngine on Moodle's wwwroot
-   RweriteBase /        # All relative URLs are based from root
-   # We will add the configuration here
+# Replace the path below with your Moodle wwwroot.
+<Directory /var/www/moodle>
+    # Enable RewriteEngine
+    RewriteEngine on
+    # All relative URLs are based from root
+    RewriteBase /
+    # Do not change URLs that point to an existing file.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # Do not change URLs that point to an existing directory.
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Rewrite URLs matching ^(.*)$ as $1 - this means all URLs.
+    # Rewrite it to the cleanurls router
+    # Use ?q=$1 to forward the original URL as a query parameter
+    # Use the flags:
+    # - L (do not continue rewriting)
+    # - B (encode back the parameters)
+    # - QSA (append the original query string parameters)
+    RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,B,QSA]
 </Directory>
 ```
 
+If using nginx, all you need to do is add one more `try_files` entry pointing to the router, as follows:
+
 ```nginx
-# NGINX - We will change URLs are mapped to files.
 location / {
-    try_files $uri $uri/ =404;
-    # We will change the line above.
+    # For more details, see: http://nginx.org/en/docs/varindex.html
+    try_files $uri $uri/ /local/cleanurls/router.php?q=$uri&$args;
 }
 ```
 
-To maintain this semantic URLs fully compatible with the old Moodle URLs,
-first we need to make sure we do not touch any URL that maps to an existing
-file or directory.
-
-```apache
-# APACHE
-RewriteCond %{REQUEST_FILENAME} !-f # Do not change URLs that point to a file.
-RewriteCond %{REQUEST_FILENAME} !-d # Do not change URLs that point to a directory. 
-```
-
-```nginx
-# NGINX
-try_files $uri $uri/;               # Let it try to find a file or a directory for the given URL.
-```
-
-At this point, a semantic URL that is not mapped to a file or directory would
-return a '404 - Page not found'. We want to intercept that situation and redirect
-it to the `local/cleanurls/router.php` file, which will try to find the correct
-page for that URL.
-
-```apache
-# APACHE
-RewriteRule ^(.*)$ local/cleanurls/router.php [L]   # Rewrite any URL to become the Clean URLs router.
-                                                    # The [L] flag indicates this is the last rule to rewrite.
-```
-
-```nginx
-# NGINX
-try_files $uri $uri/ /local/cleanurls/router.php;   # Add the Clean URLs router, which will always exist. 
-```
-
-With this configuration all '404 - Not found pages' will be redirected to
-Clean URLs router. For the router to work, it needs to know what was the
-original URL.
-
-A small difference here is that nginx will send the URL with a leading `/`
-while Apache will not. This is easily handled by the Clean URLs plugin. 
-
-
-```apache
-# APACHE
-RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1       # Sends the matching URL in the RegEx as a GET parameter.
-```
-
-```nginx
-# NGINX
-try_files $uri $uri/ /local/cleanurls/router.php?q=$uri; # Sends the requested URL as a GET parameter.
-```
-
-Clean URLs router now is able to define throught the `q` parameter what
-was the original URL; however, it lost any other important get parameters
-that could have been provided in the original URL. The solution is to
-append those parameters back.
-
-```apache
-# APACHE
-RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,QSA]     # The QSA adds back the original parameters.
-```
-
-```nginx
-# NGINX
-try_files $uri $uri/ /local/cleanurls/router.php?q=$uri&$args; # Append the original parameters.
-```
-
-One last thing for Apache: apache decodes the parameters before parsing them, when
-restoring we need to make sure they are properly encoded again.
-
-```apache
-# APACHE
-RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,B,QSA]   # The B ensures the parameters are encoded again.
-```
+Reminder: nginx addresses will have a '/' at the beginning of the URL, whereas Apache will not.
+This is addressed in the Clean URLs plugin by simply trimming the initial slashes.
