@@ -37,7 +37,7 @@ global $CFG, $ME;
 
 $path = required_param('q', PARAM_RAW); // TODO should use PARAM_SAFEPATH instead?
 local_cleanurls\clean_moodle_url::log("Router: \$_GET: '".$path."'");
-$unclean = $CFG->wwwroot . '/' . $path;
+$unclean = $CFG->wwwroot . '/' . ltrim($path, '/');
 $url = local_cleanurls\clean_moodle_url::unclean($unclean);
 
 foreach ($url->params() as $k => $v) {

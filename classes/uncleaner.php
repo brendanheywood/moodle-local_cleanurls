@@ -114,6 +114,11 @@ class uncleaner {
             clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
+        if ($this->path == '/local/cleanurls/tests/webcheck') {
+            $this->path = '/local/cleanurls/tests/webserver/index.php';
+            clean_moodle_url::log("Rewritten to: {$this->path}");
+            return true;
+        }
         return false;
     }
 
