@@ -271,6 +271,7 @@ class cleaner_uncleaner_test extends advanced_testcase {
 
         parent::setUp();
         $this->resetAfterTest(true);
+        $CFG->wwwroot = 'http://www.example.com/moodle'; // Make it consistent across different Moodle versions.
         $CFG->urlrewriteclass = local_cleanurls\url_rewriter::class;
         set_config('enableurlrewrite', 1);
         set_config('cleaningon', true, 'local_cleanurls');
