@@ -71,11 +71,11 @@ class webserver_tester {
         curl_setopt($curl, CURLOPT_TIMEOUT, 1);
         $response = curl_exec($curl);
         $data->code = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+        $headersize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
         curl_close($curl);
 
-        $data->header = trim(substr($response, 0, $header_size));
-        $data->body = trim(substr($response, $header_size));
+        $data->header = trim(substr($response, 0, $headersize));
+        $data->body = trim(substr($response, $headersize));
 
         return $data;
     }
@@ -157,7 +157,6 @@ class webserver_tester {
 
     private function test_cleanurls_selftest() {
         $data = $this->fetch('local/cleanurls/tests/bar');
-        //$data = $this->fetch('local/cleanurls/tests/webcheck');
         $result = ($data->code == 200) && ($data->body == 'OK');
         $this->show_result('Fetch Clean URLs self test', $result);
         $this->passed = $this->passed && $result;
