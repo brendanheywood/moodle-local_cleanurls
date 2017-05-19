@@ -27,6 +27,13 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage('local_cleanurls', get_string('pluginname', 'local_cleanurls'));
+    $webservertesturl = new moodle_url('/local/cleanurls/webservertest.php');
+
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_cleanurls_webservertest',
+        new lang_string('webservertest', 'local_cleanurls'),
+        $webservertesturl
+    ));
 
     $ADMIN->add('localplugins', $settings);
     if (!during_initial_install()) {
@@ -37,8 +44,8 @@ if ($hassiteconfig) {
 
         // If we are on the settings page then also run a router test.
         if ($section == 'local_cleanurls') {
-            $result = @file_get_contents($CFG->wwwroot . '/local/cleanurls/tests/bar');
-            if ($result == 'OK') {
+            $tester = new \local_cleanurls\webserver_tester();
+            if ($tester->test()) {
                 $test .= $OUTPUT->notification(get_string('routerok', 'local_cleanurls'), 'notifysuccess');
             } else {
                 $test .= $OUTPUT->notification(get_string('routerbroken', 'local_cleanurls'), 'notifyerror');
@@ -61,10 +68,13 @@ if ($hassiteconfig) {
             $test .= $OUTPUT->notification(get_string('rewritenoconfig', 'local_cleanurls'), 'notifyerror');
         }
 
-
+        $cleaningonhelp = new lang_string('cleaningonhelp', 'local_cleanurls') .
+                          ' <a href="' . $webservertesturl . '">' .
+                          new lang_string('cleaningonhelpdebug', 'local_cleanurls') .
+                          '</a><br />' . $test;
         $settings->add(new admin_setting_configcheckbox('local_cleanurls/cleaningon',
                         new lang_string('cleaningon',         'local_cleanurls'),
-                        new lang_string('cleaningonhelp',     'local_cleanurls') . $test, 0));
+                        $cleaningonhelp, 0));
 
         $settings->add(new admin_setting_configcheckbox('local_cleanurls/cleanusernames',
                         new lang_string('cleanusernames',     'local_cleanurls'),

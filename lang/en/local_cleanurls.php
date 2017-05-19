@@ -27,7 +27,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Clean URLs';
 $string['cleaningon'] = 'Cleaning on';
-$string['cleaningonhelp'] = 'Off by default until the routing is added to apache first<br>';
+$string['cleaningonhelp'] = 'Off by default until the webserver is properly configured.';
+$string['cleaningonhelpdebug'] = '(view tests)';
 $string['routerok'] = 'Rewrite router is working (inbound links)';
 $string['routerbroken'] = 'Rewrite router is NOT working (inbound links)';
 $string['rewriteok'] = 'Rewrite function is configured properly (outbound links)';
@@ -41,4 +42,7 @@ $string['cleanusernameshelp'] = '<p>If username\'s change this is not recommende
 $string['debugging'] = 'Debugging on';
 $string['debugginghelp'] = 'Logs rewrite process to php error log';
 $string['cachedef_outgoing'] = 'Cleaned url mapping';
+$string['webservertest'] = 'Clean URLs Webserver Test';
+$string['webservertesthelp'] = 'Click here to view instructions on how to configure your webserver.';
+$string['webservertestdebug'] = 'Debug Information';
 
