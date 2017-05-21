@@ -7,6 +7,9 @@ notifications:
 
 sudo: false
 
+addons:
+  postgresql: "9.3"
+
 cache:
   directories:
   - $HOME/.composer/cache
@@ -16,20 +19,21 @@ php:
   - 7.0
 
 env:
-  - DB=pgsql MOODLE_BRANCH=MOODLE_29_STABLE CORE_PATCH=core29.patch
-  - DB=pgsql MOODLE_BRANCH=MOODLE_30_STABLE CORE_PATCH=core30.patch
   - DB=pgsql MOODLE_BRANCH=MOODLE_31_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_32_STABLE
+  - DB=pgsql MOODLE_BRANCH=MOODLE_33_STABLE
   - DB=pgsql MOODLE_BRANCH=master
   # There is little DB usage to justify all tests again with mysql.
   - DB=mysqli MOODLE_BRANCH=master
 
 matrix:
-  exclude:
-    - php: 7.0
+  include:
+    - php: 5.6
       env: DB=pgsql MOODLE_BRANCH=MOODLE_29_STABLE CORE_PATCH=core29.patch
-    - php: 7.0
+    - php: 5.6
       env: DB=pgsql MOODLE_BRANCH=MOODLE_30_STABLE CORE_PATCH=core30.patch
+    - php: 7.1
+      env: DB=pgsql MOODLE_BRANCH=master
 
 before_install:
   - cd ../..
