@@ -80,7 +80,10 @@ class webserver_tester {
         return $data;
     }
 
-    private function show_result($name, $result) {
+    private function show_result($name, $result, $actual, $expected) {
+        if ($this->isverbose) {
+            printf("\n  Actual: %s\nExpected: %s\n", $actual, $expected);
+        }
         printf("%-60s: %s\n", $name, $result ? 'PASSED' : 'FAILED');
     }
 
@@ -122,8 +125,9 @@ class webserver_tester {
 
     private function test_existing_file() {
         $data = $this->fetch('local/cleanurls/tests/webserver/index.php');
-        $result = ($data->code == 200) && ($data->body == '[]');
-        $this->show_result('Fetch an existing file', $result);
+        $expected = '[]';
+        $result = ($data->code == 200) && ($data->body == $expected);
+        $this->show_result('Fetch an existing file', $result, $data->body, $expected);
         $this->passed = $this->passed && $result;
     }
 
@@ -132,57 +136,61 @@ class webserver_tester {
         $data = $this->fetch($url);
 
         $gotcontents = ($data->code == 200) && ($data->body == '[]');
-        $redirected = ($data->code == 301)
-                      && (strpos($data->header, "\nLocation:") !== false)
-                      && (strpos($data->header, $url . '/') !== false);
+        $haslocation = (strpos($data->header, "\nLocation:") !== false);
+        $hasurl = (strpos($data->header, $url . '/') !== false);
+        $redirected = ($data->code == 301) && $haslocation && $hasurl;
         $result = $gotcontents || $redirected;
 
-        $this->show_result('Fetch an existing directory without slash', $result);
+        $this->show_result('Fetch an existing directory without slash', $result,
+                           '[' . $data->code . ';' . ($haslocation ? 'T' : 'F') . ';' . ($hasurl ? 'T' : 'F') . ']',
+                           '[301;T;T]');
         $this->passed = $this->passed && $result;
     }
 
     private function test_existing_directory_with_slash() {
         $data = $this->fetch('local/cleanurls/tests/webserver/');
-        $result = ($data->code == 200) && ($data->body == '[]');
-        $this->show_result('Fetch an existing directory with slash', $result);
+        $expected = '[]';
+        $result = ($data->code == 200) && ($data->body == $expected);
+        $this->show_result('Fetch an existing directory with slash', $result, $data->body, $expected);
         $this->passed = $this->passed && $result;
     }
 
     private function test_invalid_path_not_found() {
         $data = $this->fetch('local/cleanurls/givemea404error');
         $result = ($data->code == 404);
-        $this->show_result('Fetch an invalid path', $result);
+        $this->show_result('Fetch an invalid path', $result, $data->code, '404');
         $this->passed = $this->passed && $result;
     }
 
     private function test_cleanurls_selftest() {
         $data = $this->fetch('local/cleanurls/tests/bar');
-        $result = ($data->code == 200) && ($data->body == 'OK');
-        $this->show_result('Fetch Clean URLs self test', $result);
+        $expected = 'OK';
+        $result = ($data->code == 200) && ($data->body == $expected);
+        $this->show_result('Fetch Clean URLs self test', $result, $data->body, $expected);
         $this->passed = $this->passed && $result;
     }
 
     private function test_cleanurls_rewrite_no_parameters() {
         $data = $this->fetch('local/cleanurls/tests/webcheck');
-        $expected = '{"q":"\/local\/cleanurls\/tests\/webcheck"}';
+        $expected = '{"q":"local\/cleanurls\/tests\/webcheck"}';
         $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Test rewrite without parameters', $result);
+        $this->show_result('Test rewrite without parameters', $result, $data->body, $expected);
         $this->passed = $this->passed && $result;
     }
 
     private function test_cleanurls_rewrite_simple_parameters() {
         $data = $this->fetch('local/cleanurls/tests/webcheck?param=simple');
-        $expected = '{"q":"\/local\/cleanurls\/tests\/webcheck","param":"simple"}';
+        $expected = '{"q":"local\/cleanurls\/tests\/webcheck","param":"simple"}';
         $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Test rewrite without a simple parameter', $result);
+        $this->show_result('Test rewrite without a simple parameter', $result, $data->body, $expected);
         $this->passed = $this->passed && $result;
     }
 
     private function test_cleanurls_rewrite_encoded_parameters() {
         $data = $this->fetch('local/cleanurls/tests/webcheck?xyz=x%20%26%20y%2Fz');
-        $expected = '{"q":"\/local\/cleanurls\/tests\/webcheck","xyz":"x & y\/z"}';
+        $expected = '{"q":"local\/cleanurls\/tests\/webcheck","xyz":"x & y\/z"}';
         $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Test rewrite with \'x & y/z\' as a parameter value', $result);
+        $this->show_result('Test rewrite with \'x & y/z\' as a parameter value', $result, $data->body, $expected);
         $this->passed = $this->passed && $result;
     }
 }

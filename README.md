@@ -199,8 +199,8 @@ Extract this into /var/www/yourmoodle/local/cleanurls/
 Then run the moodle upgrade as normal.
 
 
-Step 2: Apply tiny patches to core
--------------------------------
+Step 2: Apply tiny patches to core (Moodle 2.9 and 3.0 only)
+------------------------------------------------------------
 
 This plugin uses core api's which were only added 3.1 - two new hooks in:
 
@@ -234,27 +234,60 @@ git format-patch xyz123 --stdout > local/cleanurls/core.patch
 Step 3: Add the webserver rewrite to the custom router
 ------------------------------------------------------
 
-For more details or NGINX configuration, refer to:
-[WEBSERVER.md](WEBSERVER.md)
+While Web Servers usually map a URL to a file, to have the semantic URLs
+from CleanURLs working in Moodle it is necessary to tweak that behaviour.
+
+We need to:
+
+* Keep the old URLs working - if the URL maps to a file, use it.
+* Redirect the requests that would be a 404 to `local/cleanurls/router.php`.
+* Add a query parameter `q` with the original requested URL.
+* Append (keep) all previous parameters if existing.
+
+If using apache, this is the suggested configuration:
 
 ```apache
+# Replace the path below with your Moodle wwwroot.
 <Directory /var/www/moodle>
+   # Enable RewriteEngine
    RewriteEngine on
+   # All relative URLs are based from root
    RewriteBase /
+   # Do not change URLs that point to an existing file.
    RewriteCond %{REQUEST_FILENAME} !-f
+   # Do not change URLs that point to an existing directory.
    RewriteCond %{REQUEST_FILENAME} !-d
+
+   # Rewrite URLs matching ^(.*)$ as $1 - this means all URLs.
+   # Rewrite it to the cleanurls router
+   # Use ?q=$1 to forward the original URL as a query parameter
+   # Use the flags:
+   # - L (do not continue rewriting)
+   # - B (encode back the parameters)
+   # - QSA (append the original query string parameters)
    RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,B,QSA]
 </Directory>
 ```
 
-Now restart apache
+If using nginx, all you need to do is add one more `try_files` entry pointing to the router, as follows:
 
-If you have moodle installed into a subdirectory then modify the
-RewriteRule to include this path, for example if your path is:
+```nginx
+location / {
+    # For more details, see: http://nginx.org/en/docs/varindex.html
+    try_files $uri $uri/ /local/cleanurls/router.php?q=$uri&$args;
+}
+```
 
-http://moodle.com/sub1/sub2
+Reminder: nginx addresses will have a '/' at the beginning of the URL, whereas Apache will not.
+This is addressed in the Clean URLs plugin by simply trimming the initial slashes.
 
-Then your RewriteRule should look like:
+### Moodle in a subdirectory
+
+Use the following examples to adjust your server if you Moodle resides in a subdirectory.
+
+For example: `http://moodle.com/sub1/sub2`
+
+Apache:
 
 ```apache
 DocumentRoot /var/www/shared/
@@ -268,28 +301,42 @@ DocumentRoot /var/www/shared/
 </Directory>
 ```
 
-If you need to use a .htaccess file this is fine too:
-
-Apache conf:
-
-```apache
-<Directory /var/www/moodle>
-    AllowOverride All
-</Directory>
-```
-
-/var/www/moodle/.htaccess file:
-
+Apache .htaccess Apache (optional) - Ensure you have the AllowOverride all set for your Moodle subdirectory.
 ```apache
 RewriteEngine on
 RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ local/cleanurls/router.php?q=$1 [L,B,QSA]
-
 ```
 
+nginx
+```nginx
+# nginx
+server {
+  # ...
 
+  location /sub1/sub2 {
+    try_files $uri $uri/ @moodlerewrite;
+  }
+
+  location ~ ^/sub1/sub2/(.*\.php)(/|$) {
+    fastcgi_split_path_info  ^(.+\.php)(/.+)$;
+    fastcgi_index            index.php;
+    fastcgi_pass             unix:/run/php/php7.0-fpm.sock;
+    include                  fastcgi_params;
+    fastcgi_param   PATH_INFO       $fastcgi_path_info;
+    fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  }
+
+  location @moodlerewrite {
+    rewrite ^/sub1/sub2/(.+)$ /sub1/sub2/local/cleanurls/router.php?q=$1&$args last;
+    fastcgi_pass             unix:/run/php/php7.0-fpm.sock;
+    fastcgi_param   PATH_INFO       $fastcgi_path_info;
+    fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  }
+}
+```
 
 Step 4: Turn it on and configure
 ---------------------------------------------------

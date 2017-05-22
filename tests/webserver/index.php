@@ -23,4 +23,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+if (!empty($_GET['q'])) {
+    $_GET['q'] = ltrim($_GET['q'], '/'); // Slash is acceptable but not required, remove it for testing purposes.
+}
+
 echo json_encode($_GET);
