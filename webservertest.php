@@ -29,7 +29,7 @@ admin_externalpage_setup('local_cleanurls_webservertest');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('webservertest', 'local_cleanurls'));
 
-echo '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/WEBSERVER.md" target="_blank">' .
+echo '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md" target="_blank">' .
      get_string('webservertesthelp', 'local_cleanurls') . '</a><br/><br/>';
 
 echo $OUTPUT->heading(get_string('webservertestdebug', 'local_cleanurls'));
