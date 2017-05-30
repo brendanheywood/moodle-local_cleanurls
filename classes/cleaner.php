@@ -27,6 +27,7 @@ namespace local_cleanurls;
 
 use cache;
 use cache_application;
+use cm_info;
 use moodle_url;
 use stdClass;
 
@@ -189,10 +190,10 @@ class cleaner {
         $id = $this->params['id'];
         list($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
 
-        $title = clean_moodle_url::sluggify($cm->name, true);
+        $subpath = $this->clean_course_module_view_format($course, $cm);
         $shortname = urlencode($course->shortname);
+        $newpath = "/course/{$shortname}{$subpath}";
 
-        $newpath = "/course/{$shortname}/{$mod}/{$id}{$title}";
         if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
             unset($this->params['id']);
@@ -200,6 +201,17 @@ class cleaner {
         }
 
         return true;
+    }
+
+    private function clean_course_module_view_format(stdClass $course, cm_info $cm) {
+        // Hardcoded cleaning for known course formats.
+        switch ($course->format) {
+            case 'singleactivity':
+                return '';
+            default:
+                $title = clean_moodle_url::sluggify($cm->name, true);
+                return "/{$cm->modname}/{$cm->id}{$title}";
+        }
     }
 
     private function clean_course_modules($mod) {

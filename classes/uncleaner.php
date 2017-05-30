@@ -26,6 +26,7 @@
 namespace local_cleanurls;
 
 use moodle_url;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -96,6 +97,7 @@ class uncleaner {
 
         // The order here is important.
         $this->unclean_test_url()
+        || $this->unclean_course_format()
         || $this->unclean_user_in_course()
         || $this->unclean_course_users()
         || $this->unclean_user_in_forum()
@@ -176,6 +178,41 @@ class uncleaner {
             return true;
         }
         return false;
+    }
+
+    private function unclean_course_format() {
+        global $DB;
+
+        if (!preg_match('#^/course/([^/]+)/?(.*)$#', $this->path, $matches)) {
+            return false;
+        }
+
+        $shortname = $matches[1];
+        $parameters = empty($matches[2]) ? [] : explode('/', $matches[2]);
+
+        $course = $DB->get_record('course', ['shortname' => $shortname]);
+        if (!$course) {
+            return false;
+        }
+
+        switch ($course->format) {
+            case 'singleactivity':
+                return $this->unclean_course_format_singleactivity($course);
+            default:
+                return false;
+        }
+    }
+
+    private function unclean_course_format_singleactivity(stdClass $course) {
+        global $DB;
+        $cm = $DB->get_record('course_modules', ['course' => $course->id], 'id,module', MUST_EXIST);
+        $modname = $DB->get_field('modules', 'name', ['id' => $cm->module], MUST_EXIST);
+
+        $this->path = "/mod/$modname/view.php";
+        $this->params['id'] = $cm->id;
+        clean_moodle_url::log("Rewritten to: {$this->path}");
+
+        return true;
     }
 
     private function unclean_course_module_view() {
