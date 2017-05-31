@@ -264,7 +264,7 @@ class uncleaner {
         }
 
         $modulename = $matches[2];
-        if ($DB->count_records('modules', ['name'=>$modulename]) != 1) {
+        if ($DB->count_records('modules', ['name' => $modulename]) != 1) {
             return false;
         }
 
