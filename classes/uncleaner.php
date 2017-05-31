@@ -207,8 +207,24 @@ class uncleaner {
             case 'weeks':
                 return $this->unclean_course_format_simple_section($course, $parameters);
             default:
-                return false;
+                return $this->unclean_course_format_hook($course, $parameters);
         }
+    }
+
+    private function unclean_course_format_hook(stdClass $course, array $parameters) {
+        $classname = "\\format_{$course->format}\\cleanurls_support";
+        if (!class_exists($classname)) {
+            return false;
+        }
+
+        $cmid = $classname::get_cmid_for_path($course, $parameters);
+        list(, $cm) = get_course_and_cm_from_cmid($cmid);
+
+        $this->path = "/mod/{$cm->modname}/view.php";
+        $this->params['id'] = $cm->id;
+        clean_moodle_url::log("Rewritten to: {$this->path}");
+
+        return true;
     }
 
     private function unclean_course_format_singleactivity(stdClass $course) {

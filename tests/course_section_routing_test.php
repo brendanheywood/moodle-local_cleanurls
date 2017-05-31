@@ -139,4 +139,28 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         self::assertSame($url, $unclean->out());
     }
 
+    public function test_it_supports_format_hooks() {
+        require_once(__DIR__ . '/course_section_routing_test_format.php');
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course(
+            [
+                'fullname'  => 'Format Hook',
+                'shortname' => 'format_hook',
+                'visible'   => 1,
+                'category'  => $category->id,
+                'format'    => 'cleanurls',
+            ]
+        );
+
+        $forum = $this->getDataGenerator()->create_module(
+            'forum',
+            ['course' => $course->id, 'name' => "Forum First Section"]
+        );
+
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $forum->cmid;
+        $expected = 'http://www.example.com/moodle/course/format_hook/customurlforforums/' .
+                    "My{$forum->cmid}";
+        $this->assert_clean_unclean($url, $expected);
+        $this->resetDebugging(); // There will be a debugging regarding the invalid 'cleanurls'.
+    }
 }

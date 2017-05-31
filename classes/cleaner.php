@@ -211,10 +211,17 @@ class cleaner {
             case 'topics':
             case 'weeks':
                 return $this->clean_course_module_view_format_simple_section($cm);
-            default:
-                $title = clean_moodle_url::sluggify($cm->name, true);
-                return "/{$cm->modname}/{$cm->id}{$title}";
         }
+
+        // Try using a plugin hook (the plugin defines the behaviour).
+        $classname = "\\format_{$course->format}\\cleanurls_support";
+        if (class_exists($classname)) {
+            return '/' . $classname::get_clean_subpath($course, $cm);
+        }
+
+        // Default behaviour.
+        $title = clean_moodle_url::sluggify($cm->name, true);
+        return "/{$cm->modname}/{$cm->id}{$title}";
     }
 
     private function clean_course_module_view_format_simple_section(cm_info $cm) {
