@@ -55,7 +55,7 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
 
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $forum->cmid;
         $expected = 'http://www.example.com/moodle/course/SingleActivity';
-        $this->assert_clean_unclean($url, $expected);
+        static::assert_clean_unclean($url, $expected);
     }
 
     public function test_it_supports_social_format() {
@@ -74,7 +74,7 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
 
         $url = 'http://www.example.com/moodle/course/view.php?name=Social';
         $expected = 'http://www.example.com/moodle/course/Social';
-        $this->assert_clean_unclean($url, $expected);
+        static::assert_clean_unclean($url, $expected);
     }
 
     public function provider_for_simple_section_format_tests() {
@@ -113,7 +113,7 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
         $expected = 'http://www.example.com/moodle/course/simple_' . $format . '/' .
                     "custom-section/{$forum->cmid}-forum-first-section";
-        $this->assert_clean_unclean($url, $expected);
+        static::assert_clean_unclean($url, $expected);
     }
 
     public function test_it_does_not_unclean_a_topic_if_section_not_found() {
@@ -160,7 +160,7 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $forum->cmid;
         $expected = 'http://www.example.com/moodle/course/format_hook/customurlforforums/' .
                     "My{$forum->cmid}";
-        $this->assert_clean_unclean($url, $expected);
+        static::assert_clean_unclean($url, $expected);
         $this->resetDebugging(); // There will be a debugging regarding the invalid 'cleanurls'.
     }
 }

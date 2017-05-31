@@ -40,12 +40,12 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_always_cleans_the_test_url() {
         // Test with cleaning on.
         set_config('cleaningon', true, 'local_cleanurls');
-        $this->assert_clean_unclean('/local/cleanurls/tests/foo.php',
+        static::assert_clean_unclean('/local/cleanurls/tests/foo.php',
                                     'http://www.example.com/moodle/local/cleanurls/tests/bar');
 
         // Test with cleaning off.
         set_config('cleaningon', false, 'local_cleanurls');
-        $this->assert_clean_unclean('/local/cleanurls/tests/foo.php',
+        static::assert_clean_unclean('/local/cleanurls/tests/foo.php',
                                     'http://www.example.com/moodle/local/cleanurls/tests/bar');
     }
 
@@ -60,7 +60,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         self::assertTrue(is_dir($CFG->dirroot.'/course/ajax'), 'Directory required for the test.');
 
         $url = 'http://www.example.com/moodle/course/view.php?id='.urlencode($course->id);
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_cannot_clean_if_destination_is_a_php_file() {
@@ -73,13 +73,13 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         self::assertTrue(is_file($CFG->dirroot.'/course/enrol.php'), 'File required for the test.');
         $url = 'http://www.example.com/moodle/course/view.php?id='.urlencode($course->id);
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_cleans_category_urls() {
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/course/index.php?categoryid='.$category->id,
+        static::assert_clean_unclean('http://www.example.com/moodle/course/index.php?categoryid='.$category->id,
                                     'http://www.example.com/moodle/category/category-'.$category->id);
     }
 
@@ -105,7 +105,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id='.$forum->cmid;
         $expected = 'http://www.example.com/moodle/course/shortname/forum/'.$forum->cmid.'-a-test-forum';
-        $this->assert_clean_unclean($url, $expected);
+        static::assert_clean_unclean($url, $expected);
         $this->resetDebugging(); // There will be a debugging regarding the invalid 'customformat'.
     }
 
@@ -116,7 +116,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                                             'visible'   => 1,
                                                             'category'  => $category->id]);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/mod/forum/index.php?id='.$course->id,
+        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/index.php?id='.$course->id,
                                     'http://www.example.com/moodle/course/shortname/forum');
     }
 
@@ -127,7 +127,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                                             'visible'   => 1,
                                                             'category'  => $category->id]);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/course/view.php?id='.$course->id,
+        static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id='.$course->id,
                                     'http://www.example.com/moodle/course/shortname',
                                     'http://www.example.com/moodle/course/view.php?name=shortname');
     }
@@ -168,7 +168,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                                             'visible'   => 1,
                                                             'category'  => $category->id]);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/course/view.php?id='.$course->id,
+        static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id='.$course->id,
                                     'http://www.example.com/moodle/course/short%23name',
                                     'http://www.example.com/moodle/course/view.php?name=short%2523name');
     }
@@ -180,7 +180,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                                   'visible'   => 1,
                                                   'category'  => $category->id]);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/course/view.php?name=theshortname',
+        static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?name=theshortname',
                                     'http://www.example.com/moodle/course/theshortname');
     }
 
@@ -191,7 +191,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                                             'visible'   => 1,
                                                             'category'  => $category->id]);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/user/index.php?id='.$course->id,
+        static::assert_clean_unclean('http://www.example.com/moodle/user/index.php?id='.$course->id,
                                     'http://www.example.com/moodle/course/shortcoursename/user');
     }
 
@@ -202,7 +202,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         $url = 'http://www.example.com/moodle/course/index.php?categoryid='.$subcategory->id;
         $expected = 'http://www.example.com/moodle/category/category-'.$category->id.'/subcategory-'.$subcategory->id;
-        $this->assert_clean_unclean($url, $expected);
+        static::assert_clean_unclean($url, $expected);
     }
 
     public function test_it_cleans_username_in_course() {
@@ -214,7 +214,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
                                                         'username' => 'theusername']);
 
-        $this->assert_clean_unclean(
+        static::assert_clean_unclean(
             "http://www.example.com/moodle/user/view.php?course=1&id={$user->id}&course={$course->id}",
             'http://www.example.com/moodle/course/mycourse/user/theusername'
         );
@@ -224,7 +224,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
                                                         'username' => 'theusername']);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/mod/forum/user.php?mode=discussions&id='.$user->id,
+        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/user.php?mode=discussions&id='.$user->id,
                                     'http://www.example.com/moodle/user/theusername/discussions');
     }
 
@@ -232,7 +232,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
                                                         'username' => 'theusername']);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/user/view.php?course=1&id='.$user->id,
+        static::assert_clean_unclean('http://www.example.com/moodle/user/view.php?course=1&id='.$user->id,
                                     'http://www.example.com/moodle/user/theusername?course=1');
     }
 
@@ -240,38 +240,38 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
                                                         'username' => 'theusername']);
 
-        $this->assert_clean_unclean('http://www.example.com/moodle/user/profile.php?id='.$user->id,
+        static::assert_clean_unclean('http://www.example.com/moodle/user/profile.php?id='.$user->id,
                                     'http://www.example.com/moodle/user/theusername');
     }
 
     public function test_it_does_not_clean_draftfile_urls() {
         $url = 'http://moodle.test/moodle/draftfile.php/5/user/draft/949704188/daniel-roperto.jpg';
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_does_not_clean_help_urls() {
         $url = 'http://www.example.com/moodle/help.php?blah=foo';
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_does_not_clean_lib_urls() {
         $url = 'http://www.example.com/moodle/lib/whatever.php';
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_does_not_clean_plugin_urls() {
         $url = 'http://www.example.com/moodle/pluginfile.php/12345/foo/bar';
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_does_not_clean_pluginfile_urls() {
         $url = 'http://www.example.com/moodle/pluginfile.php/12345/foo/bar';
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_does_not_clean_theme_urls() {
         $url = 'http://www.example.com/moodle/theme/whatever.php';
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_does_not_clean_username_in_forum_discussion_if_not_discussions_mode() {
@@ -279,7 +279,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                                         'username' => 'theusername']);
 
         $url = 'http://www.example.com/moodle/mod/forum/user.php?mode=somethingelse&id='.$user->id;
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_does_not_clean_usernames_if_config_disabled() {
@@ -288,7 +288,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         set_config('cleanusernames', false, 'local_cleanurls');
         $url = 'http://www.example.com/moodle/user/profile.php?id='.$user->id;
-        $this->assert_clean_unclean($url, $url);
+        static::assert_clean_unclean($url, $url);
     }
 
     public function test_it_returns_the_same_url_if_cleaning_is_off() {
@@ -297,7 +297,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         $url = 'http://www.example.com/moodle/cache/disabled-test.php';
 
         cache::make('local_cleanurls', 'outgoing')->set($url, 'http://www.example.com/moodle/disabledcachedurl');
-        $this->assert_clean_unclean($url, $url); // Cleaning disabled, should not get cached version.
+        static::assert_clean_unclean($url, $url); // Cleaning disabled, should not get cached version.
     }
 
     public function test_it_returns_the_same_url_if_cannot_unclean() {
@@ -311,6 +311,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         $cached = 'http://www.example.com/moodle/cachedurl.php';
 
         cache::make('local_cleanurls', 'outgoing')->set($url, $cached);
-        $this->assert_clean_unclean($url, $cached, $cached);
+        static::assert_clean_unclean($url, $cached, $cached);
     }
 }

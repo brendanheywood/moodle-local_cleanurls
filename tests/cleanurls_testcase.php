@@ -36,11 +36,13 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_testcase extends advanced_testcase {
-    protected function setUp() {
+    /**
+     * Configures and enables Clean URLs.
+     *
+     * This can be called by other plugins when initializing unit tests for Clean URLs.
+     */
+    public static function enable_cleanurls() {
         global $CFG;
-
-        parent::setUp();
-        $this->resetAfterTest(true);
         $CFG->wwwroot = 'http://www.example.com/moodle'; // Make it consistent across different Moodle versions.
         $CFG->urlrewriteclass = local_cleanurls\url_rewriter::class;
         set_config('enableurlrewrite', 1);
@@ -58,7 +60,7 @@ class local_cleanurls_testcase extends advanced_testcase {
      * @param string|null $expectedcleaned   How is the URL supposed to be cleaned.
      * @param string|null $expecteduncleaned If not provided, it should unclean back to the input URL.
      */
-    protected function assert_clean_unclean($input, $expectedcleaned = null, $expecteduncleaned = null) {
+    public static function assert_clean_unclean($input, $expectedcleaned = null, $expecteduncleaned = null) {
         $inputurl = new moodle_url($input);
         $clean = clean_moodle_url::clean($inputurl);
         self::assertInstanceOf(moodle_url::class, $clean);
@@ -83,5 +85,11 @@ class local_cleanurls_testcase extends advanced_testcase {
         }
 
         self::assertSame($expecteduncleaned, $unclean->raw_out(false), 'Failed UNCLEANING.');
+    }
+
+    protected function setUp() {
+        parent::setUp();
+        $this->resetAfterTest(true);
+        static::enable_cleanurls();
     }
 }
