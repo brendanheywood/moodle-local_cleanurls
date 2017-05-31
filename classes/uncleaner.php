@@ -233,18 +233,24 @@ class uncleaner {
     private function unclean_course_modules() {
         global $DB;
 
-        if (preg_match('#^/course/(.+)/(\w+)/?$#', $this->path, $matches)) {
-            // Clean up course mod index.
-            $this->path = "/mod/$matches[2]/index.php";
-            $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
-            clean_moodle_url::log("Rewritten to: {$this->path}");
-            return true;
+        if (!preg_match('#^/course/(.+)/(\w+)/?$#', $this->path, $matches)) {
+            return false;
         }
-        return false;
+
+        $modulename = $matches[2];
+        if ($DB->count_records('modules', ['name'=>$modulename]) != 1) {
+            return false;
+        }
+
+        // Clean up course mod index.
+        $this->path = "/mod/$modulename/index.php";
+        $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
+        clean_moodle_url::log("Rewritten to: {$this->path}");
+        return true;
     }
 
     private function unclean_course() {
-        if (preg_match('#^/course/(.+)$#', $this->path, $matches)) {
+        if (preg_match('#^/course/([^/]+)/?$#', $this->path, $matches)) {
             $this->path = "/course/view.php";
             $this->params['name'] = $matches[1];
             clean_moodle_url::log("Rewritten to: {$this->path}");
