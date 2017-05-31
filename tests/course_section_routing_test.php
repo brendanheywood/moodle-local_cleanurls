@@ -58,6 +58,25 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         $this->assert_clean_unclean($url, $expected);
     }
 
+    public function test_it_supports_social_format() {
+        // No special handling for those URLs as it uses the course URL already.
+
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $this->getDataGenerator()->create_course(
+            [
+                'fullname'  => 'Social Course',
+                'shortname' => 'Social',
+                'visible'   => 1,
+                'category'  => $category->id,
+                'format'    => 'social',
+            ]
+        );
+
+        $url = 'http://www.example.com/moodle/course/view.php?name=Social';
+        $expected = 'http://www.example.com/moodle/course/Social';
+        $this->assert_clean_unclean($url, $expected);
+    }
+
     public function test_it_supports_topics_format_with_custom_name() {
         global $DB;
 
