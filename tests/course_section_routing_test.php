@@ -23,6 +23,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\clean_moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/cleanurls_testcase.php');
 
@@ -55,4 +57,57 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         $expected = 'http://www.example.com/moodle/course/SingleActivity';
         $this->assert_clean_unclean($url, $expected);
     }
+
+    public function test_it_supports_topics_format_with_custom_name() {
+        global $DB;
+
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course(
+            [
+                'fullname'  => 'Weekly Course',
+                'shortname' => 'Weekly',
+                'visible'   => 1,
+                'category'  => $category->id,
+                'format'    => 'topics',
+            ]
+        );
+
+        $forum = $this->getDataGenerator()->create_module(
+            'forum',
+            ['course' => $course->id, 'name' => "Forum First Week"]
+        );
+        list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
+
+        // Give a name to the section.
+        $DB->update_record('course_sections', (object)['id' => $cm->section, 'name' => 'Custom Section']);
+
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
+        $expected = 'http://www.example.com/moodle/course/Weekly/' .
+                    "custom-section/{$forum->cmid}-forum-first-week";
+        $this->assert_clean_unclean($url, $expected);
+    }
+
+    public function test_it_does_not_unclean_a_topic_if_section_not_found() {
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course(
+            [
+                'fullname'  => 'Weekly Course',
+                'shortname' => 'Weekly',
+                'visible'   => 1,
+                'category'  => $category->id,
+                'format'    => 'topics',
+            ]
+        );
+        $forum = $this->getDataGenerator()->create_module(
+            'forum',
+            ['course' => $course->id, 'name' => "Forum First Week"]
+        );
+
+        // When a URL cannot uncleaned, it must return the same as the input.
+        $url = 'http://www.example.com/moodle/course/Weekly/' .
+                    "this-section-does-not-exists/{$forum->cmid}-forum-first-week";
+        $unclean = clean_moodle_url::unclean($url);
+        self::assertSame($url, $unclean->out());
+    }
+
 }

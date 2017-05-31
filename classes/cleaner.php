@@ -208,10 +208,23 @@ class cleaner {
         switch ($course->format) {
             case 'singleactivity':
                 return '';
+            case 'topics':
+                return $this->clean_course_module_view_format_topics($course, $cm);
             default:
                 $title = clean_moodle_url::sluggify($cm->name, true);
                 return "/{$cm->modname}/{$cm->id}{$title}";
         }
+    }
+
+    private function clean_course_module_view_format_topics(stdClass $course, cm_info $cm) {
+        global $DB;
+
+        $section = $DB->get_field('course_sections', 'name', ['id' => $cm->section], MUST_EXIST);
+        $section = clean_moodle_url::sluggify($section, false);
+
+        $title = clean_moodle_url::sluggify($cm->name, true);
+
+        return "/{$section}/{$cm->id}{$title}";
     }
 
     private function clean_course_modules($mod) {

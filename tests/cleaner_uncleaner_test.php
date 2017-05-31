@@ -84,17 +84,29 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
     }
 
     public function test_it_cleans_course_module_view_urls() {
+        global $DB;
+
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $course = $this->getDataGenerator()->create_course(['fullname'  => 'course long name',
-                                                            'shortname' => 'shortname',
-                                                            'visible'   => 1,
-                                                            'category'  => $category->id]);
+
+        $course = $this->getDataGenerator()->create_course(
+            [
+                'fullname'  => 'course long name',
+                'shortname' => 'shortname',
+                'visible'   => 1,
+                'category'  => $category->id,
+            ]
+        );
+        // We are enforcing 'customformat' to not trigger format-specific cleaning/uncleaning.
+        $course->format = 'customformat';
+        $DB->update_record('course', $course);
+
         $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id,
                                                                     'name'   => 'A Test Forum']);
 
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id='.$forum->cmid;
         $expected = 'http://www.example.com/moodle/course/shortname/forum/'.$forum->cmid.'-a-test-forum';
         $this->assert_clean_unclean($url, $expected);
+        $this->resetDebugging(); // There will be a debugging regarding the invalid 'customformat'.
     }
 
     public function test_it_cleans_course_modules_urls() {

@@ -203,6 +203,8 @@ class uncleaner {
         switch ($course->format) {
             case 'singleactivity':
                 return $this->unclean_course_format_singleactivity($course);
+            case 'topics':
+                return $this->unclean_course_format_topics($course, $parameters);
             default:
                 return false;
         }
@@ -211,6 +213,30 @@ class uncleaner {
     private function unclean_course_format_singleactivity(stdClass $course) {
         global $DB;
         $cm = $DB->get_record('course_modules', ['course' => $course->id], 'id,module', MUST_EXIST);
+        $modname = $DB->get_field('modules', 'name', ['id' => $cm->module], MUST_EXIST);
+
+        $this->path = "/mod/$modname/view.php";
+        $this->params['id'] = $cm->id;
+        clean_moodle_url::log("Rewritten to: {$this->path}");
+
+        return true;
+    }
+
+    private function unclean_course_format_topics(stdClass $course, array $parameters) {
+        global $DB;
+
+        if (count($parameters) != 2) {
+            return false;
+        }
+        list($sectionslug, $moduleslug) = $parameters;
+        list($cmid) = explode('-', $moduleslug);
+
+        $section = $this->find_section_by_slug($course->id, $sectionslug);
+        if (is_null($section)) {
+            return false;
+        }
+
+        $cm = $DB->get_record('course_modules', ['id' => $cmid], 'id,module', MUST_EXIST);
         $modname = $DB->get_field('modules', 'name', ['id' => $cm->module], MUST_EXIST);
 
         $this->path = "/mod/$modname/view.php";
@@ -268,5 +294,19 @@ class uncleaner {
             return true;
         }
         return false;
+    }
+
+    private function find_section_by_slug($courseid, $sectionslug) {
+        global $DB;
+
+        $sections = $DB->get_records('course_sections', ['course' => $courseid]);
+        foreach ($sections as $section) {
+            $slug = clean_moodle_url::sluggify($section->name, false);
+            if ($slug == $sectionslug) {
+                return $section;
+            }
+        }
+
+        return null;
     }
 }
