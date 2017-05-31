@@ -213,9 +213,9 @@ class cleaner {
                 return $this->clean_course_module_view_format_simple_section($cm);
         }
 
-        // Try using a plugin hook (the plugin defines the behaviour).
-        $classname = "\\format_{$course->format}\\cleanurls_support";
-        if (class_exists($classname)) {
+        // Try using a plugin hook (the plugin defines the behaviour) or a local hook.
+        $classname = clean_moodle_url::find_format_hook($course->format);
+        if (!is_null($classname)) {
             return '/' . $classname::get_clean_subpath($course, $cm);
         }
 

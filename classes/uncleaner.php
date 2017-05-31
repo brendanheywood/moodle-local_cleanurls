@@ -212,8 +212,8 @@ class uncleaner {
     }
 
     private function unclean_course_format_hook(stdClass $course, array $parameters) {
-        $classname = "\\format_{$course->format}\\cleanurls_support";
-        if (!class_exists($classname)) {
+        $classname = clean_moodle_url::find_format_hook($course->format);
+        if (is_null($classname)) {
             return false;
         }
 

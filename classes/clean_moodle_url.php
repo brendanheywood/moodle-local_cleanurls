@@ -107,4 +107,18 @@ class clean_moodle_url extends moodle_url {
     public function set_path($path) {
         $this->path = $path;
     }
+
+    public static function find_format_hook($format) {
+        $classname = "\\format_{$format}\\cleanurls_support";
+        if (class_exists($classname)) {
+            return $classname;
+        }
+
+        $classname = "\\local_cleanurls\\local\\hooks\\{$format}_support";
+        if (class_exists($classname)) {
+            return $classname;
+        }
+
+        return null;
+    }
 }
