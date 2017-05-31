@@ -163,4 +163,28 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         static::assert_clean_unclean($url, $expected);
         $this->resetDebugging(); // There will be a debugging regarding the invalid 'cleanurls'.
     }
+
+    public function test_it_supports_format_hooks_at_course_level() {
+        require_once(__DIR__ . '/course_section_routing_test_format.php');
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course(
+            [
+                'fullname'  => 'Format Hook',
+                'shortname' => 'format_hook',
+                'visible'   => 1,
+                'category'  => $category->id,
+                'format'    => 'cleanurls',
+            ]
+        );
+
+        $forum = $this->getDataGenerator()->create_module(
+            'forum',
+            ['course' => $course->id, 'name' => "Forum First Section"]
+        );
+
+        $url = 'http://www.example.com/moodle/course/view.php?name=format_hook';
+        $expected = 'http://www.example.com/moodle/course/format_hook';
+        static::assert_clean_unclean($url, $expected);
+        $this->resetDebugging(); // There will be a debugging regarding the invalid 'cleanurls'.
+    }
 }

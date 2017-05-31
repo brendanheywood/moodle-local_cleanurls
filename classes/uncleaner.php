@@ -218,6 +218,10 @@ class uncleaner {
         }
 
         $cmid = $classname::get_cmid_for_path($course, $parameters);
+        if (is_null($cmid)) {
+            return false;
+        }
+
         list(, $cm) = get_course_and_cm_from_cmid($cmid);
 
         $this->path = "/mod/{$cm->modname}/view.php";

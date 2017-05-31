@@ -26,6 +26,7 @@
 namespace format_cleanurls;
 
 use cm_info;
+use local_cleanurls\cleanurls_support_interface;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -38,7 +39,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanurls_support {
+class cleanurls_support implements cleanurls_support_interface {
     /**
      * @inheritdoc
      */
@@ -50,6 +51,9 @@ class cleanurls_support {
      * @inheritdoc
      */
     public static function get_cmid_for_path(stdClass $course, array $path) {
-        return substr($path[1], 2);
+        if (count($path) != 2) {
+            return null;
+        }
+        return (int)substr($path[1], 2);
     }
 }
