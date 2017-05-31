@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\clean_moodle_url;
+use local_cleanurls\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__.'/cleanurls_testcase.php');
@@ -257,6 +257,12 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         cache::make('local_cleanurls', 'outgoing')->set($url, 'http://www.example.com/moodle/disabledcachedurl');
         $this->assert_clean_unclean($url, $url); // Cleaning disabled, should not get cached version.
+    }
+
+    public function test_it_returns_the_same_url_if_cannot_unclean() {
+        $url = 'http://www.example.com/moodle/thisisaninvalidpath/shouldnotbechanged';
+        $uncleaned = uncleaner::unclean($url)->out();
+        self::assertSame($url, $uncleaned);
     }
 
     public function test_it_should_use_a_cache() {

@@ -95,19 +95,24 @@ class uncleaner {
         clean_moodle_url::log("Incoming url: {$this->cleanurlraw} - Path: {$this->path}");
         clean_moodle_url::extract_moodle_path($this->path, $this->moodlepath);
 
-        // The order here is important.
-        $this->unclean_test_url()
-        || $this->unclean_course_format()
-        || $this->unclean_user_in_course()
-        || $this->unclean_course_users()
-        || $this->unclean_user_in_forum()
-        || $this->unclean_user_profile_or_in_course()
-        || $this->unclean_course_module_view()
-        || $this->unclean_course_modules()
-        || $this->unclean_course()
-        || $this->unclean_category();
+        // The order here is important as it will stop on first success.
+        $uncleaned = false
+                     || $this->unclean_test_url()
+                     || $this->unclean_course_format()
+                     || $this->unclean_user_in_course()
+                     || $this->unclean_course_users()
+                     || $this->unclean_user_in_forum()
+                     || $this->unclean_user_profile_or_in_course()
+                     || $this->unclean_course_module_view()
+                     || $this->unclean_course_modules()
+                     || $this->unclean_course()
+                     || $this->unclean_category();
 
-        $this->create_uncleaned_url();
+        if ($uncleaned) {
+            $this->create_uncleaned_url();
+        } else {
+            $this->uncleanurl = $this->cleanurl;
+        }
     }
 
     private function unclean_test_url() {
