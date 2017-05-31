@@ -204,7 +204,8 @@ class uncleaner {
             case 'singleactivity':
                 return $this->unclean_course_format_singleactivity($course);
             case 'topics':
-                return $this->unclean_course_format_topics($course, $parameters);
+            case 'weeks':
+                return $this->unclean_course_format_simple_section($course, $parameters);
             default:
                 return false;
         }
@@ -222,7 +223,7 @@ class uncleaner {
         return true;
     }
 
-    private function unclean_course_format_topics(stdClass $course, array $parameters) {
+    private function unclean_course_format_simple_section(stdClass $course, array $parameters) {
         global $DB;
 
         if (count($parameters) != 2) {

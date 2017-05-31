@@ -77,23 +77,33 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         $this->assert_clean_unclean($url, $expected);
     }
 
-    public function test_it_supports_topics_format_with_custom_name() {
+    public function provider_for_simple_section_format_tests() {
+        return [
+            'topics' => ['topics'],
+            'weeks' => ['weeks'],
+        ];
+    }
+
+    /**
+     * @dataProvider provider_for_simple_section_format_tests
+     */
+    public function test_it_supports_simple_sections_format_with_custom_name($format) {
         global $DB;
 
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
         $course = $this->getDataGenerator()->create_course(
             [
-                'fullname'  => 'Weekly Course',
-                'shortname' => 'Weekly',
+                'fullname'  => 'Simple Section: ' . $format,
+                'shortname' => 'simple_' . $format,
                 'visible'   => 1,
                 'category'  => $category->id,
-                'format'    => 'topics',
+                'format'    => $format,
             ]
         );
 
         $forum = $this->getDataGenerator()->create_module(
             'forum',
-            ['course' => $course->id, 'name' => "Forum First Week"]
+            ['course' => $course->id, 'name' => "Forum First Section"]
         );
         list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
 
@@ -101,8 +111,8 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         $DB->update_record('course_sections', (object)['id' => $cm->section, 'name' => 'Custom Section']);
 
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
-        $expected = 'http://www.example.com/moodle/course/Weekly/' .
-                    "custom-section/{$forum->cmid}-forum-first-week";
+        $expected = 'http://www.example.com/moodle/course/simple_' . $format . '/' .
+                    "custom-section/{$forum->cmid}-forum-first-section";
         $this->assert_clean_unclean($url, $expected);
     }
 

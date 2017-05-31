@@ -209,14 +209,15 @@ class cleaner {
             case 'singleactivity':
                 return '';
             case 'topics':
-                return $this->clean_course_module_view_format_topics($course, $cm);
+            case 'weeks':
+                return $this->clean_course_module_view_format_simple_section($cm);
             default:
                 $title = clean_moodle_url::sluggify($cm->name, true);
                 return "/{$cm->modname}/{$cm->id}{$title}";
         }
     }
 
-    private function clean_course_module_view_format_topics(stdClass $course, cm_info $cm) {
+    private function clean_course_module_view_format_simple_section(cm_info $cm) {
         global $DB;
 
         $section = $DB->get_field('course_sections', 'name', ['id' => $cm->section], MUST_EXIST);
