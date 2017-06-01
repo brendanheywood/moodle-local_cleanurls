@@ -78,4 +78,10 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
         $parser = new local_cleanurls_testparser($root);
         self::assertSame('hello', $parser->get_mypath());
     }
+
+    public function test_it_inherits_parameters() {
+        $root = new root_parser('/hello/world?a=b&c=d');
+        $parser = new local_cleanurls_testparser($root);
+        self::assertSame(['a' => 'b', 'c' => 'd'], $parser->get_parameters());
+    }
 }

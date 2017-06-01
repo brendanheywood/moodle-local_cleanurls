@@ -86,9 +86,11 @@ abstract class urlparser {
     }
 
     /**
-     * @return string[]
+     * It defaults to the parent parameters or empty array if no parent.
      */
-    abstract protected function prepare_parameters();
+    protected function prepare_parameters() {
+        $this->parameters = is_null($this->parent) ? [] : $this->parent->parameters;
+    }
 
     /**
      * @return string
