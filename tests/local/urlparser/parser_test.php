@@ -66,4 +66,10 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
         $this->expectException(invalid_parameter_exception::class);
         new local_cleanurls_testparser($input);
     }
+
+    public function test_it_consumes_one_subpath() {
+        $root = new root_parser('/hello/world');
+        $parser = new local_cleanurls_testparser($root);
+        self::assertSame(['world'], $parser->get_subpath());
+    }
 }

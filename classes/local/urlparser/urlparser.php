@@ -69,9 +69,18 @@ abstract class urlparser {
     }
 
     /**
+     * It defaults to removing one level of path from the parent or empty if no parent.
+     *
      * @return string[]
      */
-    abstract protected function prepare_subpath();
+    protected function prepare_subpath() {
+        if (is_null($this->parent)) {
+            return [];
+        }
+        $subpath = $this->parent->subpath;
+        array_shift($subpath);
+        return $subpath;
+    }
 
     /**
      * @return string[]
