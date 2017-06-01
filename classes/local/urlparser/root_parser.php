@@ -50,6 +50,9 @@ class root_parser extends urlparser {
     /** @var string[] */
     protected $subpath = null;
 
+    /** @var string[] */
+    protected $parameters = null;
+
     /**
      * root_parser constructor.
      *
@@ -105,5 +108,13 @@ class root_parser extends urlparser {
             $this->subpath = ($path === '') ? [] : explode('/', $path);
         }
         return $this->subpath;
+    }
+
+    public function get_parameters() {
+        if (is_null($this->parameters)) {
+            $clean = new clean_moodle_url($this->originalurl);
+            $this->parameters = $clean->params();
+        }
+        return $this->parameters;
     }
 }

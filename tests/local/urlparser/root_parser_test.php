@@ -103,6 +103,25 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         self::assertSame($expected, $root->get_subpath(), "URL: {$url}");
     }
 
+    public function provider_for_test_it_has_parameters() {
+        return [
+            ['?a=b', ['a' => 'b']],
+            ['/?c=d', ['c' => 'd']],
+            ['/abc?e=f', ['e' => 'f']],
+            ['/abc/def?g=h', ['g' => 'h']],
+            ['/hello?a=b&c=d', ['a' => 'b', 'c' => 'd']],
+            ['/hello?arr=abc%5B%5D', ['arr' => 'abc[]']],
+        ];
+    }
+
+    /**
+     * @dataProvider provider_for_test_it_has_parameters
+     */
+    public function test_it_has_parameters($url, $expected) {
+        $root = new root_parser($url);
+        self::assertSame($expected, $root->get_parameters(), "URL: {$url}");
+    }
+
     public function test_it_extracts_the_moodle_path_is_blank_if_root() {
         global $CFG;
 
