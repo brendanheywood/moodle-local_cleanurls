@@ -92,6 +92,9 @@ class root_parser extends urlparser {
         return $this->moodlepath;
     }
 
+    /**
+     * @return clean_moodle_url
+     */
     public function get_clean_url() {
         if (is_null($this->cleanurl)) {
             $this->cleanurl = new clean_moodle_url($this->originalurl);
@@ -99,10 +102,12 @@ class root_parser extends urlparser {
         return $this->cleanurl;
     }
 
+    /**
+     * @return string[]
+     */
     public function get_subpath() {
         if (is_null($this->subpath)) {
-            $clean = new clean_moodle_url($this->originalurl);
-            $path = $clean->get_path();
+            $path = $this->get_clean_url()->get_path();
             $path = substr($path, strlen($this->get_moodle_path()));
             $path = trim($path, '/');
             $this->subpath = ($path === '') ? [] : explode('/', $path);
@@ -110,10 +115,12 @@ class root_parser extends urlparser {
         return $this->subpath;
     }
 
+    /**
+     * @return string[]
+     */
     public function get_parameters() {
         if (is_null($this->parameters)) {
-            $clean = new clean_moodle_url($this->originalurl);
-            $this->parameters = $clean->params();
+            $this->parameters = $this->get_clean_url()->params();
         }
         return $this->parameters;
     }
