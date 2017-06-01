@@ -23,6 +23,8 @@
 
 namespace local_cleanurls\local\urlparser;
 
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -34,4 +36,22 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class root_parser extends urlparser {
+    /** @var moodle_url */
+    protected $originalurl;
+
+    /**
+     * root_parser constructor.
+     *
+     * @param moodle_url $url
+     */
+    public function __construct(moodle_url $url) {
+        $this->originalurl = $url;
+    }
+
+    /**
+     * @return moodle_url
+     */
+    public function get_original_url() {
+        return $this->originalurl;
+    }
 }

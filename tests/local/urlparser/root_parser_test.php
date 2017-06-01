@@ -43,7 +43,13 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
     }
 
     public function test_it_is_a_parser() {
-        $root = new root_parser();
+        $root = new root_parser(new moodle_url('/'));
         self::assertInstanceOf(urlparser::class, $root);
+    }
+
+    public function test_it_takes_a_moodle_url() {
+        $root = new root_parser(new moodle_url('/'));
+        $url = $root->get_original_url();
+        self::assertSame('http://www.example.com/moodle/', $url->raw_out());
     }
 }
