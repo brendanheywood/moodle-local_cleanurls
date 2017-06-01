@@ -47,6 +47,9 @@ class root_parser extends urlparser {
     /** @var string */
     protected $moodlepath = null;
 
+    /** @var string[] */
+    protected $subpath = null;
+
     /**
      * root_parser constructor.
      *
@@ -91,5 +94,16 @@ class root_parser extends urlparser {
             $this->cleanurl = new clean_moodle_url($this->originalurl);
         }
         return $this->cleanurl;
+    }
+
+    public function get_subpath() {
+        if (is_null($this->subpath)) {
+            $clean = new clean_moodle_url($this->originalurl);
+            $path = $clean->get_path();
+            $path = substr($path, strlen($this->get_moodle_path()));
+            $path = trim($path, '/');
+            $this->subpath = ($path === '') ? [] : explode('/', $path);
+        }
+        return $this->subpath;
     }
 }
