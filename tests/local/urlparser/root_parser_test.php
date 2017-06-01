@@ -43,24 +43,45 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
     }
 
     public function test_it_is_a_parser() {
-        $root = new root_parser(new moodle_url('/'));
+        $root = new root_parser('/');
         self::assertInstanceOf(urlparser::class, $root);
     }
 
-    public function test_it_takes_a_moodle_url() {
-        $root = new root_parser(new moodle_url('/'));
-        $url = $root->get_original_url();
-        self::assertSame('http://www.example.com/moodle/', $url->raw_out());
+    public function test_it_takes_a_url_as_string() {
+        $root = new root_parser('/');
+        self::assertSame('/', $root->get_original_raw_url());
+    }
+    
+    public function test_it_gives_the_clean_url() {
+        $root = new root_parser('/');
+        $clean = $root->get_clean_url();
+        self::assertSame('http://www.example.com/moodle/', $clean->out());
+    }
+
+    public function provider_for_test_it_takes_only_strings() {
+        return [
+            [1],
+            [['array']],
+            [new stdClass()],
+            [new moodle_url('/')],
+        ];
+    }
+
+    /**
+     * @dataProvider provider_for_test_it_takes_only_strings
+     */
+    public function test_it_takes_only_strings($input) {
+        $this->expectException(invalid_parameter_exception::class);
+        new root_parser($input);
     }
 
     public function test_it_does_not_have_a_parent() {
-        $root = new root_parser(new moodle_url('/'));
+        $root = new root_parser('/');
         self::assertNull($root->get_parent());
     }
 
     public function test_it_extracts_the_moodle_path() {
-        $url = new moodle_url('/abc/def');
-        $root = new root_parser($url);
+        $root = new root_parser('/abc/def');
         self::assertSame('/moodle', $root->get_moodle_path());
     }
 
@@ -68,8 +89,7 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         global $CFG;
 
         $CFG->wwwroot = 'http://moodle.test';
-        $url = new moodle_url('/abc/def');
-        $root = new root_parser($url);
+        $root = new root_parser('/abc/def');
         self::assertSame('', $root->get_moodle_path());
     }
 }

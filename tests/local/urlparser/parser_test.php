@@ -43,7 +43,7 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
     }
 
     public function test_it_takes_a_parent_parser() {
-        $root = new root_parser(new moodle_url('/'));
+        $root = new root_parser('/');
         $parser = new urlparser($root);
         $parent = $parser->get_parent();
         self::assertSame($root, $parent);

@@ -23,6 +23,8 @@
 
 namespace local_cleanurls\local\urlparser;
 
+use invalid_parameter_exception;
+use local_cleanurls\clean_moodle_url;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -39,15 +41,23 @@ class root_parser extends urlparser {
     /** @var moodle_url */
     protected $originalurl;
 
+    /** @var clean_moodle_url */
+    protected $cleanurl = null;
+
     /** @var string */
     protected $moodlepath = null;
 
     /**
      * root_parser constructor.
      *
-     * @param moodle_url $url
+     * @param string $url
+     * @throws invalid_parameter_exception
      */
-    public function __construct(moodle_url $url) {
+    public function __construct($url) {
+        if (!is_string($url)) {
+            throw new invalid_parameter_exception('URL must be a string.');
+        }
+
         parent::__construct(null);
         $this->originalurl = $url;
     }
@@ -55,7 +65,7 @@ class root_parser extends urlparser {
     /**
      * @return moodle_url
      */
-    public function get_original_url() {
+    public function get_original_raw_url() {
         return $this->originalurl;
     }
 
@@ -74,5 +84,12 @@ class root_parser extends urlparser {
         }
 
         return $this->moodlepath;
+    }
+
+    public function get_clean_url() {
+        if (is_null($this->cleanurl)) {
+            $this->cleanurl = new clean_moodle_url($this->originalurl);
+        }
+        return $this->cleanurl;
     }
 }
