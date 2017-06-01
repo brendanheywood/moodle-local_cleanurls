@@ -39,6 +39,9 @@ class root_parser extends urlparser {
     /** @var moodle_url */
     protected $originalurl;
 
+    /** @var string */
+    protected $moodlepath = null;
+
     /**
      * root_parser constructor.
      *
@@ -54,5 +57,22 @@ class root_parser extends urlparser {
      */
     public function get_original_url() {
         return $this->originalurl;
+    }
+
+    /**
+     * Extracts the subpath from the $CFG->wwwroot where Moodle resides.
+     *
+     * @return string
+     */
+    public function get_moodle_path() {
+        global $CFG;
+
+        if (is_null($this->moodlepath)) {
+            $path = parse_url($CFG->wwwroot, PHP_URL_PATH);
+            $path = trim($path, '/');
+            $this->moodlepath = empty($path) ? '' : "/{$path}";
+        }
+
+        return $this->moodlepath;
     }
 }

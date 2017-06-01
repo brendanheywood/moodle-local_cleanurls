@@ -57,4 +57,19 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         $root = new root_parser(new moodle_url('/'));
         self::assertNull($root->get_parent());
     }
+
+    public function test_it_extracts_the_moodle_path() {
+        $url = new moodle_url('/abc/def');
+        $root = new root_parser($url);
+        self::assertSame('/moodle', $root->get_moodle_path());
+    }
+
+    public function test_it_extracts_the_moodle_path_is_blank_if_root() {
+        global $CFG;
+
+        $CFG->wwwroot = 'http://moodle.test';
+        $url = new moodle_url('/abc/def');
+        $root = new root_parser($url);
+        self::assertSame('', $root->get_moodle_path());
+    }
 }
