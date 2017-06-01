@@ -93,10 +93,12 @@ class root_parser extends urlparser {
     }
 
     public function prepare_subpath() {
+        $this->mypath = '';
+
         $path = $this->get_clean_url()->get_path();
         $path = substr($path, strlen($this->get_moodle_path()));
         $path = trim($path, '/');
-        return ($path === '') ? [] : explode('/', $path);
+        $this->subpath = ($path === '') ? [] : explode('/', $path);
     }
 
     public function prepare_parameters() {

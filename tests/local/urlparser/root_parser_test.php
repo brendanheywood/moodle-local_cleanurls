@@ -129,4 +129,9 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         $root = new root_parser('/abc/def');
         self::assertSame('', $root->get_moodle_path());
     }
+
+    public function test_it_has_its_path_empty() {
+        $root = new root_parser('/hello/world');
+        self::assertSame('', $root->get_mypath());
+    }
 }

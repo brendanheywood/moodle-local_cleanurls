@@ -39,6 +39,9 @@ abstract class urlparser {
     /** @var urlparser */
     protected $parent;
 
+    /** @var string */
+    protected $mypath = null;
+
     /** @var string[] */
     protected $subpath = null;
 
@@ -57,7 +60,7 @@ abstract class urlparser {
         }
 
         $this->parent = $parent;
-        $this->subpath = $this->prepare_subpath();
+        $this->prepare_subpath();
         $this->parameters = $this->prepare_parameters();
     }
 
@@ -69,23 +72,30 @@ abstract class urlparser {
     }
 
     /**
-     * It defaults to removing one level of path from the parent or empty if no parent.
-     *
-     * @return string[]
+     * It defaults to:
+     * - subpath = removing one level of path from the parent or empty if no parent.
+     * - mypath = the removed path or empty if not available.
      */
     protected function prepare_subpath() {
-        if (is_null($this->parent)) {
-            return [];
+        $this->subpath = is_null($this->parent) ? [] : $this->parent->subpath;
+        $this->mypath = array_shift($this->subpath);
+
+        if (is_null($this->mypath)) {
+            $this->mypath = '';
         }
-        $subpath = $this->parent->subpath;
-        array_shift($subpath);
-        return $subpath;
     }
 
     /**
      * @return string[]
      */
     abstract protected function prepare_parameters();
+
+    /**
+     * @return string
+     */
+    public function get_mypath() {
+        return $this->mypath;
+    }
 
     /**
      * @return string[]
