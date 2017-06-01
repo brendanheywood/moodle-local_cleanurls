@@ -34,4 +34,22 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class urlparser {
+    /** @var urlparser */
+    protected $parent;
+
+    /**
+     * urlparser constructor.
+     *
+     * @param urlparser $parent
+     */
+    public function __construct(urlparser $parent) {
+        $this->parent = $parent;
+    }
+
+    /**
+     * @return urlparser
+     */
+    public function get_parent() {
+        return $this->parent;
+    }
 }

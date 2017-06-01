@@ -52,4 +52,9 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         $url = $root->get_original_url();
         self::assertSame('http://www.example.com/moodle/', $url->raw_out());
     }
+
+    public function test_it_does_not_have_a_parent() {
+        $root = new root_parser(new moodle_url('/'));
+        self::assertNull($root->get_parent());
+    }
 }
