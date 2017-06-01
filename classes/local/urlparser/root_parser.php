@@ -47,12 +47,6 @@ class root_parser extends urlparser {
     /** @var string */
     protected $moodlepath = null;
 
-    /** @var string[] */
-    protected $subpath = null;
-
-    /** @var string[] */
-    protected $parameters = null;
-
     /**
      * root_parser constructor.
      *
@@ -60,12 +54,21 @@ class root_parser extends urlparser {
      * @throws invalid_parameter_exception
      */
     public function __construct($url) {
+        global $CFG;
+
         if (!is_string($url)) {
             throw new invalid_parameter_exception('URL must be a string.');
         }
 
-        parent::__construct(null);
         $this->originalurl = $url;
+        $this->cleanurl = new clean_moodle_url($this->originalurl);
+
+        // Save subpath where Moodle resides.
+        $path = parse_url($CFG->wwwroot, PHP_URL_PATH);
+        $path = trim($path, '/');
+        $this->moodlepath = empty($path) ? '' : "/{$path}";
+
+        parent::__construct(null);
     }
 
     /**
@@ -76,19 +79,9 @@ class root_parser extends urlparser {
     }
 
     /**
-     * Extracts the subpath from the $CFG->wwwroot where Moodle resides.
-     *
      * @return string
      */
     public function get_moodle_path() {
-        global $CFG;
-
-        if (is_null($this->moodlepath)) {
-            $path = parse_url($CFG->wwwroot, PHP_URL_PATH);
-            $path = trim($path, '/');
-            $this->moodlepath = empty($path) ? '' : "/{$path}";
-        }
-
         return $this->moodlepath;
     }
 
@@ -96,32 +89,17 @@ class root_parser extends urlparser {
      * @return clean_moodle_url
      */
     public function get_clean_url() {
-        if (is_null($this->cleanurl)) {
-            $this->cleanurl = new clean_moodle_url($this->originalurl);
-        }
         return $this->cleanurl;
     }
 
-    /**
-     * @return string[]
-     */
-    public function get_subpath() {
-        if (is_null($this->subpath)) {
-            $path = $this->get_clean_url()->get_path();
-            $path = substr($path, strlen($this->get_moodle_path()));
-            $path = trim($path, '/');
-            $this->subpath = ($path === '') ? [] : explode('/', $path);
-        }
-        return $this->subpath;
+    public function prepare_subpath() {
+        $path = $this->get_clean_url()->get_path();
+        $path = substr($path, strlen($this->get_moodle_path()));
+        $path = trim($path, '/');
+        return ($path === '') ? [] : explode('/', $path);
     }
 
-    /**
-     * @return string[]
-     */
-    public function get_parameters() {
-        if (is_null($this->parameters)) {
-            $this->parameters = $this->get_clean_url()->params();
-        }
-        return $this->parameters;
+    public function prepare_parameters() {
+        return $this->get_clean_url()->params();
     }
 }

@@ -36,4 +36,17 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_testparser extends urlparser {
+    /**
+     * @return string[]
+     */
+    protected function prepare_subpath() {
+        return [];
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function prepare_parameters() {
+        return [];
+    }
 }

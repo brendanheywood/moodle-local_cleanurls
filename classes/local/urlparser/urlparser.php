@@ -39,6 +39,12 @@ abstract class urlparser {
     /** @var urlparser */
     protected $parent;
 
+    /** @var string[] */
+    protected $subpath = null;
+
+    /** @var string[] */
+    protected $parameters = null;
+
     /**
      * urlparser constructor.
      *
@@ -51,6 +57,8 @@ abstract class urlparser {
         }
 
         $this->parent = $parent;
+        $this->subpath = $this->prepare_subpath();
+        $this->parameters = $this->prepare_parameters();
     }
 
     /**
@@ -58,5 +66,29 @@ abstract class urlparser {
      */
     public function get_parent() {
         return $this->parent;
+    }
+
+    /**
+     * @return string[]
+     */
+    abstract protected function prepare_subpath();
+
+    /**
+     * @return string[]
+     */
+    abstract protected function prepare_parameters();
+
+    /**
+     * @return string[]
+     */
+    public function get_subpath() {
+        return $this->subpath;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function get_parameters() {
+        return $this->parameters;
     }
 }
