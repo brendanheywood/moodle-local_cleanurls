@@ -23,6 +23,9 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\local\urlparser\root_parser;
+use local_cleanurls\local\urlparser\urlparser;
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
@@ -37,5 +40,10 @@ require_once(__DIR__ . '/../../cleanurls_testcase.php');
 class local_cleanurls_urlparser_root extends local_cleanurls_testcase {
     public function test_it_exists() {
         self::assertTrue(class_exists('\local_cleanurls\local\urlparser\root_parser'));
+    }
+
+    public function test_it_is_a_parser() {
+        $root = new root_parser();
+        self::assertInstanceOf(urlparser::class, $root);
     }
 }

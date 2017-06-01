@@ -23,11 +23,6 @@
 
 namespace local_cleanurls\local\urlparser;
 
-use cm_info;
-use local_cleanurls\clean_moodle_url;
-use local_cleanurls\cleanurls_support_interface;
-use stdClass;
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -38,5 +33,5 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class root_parser {
+class root_parser extends urlparser {
 }
