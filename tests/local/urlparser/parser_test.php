@@ -24,9 +24,9 @@
  */
 
 use local_cleanurls\local\urlparser\root_parser;
-use local_cleanurls\local\urlparser\urlparser;
 
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/testparser.php');
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
 /**
@@ -44,13 +44,13 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
 
     public function test_it_takes_a_parent_parser() {
         $root = new root_parser('/');
-        $parser = new urlparser($root);
+        $parser = new local_cleanurls_testparser($root);
         $parent = $parser->get_parent();
         self::assertSame($root, $parent);
     }
 
     public function test_it_takes_null_as_parent_parser() {
-        $parser = new urlparser(null);
+        $parser = new local_cleanurls_testparser(null);
         $parent = $parser->get_parent();
         self::assertNull($parent);
     }
@@ -64,6 +64,6 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
      */
     public function test_it_does_not_take_wrong_types($input) {
         $this->expectException(invalid_parameter_exception::class);
-        new urlparser($input);
+        new local_cleanurls_testparser($input);
     }
 }

@@ -15,48 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package     local_cleanurls
- * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
- * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace local_cleanurls\local\urlparser;
-
-use invalid_parameter_exception;
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Class urlparser
+ * Implements parser for tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class urlparser {
-    /** @var urlparser */
-    protected $parent;
 
-    /**
-     * urlparser constructor.
-     *
-     * @param urlparser|null $parent
-     * @throws invalid_parameter_exception
-     */
-    public function __construct($parent) {
-        if (!is_a($parent, self::class) && !is_null($parent)) {
-            throw new invalid_parameter_exception('parent must be urlparser or null.');
-        }
+use local_cleanurls\local\urlparser\urlparser;
 
-        $this->parent = $parent;
-    }
+defined('MOODLE_INTERNAL') || die();
 
-    /**
-     * @return urlparser
-     */
-    public function get_parent() {
-        return $this->parent;
-    }
+/**
+ * Implements parser for tests.
+ *
+ * @package     local_cleanurls
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class local_cleanurls_testparser extends urlparser {
 }
