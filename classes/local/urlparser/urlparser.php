@@ -60,8 +60,8 @@ abstract class urlparser {
         }
 
         $this->parent = $parent;
-        $this->prepare_subpath();
-        $this->parameters = $this->prepare_parameters();
+        $this->prepare_path();
+        $this->prepare_parameters();
     }
 
     /**
@@ -76,7 +76,7 @@ abstract class urlparser {
      * - subpath = removing one level of path from the parent or empty if no parent.
      * - mypath = the removed path or empty if not available.
      */
-    protected function prepare_subpath() {
+    protected function prepare_path() {
         $this->subpath = is_null($this->parent) ? [] : $this->parent->subpath;
         $this->mypath = array_shift($this->subpath);
 

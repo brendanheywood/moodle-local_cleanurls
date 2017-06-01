@@ -40,6 +40,6 @@ class local_cleanurls_testparser extends urlparser {
      * @return string[]
      */
     protected function prepare_parameters() {
-        return [];
+        $this->parameters = [];
     }
 }

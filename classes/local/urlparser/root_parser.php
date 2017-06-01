@@ -92,7 +92,7 @@ class root_parser extends urlparser {
         return $this->cleanurl;
     }
 
-    public function prepare_subpath() {
+    public function prepare_path() {
         $this->mypath = '';
 
         $path = $this->get_clean_url()->get_path();
@@ -102,6 +102,6 @@ class root_parser extends urlparser {
     }
 
     public function prepare_parameters() {
-        return $this->get_clean_url()->params();
+        $this->parameters = $this->get_clean_url()->params();
     }
 }
