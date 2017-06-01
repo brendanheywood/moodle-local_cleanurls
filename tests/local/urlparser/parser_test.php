@@ -48,4 +48,22 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
         $parent = $parser->get_parent();
         self::assertSame($root, $parent);
     }
+
+    public function test_it_takes_null_as_parent_parser() {
+        $parser = new urlparser(null);
+        $parent = $parser->get_parent();
+        self::assertNull($parent);
+    }
+
+    public function provider_for_test_it_does_not_take_wrong_types() {
+        return [[1], ['string'], [['array']], [(object)['type' => 'objects']]];
+    }
+
+    /**
+     * @dataProvider provider_for_test_it_does_not_take_wrong_types
+     */
+    public function test_it_does_not_take_wrong_types($input) {
+        $this->expectException(invalid_parameter_exception::class);
+        new urlparser($input);
+    }
 }

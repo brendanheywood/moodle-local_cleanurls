@@ -23,6 +23,8 @@
 
 namespace local_cleanurls\local\urlparser;
 
+use invalid_parameter_exception;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -40,9 +42,14 @@ class urlparser {
     /**
      * urlparser constructor.
      *
-     * @param urlparser $parent
+     * @param urlparser|null $parent
+     * @throws invalid_parameter_exception
      */
-    public function __construct(urlparser $parent) {
+    public function __construct($parent) {
+        if (!is_a($parent, self::class) && !is_null($parent)) {
+            throw new invalid_parameter_exception('parent must be urlparser or null.');
+        }
+
         $this->parent = $parent;
     }
 

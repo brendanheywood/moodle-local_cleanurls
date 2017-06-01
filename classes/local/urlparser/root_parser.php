@@ -45,8 +45,7 @@ class root_parser extends urlparser {
      * @param moodle_url $url
      */
     public function __construct(moodle_url $url) {
-        // We are not calling the parent constructor on purpose.
-        $this->parent = null;
+        parent::__construct(null);
         $this->originalurl = $url;
     }
 
