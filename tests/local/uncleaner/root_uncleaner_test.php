@@ -49,7 +49,7 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
 
     public function test_it_takes_a_url_as_string() {
         $root = new root_uncleaner('/');
-        self::assertSame('/', $root->get_original_raw_url());
+        self::assertSame('http://www.example.com/moodle/', $root->get_original_raw_url());
     }
 
     public function test_it_gives_the_clean_url() {
@@ -63,14 +63,13 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
             [1],
             [['array']],
             [new stdClass()],
-            [new moodle_url('/')],
         ];
     }
 
     /**
      * @dataProvider provider_for_test_it_takes_only_strings
      */
-    public function test_it_takes_only_strings($input) {
+    public function test_it_takes_only_strings_or_moodle_urls($input) {
         $this->expectException(invalid_parameter_exception::class);
         new root_uncleaner($input);
     }

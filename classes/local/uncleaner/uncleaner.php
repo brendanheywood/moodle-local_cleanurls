@@ -24,6 +24,8 @@
 namespace local_cleanurls\local\uncleaner;
 
 use invalid_parameter_exception;
+use local_cleanurls\uncleaner_old;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -36,6 +38,28 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class uncleaner {
+    /**
+     * @param string|moodle_url $clean
+     * @return moodle_url
+     */
+    public static function unclean($clean) {
+        $node = new root_uncleaner($clean);
+
+        do {
+            $lastnode = $node;
+            $node = $node->get_child();
+        } while (!is_null($node));
+
+        $unclean = $lastnode->get_unclean_url();
+
+        // Temporarly, if there is no child, use old uncleaner.
+        if (is_null($unclean)) {
+            return uncleaner_old::unclean($clean);
+        }
+
+        return $unclean;
+    }
+
     /** @var uncleaner */
     protected $parent;
 
@@ -63,6 +87,17 @@ abstract class uncleaner {
         $this->prepare_path();
         $this->prepare_parameters();
     }
+
+    /**
+     * @return uncleaner
+     */
+    public abstract function get_child();
+
+    /**
+     * @return moodle_url
+     */
+    public abstract function get_unclean_url();
+
 
     /**
      * @return uncleaner

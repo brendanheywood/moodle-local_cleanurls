@@ -36,4 +36,17 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_testparser extends uncleaner {
+    /**
+     * @return uncleaner
+     */
+    public function get_child() {
+        return null;
+    }
+
+    /**
+     * @return moodle_url
+     */
+    public function get_unclean_url() {
+        return new moodle_url('/');
+    }
 }
