@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\hooks;
+namespace local_cleanurls\local\callbacks;
 
 use cm_info;
 use local_cleanurls\clean_moodle_url;
