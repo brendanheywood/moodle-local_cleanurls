@@ -63,6 +63,9 @@ abstract class uncleaner {
     /** @var uncleaner */
     protected $parent;
 
+    /** @var uncleaner */
+    protected $child;
+
     /** @var string */
     protected $mypath = null;
 
@@ -86,24 +89,26 @@ abstract class uncleaner {
         $this->parent = $parent;
         $this->prepare_path();
         $this->prepare_parameters();
+        $this->prepare_child();
     }
-
-    /**
-     * @return uncleaner
-     */
-    public abstract function get_child();
 
     /**
      * @return moodle_url
      */
     public abstract function get_unclean_url();
 
-
     /**
      * @return uncleaner
      */
     public function get_parent() {
         return $this->parent;
+    }
+
+    /**
+     * @return uncleaner
+     */
+    public function get_child() {
+        return $this->child;
     }
 
     /**
@@ -125,6 +130,13 @@ abstract class uncleaner {
      */
     protected function prepare_parameters() {
         $this->parameters = is_null($this->parent) ? [] : $this->parent->parameters;
+    }
+
+    /**
+     * It defaults to no child.
+     */
+    protected function prepare_child() {
+        $this->child = null;
     }
 
     /**

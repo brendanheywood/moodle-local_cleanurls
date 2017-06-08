@@ -36,17 +36,24 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_testparser extends uncleaner {
-    /**
-     * @return uncleaner
-     */
-    public function get_child() {
-        return null;
+    /** @var array */
+    public $testparameters;
+
+    public function __construct($parent = null, ...$parameters) {
+        $this->testparameters = $parameters;
+        parent::__construct($parent);
     }
 
     /**
      * @return moodle_url
      */
     public function get_unclean_url() {
-        return new moodle_url('/');
+        return new moodle_url('/' . implode('/', $this->testparameters));
+    }
+
+    public function prepare_child() {
+        if (['test_it_may_have_a_child', 'parent'] === $this->testparameters) {
+            $this->child = new local_cleanurls_testparser($this, 'test_it_may_have_a_child', 'child');
+        }
     }
 }

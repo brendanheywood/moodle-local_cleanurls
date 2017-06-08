@@ -24,7 +24,6 @@
  */
 
 use local_cleanurls\local\uncleaner\root_uncleaner;
-use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/testparser.php');
@@ -54,6 +53,14 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
         $parser = new local_cleanurls_testparser(null);
         $parent = $parser->get_parent();
         self::assertNull($parent);
+    }
+
+    public function test_it_may_have_a_child() {
+        $parent = new local_cleanurls_testparser(
+            null, 'test_it_may_have_a_child', 'parent');
+
+        self::assertSame('http://www.example.com/moodle/test_it_may_have_a_child/child',
+                         $parent->get_child()->get_unclean_url()->raw_out());
     }
 
     public function provider_for_test_it_does_not_take_wrong_types() {

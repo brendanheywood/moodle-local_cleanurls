@@ -133,4 +133,9 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         $root = new root_uncleaner('/hello/world');
         self::assertSame('', $root->get_mypath());
     }
+
+    public function test_it_never_uncleans() {
+        $root = new root_uncleaner('/');
+        self::assertNull($root->get_unclean_url());
+    }
 }
