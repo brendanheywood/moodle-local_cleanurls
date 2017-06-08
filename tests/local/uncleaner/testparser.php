@@ -36,6 +36,25 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_testparser extends uncleaner {
+    public static function create(uncleaner $parent) {
+        // Only allow if the parent is testparser (one level only).
+        if (is_a($parent, local_cleanurls_testparser::class) && is_null($parent->get_parent())) {
+            return new local_cleanurls_testparser($parent);
+        }
+
+        return null;
+    }
+
+    /** @var string[] */
+    public static $childoptions = [];
+
+    /**
+     * @return string[]
+     */
+    public static function list_child_options() {
+        return self::$childoptions;
+    }
+
     /** @var array */
     public $testparameters;
 
@@ -54,6 +73,9 @@ class local_cleanurls_testparser extends uncleaner {
     public function prepare_child() {
         if (['test_it_may_have_a_child', 'parent'] === $this->testparameters) {
             $this->child = new local_cleanurls_testparser($this, 'test_it_may_have_a_child', 'child');
+            return;
         }
+
+        parent::prepare_child();
     }
 }

@@ -37,6 +37,16 @@ defined('MOODLE_INTERNAL') || die();
  */
 class selftest_uncleaner extends uncleaner {
     /**
+     * Tries to create a child for that parent, returns null if not possible.
+     *
+     * @param uncleaner $parent
+     * @return uncleaner|null
+     */
+    public static function create(uncleaner $parent) {
+        // TODO: Implement create() method.
+    }
+
+    /**
      * @return moodle_url
      */
     public function get_unclean_url() {

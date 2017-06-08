@@ -25,7 +25,6 @@ namespace local_cleanurls\local\uncleaner;
 
 use invalid_parameter_exception;
 use local_cleanurls\clean_moodle_url;
-use local_cleanurls\local\uncleaner\selftest_uncleaner;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -39,6 +38,25 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class root_uncleaner extends uncleaner {
+    /**
+     * @return string[]
+     */
+    public static function list_child_options() {
+        return [
+            selftest_uncleaner::class,
+        ];
+    }
+
+    /**
+     * Tries to create a child for that parent, returns null if not possible.
+     *
+     * @param uncleaner $parent
+     * @return uncleaner|null
+     */
+    public static function create(uncleaner $parent) {
+        // TODO: Implement create() method.
+    }
+
     /** @var moodle_url */
     protected $originalurl;
 
@@ -91,15 +109,6 @@ class root_uncleaner extends uncleaner {
      */
     public function get_clean_url() {
         return $this->cleanurl;
-    }
-
-    /**
-     * @return string[]
-     */
-    public static function list_child_options() {
-        return [
-            selftest_uncleaner::class,
-        ];
     }
 
     /**

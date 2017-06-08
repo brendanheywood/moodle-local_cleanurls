@@ -98,4 +98,20 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
         $options = uncleaner::list_child_options();
         self::assertSame([], $options);
     }
+
+    public function test_cannot_create_child_if_option_not_available() {
+        local_cleanurls_testparser::$childoptions = [
+            root_uncleaner::class,
+        ];
+        $test = new local_cleanurls_testparser();
+        self::assertNull($test->get_child());
+    }
+
+    public function test_creates_child_if_option_available() {
+        local_cleanurls_testparser::$childoptions = [
+            local_cleanurls_testparser::class,
+        ];
+        $test = new local_cleanurls_testparser();
+        self::assertInstanceOf(local_cleanurls_testparser::class, $test->get_child());
+    }
 }

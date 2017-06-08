@@ -85,6 +85,14 @@ abstract class uncleaner {
     }
 
     /**
+     * Tries to create a child for that parent, returns null if not possible.
+     *
+     * @param uncleaner $parent
+     * @return uncleaner|null
+     */
+    public abstract static function create(uncleaner $parent);
+
+    /**
      * urlparser constructor.
      *
      * @param uncleaner|null $parent
@@ -146,6 +154,13 @@ abstract class uncleaner {
      */
     protected function prepare_child() {
         $this->child = null;
+
+        foreach (static::list_child_options() as $option) {
+            $this->child = $option::create($this);
+            if (!is_null($this->child)) {
+                return;
+            }
+        }
     }
 
     /**
