@@ -37,22 +37,26 @@ defined('MOODLE_INTERNAL') || die();
  */
 class selftest_uncleaner extends uncleaner {
     /**
-     * Tries to create a child for that parent, returns null if not possible.
+     * Checks if inside
      *
      * @param uncleaner $parent
-     * @return uncleaner|null
+     * @return bool
      */
-    public static function create(uncleaner $parent) {
+    public static function can_create($parent) {
+        if (!is_a($parent, root_uncleaner::class)) {
+            return false;
+        }
+
         if (count($parent->subpath) < 3) {
-            return null;
+            return false;
         }
 
         $subpath = array_slice($parent->subpath, 0, 3);
         if ($subpath !== ['local', 'cleanurls', 'tests']) {
-            return null;
+            return false;
         }
 
-        return new selftest_uncleaner($parent);
+        return true;
     }
 
     /**

@@ -146,9 +146,8 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         self::assertSame($expected, root_uncleaner::list_child_options());
     }
 
-    public function test_it_cannot_be_automatically_created() {
-        $root1 = new root_uncleaner('/');
-        $root2 = root_uncleaner::create($root1);
-        self::assertNull($root2);
+    public function test_it_can_only_be_created_without_parent() {
+        self::assertTrue(root_uncleaner::can_create(null), 'Without parent.');
+        self::assertFalse(root_uncleaner::can_create(new root_uncleaner('/')), 'With parent.');
     }
 }

@@ -39,19 +39,22 @@ defined('MOODLE_INTERNAL') || die();
  */
 class root_uncleaner extends uncleaner {
     /**
+     * It can only be created without any parent.
+     *
+     * @param uncleaner|null $parent
+     * @return bool
+     */
+    public static function can_create($parent) {
+        return is_null($parent);
+    }
+
+    /**
      * @return string[]
      */
     public static function list_child_options() {
         return [
             selftest_uncleaner::class,
         ];
-    }
-
-    /**
-     * Root uncleaner can never be automatically created, it requires a URL instead of a parent.
-     */
-    public static function create(uncleaner $parent) {
-        return null;
     }
 
     /** @var moodle_url */

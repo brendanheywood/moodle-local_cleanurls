@@ -27,6 +27,7 @@ use local_cleanurls\local\uncleaner\root_uncleaner;
 use local_cleanurls\local\uncleaner\selftest_uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/testparser.php');
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
 /**
@@ -38,6 +39,24 @@ require_once(__DIR__ . '/../../cleanurls_testcase.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class selftest_uncleaner_test extends local_cleanurls_testcase {
+    public function test_it_can_create() {
+        $parent = new root_uncleaner('/local/cleanurls/tests/bar');
+        $cancreate = selftest_uncleaner::can_create($parent);
+        self::assertTrue($cancreate);
+    }
+
+    public function test_it_cannot_create_outside_root() {
+        $parent = new local_cleanurls_testparser();
+        $cancreate = selftest_uncleaner::can_create($parent);
+        self::assertFalse($cancreate);
+    }
+
+    public function test_it_cannot_create_if_path_has_at_least_3_components() {
+        $parent = new root_uncleaner('/local/cleanurls');
+        $cancreate = selftest_uncleaner::can_create($parent);
+        self::assertFalse($cancreate);
+    }
+
     public function test_it_has_the_proper_parameters() {
         $root = new root_uncleaner('/local/cleanurls/tests/this/is/my/path');
         $selftest = $root->get_child();

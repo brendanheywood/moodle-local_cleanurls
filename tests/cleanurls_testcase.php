@@ -91,5 +91,11 @@ class local_cleanurls_testcase extends advanced_testcase {
         parent::setUp();
         $this->resetAfterTest(true);
         static::enable_cleanurls();
+        static::reset_testuncleaner();
+    }
+
+    private static function reset_testuncleaner() {
+        local_cleanurls_testparser::$childoptions = [];
+        local_cleanurls_testparser::$cancreate = null;
     }
 }

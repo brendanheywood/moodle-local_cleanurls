@@ -68,14 +68,6 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
         return [[1], ['string'], [['array']], [(object)['type' => 'objects']]];
     }
 
-    /**
-     * @dataProvider provider_for_test_it_does_not_take_wrong_types
-     */
-    public function test_it_does_not_take_wrong_types($input) {
-        $this->expectException(invalid_parameter_exception::class);
-        new local_cleanurls_testparser($input);
-    }
-
     public function test_it_consumes_one_subpath() {
         $root = new root_uncleaner('/hello/world');
         $parser = new local_cleanurls_testparser($root);
@@ -108,9 +100,16 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
     }
 
     public function test_creates_child_if_option_available() {
-        local_cleanurls_testparser::$childoptions = [
-            local_cleanurls_testparser::class,
-        ];
+        local_cleanurls_testparser::$childoptions = [local_cleanurls_testparser::class];
+        local_cleanurls_testparser::$cancreate = function($parent) {
+            if (is_null($parent)) {
+                return true;
+            }
+            if (is_null($parent->get_parent())) {
+                return true;
+            }
+            return false;
+        };
         $test = new local_cleanurls_testparser();
         self::assertInstanceOf(local_cleanurls_testparser::class, $test->get_child());
     }

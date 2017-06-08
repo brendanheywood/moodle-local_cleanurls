@@ -85,12 +85,12 @@ abstract class uncleaner {
     }
 
     /**
-     * Tries to create a child for that parent, returns null if not possible.
+     * Quick check if this object should be created for the given parent.
      *
      * @param uncleaner $parent
-     * @return uncleaner|null
+     * @return bool
      */
-    public abstract static function create(uncleaner $parent);
+    public abstract static function can_create($parent);
 
     /**
      * urlparser constructor.
@@ -99,8 +99,8 @@ abstract class uncleaner {
      * @throws invalid_parameter_exception
      */
     public function __construct($parent) {
-        if (!is_a($parent, self::class) && !is_null($parent)) {
-            throw new invalid_parameter_exception('parent must be urlparser or null.');
+        if (!static::can_create($parent)) {
+            throw new invalid_parameter_exception('Cannot create for given parent.');
         }
 
         $this->parent = $parent;
@@ -156,8 +156,8 @@ abstract class uncleaner {
         $this->child = null;
 
         foreach (static::list_child_options() as $option) {
-            $this->child = $option::create($this);
-            if (!is_null($this->child)) {
+            if ($option::can_create($this)) {
+                $this->child = new $option($this);
                 return;
             }
         }

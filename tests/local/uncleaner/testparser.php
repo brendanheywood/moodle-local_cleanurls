@@ -35,20 +35,25 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_testparser extends uncleaner {
-    // Rename to test_uncleaner.
-
-    public static function create(uncleaner $parent) {
-        // Only allow if the parent is testparser (one level only).
-        if (is_a($parent, local_cleanurls_testparser::class) && is_null($parent->get_parent())) {
-            return new local_cleanurls_testparser($parent);
-        }
-
-        return null;
-    }
-
+class local_cleanurls_testparser extends uncleaner { // Rename to test_uncleaner.
     /** @var string[] */
     public static $childoptions = [];
+
+    /** @var callable */
+    public static $cancreate = null;
+
+    /**
+     * Quick check if this object should be created for the given parent.
+     *
+     * @param uncleaner $parent
+     * @return bool
+     */
+    public static function can_create($parent) {
+        if (is_callable(self::$cancreate)) {
+            return (self::$cancreate)($parent);
+        }
+        return true;
+    }
 
     /**
      * @return string[]
