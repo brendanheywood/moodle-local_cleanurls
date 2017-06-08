@@ -43,15 +43,18 @@ class local_cleanurls_unittest_uncleaner extends uncleaner {
     public static $cancreate = null;
 
     /**
-     * Quick check if this object should be created for the given parent.
+     * Uses a callback to determine the result, or true if no callback was registered.
      *
      * @param uncleaner $parent
      * @return bool
      */
     public static function can_create($parent) {
-        if (is_callable(self::$cancreate)) {
-            return (self::$cancreate)($parent);
+        $callback = self::$cancreate;
+
+        if (is_callable($callback)) {
+            return $callback($parent);
         }
+
         return true;
     }
 

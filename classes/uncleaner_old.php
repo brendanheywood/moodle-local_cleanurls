@@ -97,8 +97,6 @@ class uncleaner_old {
 
         // The order here is important as it will stop on first success.
         $uncleaned = false
-                     //|| $this->unclean_test_url()
-                     //|| $this->unclean_category()
                      || $this->unclean_course_format()
                      || $this->unclean_user_in_course()
                      || $this->unclean_course_users()

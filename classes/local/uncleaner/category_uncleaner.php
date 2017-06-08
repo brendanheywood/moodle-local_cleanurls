@@ -40,7 +40,7 @@ class category_uncleaner extends uncleaner {
      * @return string[]
      */
     public static function list_child_options() {
-        return [category_uncleaner::class];
+        return [self::class];
     }
 
     /**
@@ -61,7 +61,7 @@ class category_uncleaner extends uncleaner {
         }
 
         // Subcategories are allowed.
-        if (is_a($parent, category_uncleaner::class)) {
+        if (is_a($parent, self::class)) {
             return true;
         }
 
