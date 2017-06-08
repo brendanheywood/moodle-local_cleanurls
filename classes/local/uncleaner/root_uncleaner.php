@@ -48,13 +48,10 @@ class root_uncleaner extends uncleaner {
     }
 
     /**
-     * Tries to create a child for that parent, returns null if not possible.
-     *
-     * @param uncleaner $parent
-     * @return uncleaner|null
+     * Root uncleaner can never be automatically created, it requires a URL instead of a parent.
      */
     public static function create(uncleaner $parent) {
-        // TODO: Implement create() method.
+        return null;
     }
 
     /** @var moodle_url */

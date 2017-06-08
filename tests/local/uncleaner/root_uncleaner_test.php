@@ -145,4 +145,10 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         ];
         self::assertSame($expected, root_uncleaner::list_child_options());
     }
+
+    public function test_it_cannot_be_automatically_created() {
+        $root1 = new root_uncleaner('/');
+        $root2 = root_uncleaner::create($root1);
+        self::assertNull($root2);
+    }
 }
