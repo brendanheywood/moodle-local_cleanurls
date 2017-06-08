@@ -43,13 +43,41 @@ class selftest_uncleaner extends uncleaner {
      * @return uncleaner|null
      */
     public static function create(uncleaner $parent) {
-        // TODO: Implement create() method.
+        if (count($parent->subpath) < 3) {
+            return null;
+        }
+
+        $subpath = array_slice($parent->subpath, 0, 3);
+        if ($subpath !== ['local', 'cleanurls', 'tests']) {
+            return null;
+        }
+
+        return new selftest_uncleaner($parent);
+    }
+
+    /**
+     * It:
+     * - Consumes 3 subpaths (local/cleanurls/tests).
+     * - Adds the rest as 'mypath'.
+     * - Has no subpaths.
+     */
+    protected function prepare_path() {
+        $path = array_slice($this->parent->subpath, 3);
+        $this->mypath = implode('/', $path);
+        $this->subpath = [];
     }
 
     /**
      * @return moodle_url
      */
     public function get_unclean_url() {
-        // TODO: Implement get_unclean_url() method.
+        switch ($this->mypath) {
+            case 'bar':
+                return new moodle_url('/local/cleanurls/tests/foo.php');
+            case 'webcheck':
+                return new moodle_url('/local/cleanurls/tests/webserver/index.php');
+            default:
+                return null;
+        }
     }
 }

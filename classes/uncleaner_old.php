@@ -97,7 +97,7 @@ class uncleaner_old {
 
         // The order here is important as it will stop on first success.
         $uncleaned = false
-                     || $this->unclean_test_url()
+                     //|| $this->unclean_test_url()
                      || $this->unclean_course_format()
                      || $this->unclean_user_in_course()
                      || $this->unclean_course_users()
@@ -113,20 +113,6 @@ class uncleaner_old {
         } else {
             $this->uncleanurl = $this->cleanurl;
         }
-    }
-
-    private function unclean_test_url() {
-        if ($this->path == '/local/cleanurls/tests/bar') {
-            $this->path = '/local/cleanurls/tests/foo.php';
-            clean_moodle_url::log("Rewritten to: {$this->path}");
-            return true;
-        }
-        if ($this->path == '/local/cleanurls/tests/webcheck') {
-            $this->path = '/local/cleanurls/tests/webserver/index.php';
-            clean_moodle_url::log("Rewritten to: {$this->path}");
-            return true;
-        }
-        return false;
     }
 
     private function unclean_user_in_course() {

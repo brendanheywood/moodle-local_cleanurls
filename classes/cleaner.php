@@ -119,6 +119,11 @@ class cleaner {
             $this->cleanedurl = new clean_moodle_url('/local/cleanurls/tests/bar');
             return true;
         }
+        if (substr($this->originalpath, -42) == '/local/cleanurls/tests/webserver/index.php') {
+            clean_moodle_url::log("Rewrite test url");
+            $this->cleanedurl = new clean_moodle_url('/local/cleanurls/tests/webcheck');
+            return true;
+        }
         return false;
     }
 

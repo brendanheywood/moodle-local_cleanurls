@@ -37,18 +37,6 @@ require_once(__DIR__.'/cleanurls_testcase.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
-    public function test_it_always_cleans_the_test_url() {
-        // Test with cleaning on.
-        set_config('cleaningon', true, 'local_cleanurls');
-        static::assert_clean_unclean('/local/cleanurls/tests/foo.php',
-                                    'http://www.example.com/moodle/local/cleanurls/tests/bar');
-
-        // Test with cleaning off.
-        set_config('cleaningon', false, 'local_cleanurls');
-        static::assert_clean_unclean('/local/cleanurls/tests/foo.php',
-                                    'http://www.example.com/moodle/local/cleanurls/tests/bar');
-    }
-
     public function test_it_cannot_clean_if_destination_is_a_directory() {
         global $CFG;
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);

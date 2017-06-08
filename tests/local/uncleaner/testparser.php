@@ -36,6 +36,8 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_testparser extends uncleaner {
+    // Rename to test_uncleaner.
+
     public static function create(uncleaner $parent) {
         // Only allow if the parent is testparser (one level only).
         if (is_a($parent, local_cleanurls_testparser::class) && is_null($parent->get_parent())) {
