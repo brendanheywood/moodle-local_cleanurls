@@ -292,16 +292,5 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
         $this->assertEquals('http://www.example.com/moodle/mod/forum/index.php?id=' . $thiscourse->id, $unclean,
                             "Unclean: course mod index page");
-
-        $c1 = $thiscategory->id;
-        $c2 = $thiscategory2->id;
-        $url = "http://www.example.com/moodle/course/index.php?categoryid=$c2";
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals("http://www.example.com/moodle/category/sciences-$c1/compsci-$c2",
-                            $clean, "Clean: category index page");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
-        $this->assertEquals($url, $unclean, "Unclean: category page");
     }
 }

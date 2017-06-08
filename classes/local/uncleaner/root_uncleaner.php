@@ -54,6 +54,7 @@ class root_uncleaner extends uncleaner {
     public static function list_child_options() {
         return [
             selftest_uncleaner::class,
+            category_uncleaner::class,
         ];
     }
 

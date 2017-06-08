@@ -15,8 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * CleanURLS URL Parser for: / (root).
- *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
@@ -31,7 +29,7 @@ require_once(__DIR__ . '/testparser.php');
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
 /**
- * Tests for flexsections_support.
+ * Tests for selftest paths.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>

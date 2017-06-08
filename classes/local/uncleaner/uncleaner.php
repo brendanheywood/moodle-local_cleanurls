@@ -150,7 +150,7 @@ abstract class uncleaner {
     }
 
     /**
-     * It defaults to trying all available options.
+     * It defaults to trying all available options if there is a subpath.
      */
     protected function prepare_child() {
         $this->child = null;

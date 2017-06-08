@@ -142,6 +142,7 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
     public function test_it_has_some_child_options() {
         $expected = [
             'local_cleanurls\local\uncleaner\selftest_uncleaner',
+            'local_cleanurls\local\uncleaner\category_uncleaner',
         ];
         self::assertSame($expected, root_uncleaner::list_child_options());
     }

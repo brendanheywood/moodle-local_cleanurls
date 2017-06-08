@@ -64,12 +64,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         static::assert_clean_unclean($url, $url);
     }
 
-    public function test_it_cleans_category_urls() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/course/index.php?categoryid='.$category->id,
-                                    'http://www.example.com/moodle/category/category-'.$category->id);
-    }
 
     public function test_it_cleans_course_module_view_urls() {
         global $DB;
@@ -181,16 +175,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         static::assert_clean_unclean('http://www.example.com/moodle/user/index.php?id='.$course->id,
                                     'http://www.example.com/moodle/course/shortcoursename/user');
-    }
-
-    public function test_it_cleans_subcategory_urls() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $subcategory = $this->getDataGenerator()->create_category(['name'   => 'subcategory',
-                                                                   'parent' => $category->id]);
-
-        $url = 'http://www.example.com/moodle/course/index.php?categoryid='.$subcategory->id;
-        $expected = 'http://www.example.com/moodle/category/category-'.$category->id.'/subcategory-'.$subcategory->id;
-        static::assert_clean_unclean($url, $expected);
     }
 
     public function test_it_cleans_username_in_course() {

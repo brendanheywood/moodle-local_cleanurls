@@ -98,6 +98,7 @@ class uncleaner_old {
         // The order here is important as it will stop on first success.
         $uncleaned = false
                      //|| $this->unclean_test_url()
+                     //|| $this->unclean_category()
                      || $this->unclean_course_format()
                      || $this->unclean_user_in_course()
                      || $this->unclean_course_users()
@@ -105,8 +106,7 @@ class uncleaner_old {
                      || $this->unclean_user_profile_or_in_course()
                      || $this->unclean_course_module_view()
                      || $this->unclean_course_modules()
-                     || $this->unclean_course()
-                     || $this->unclean_category();
+                     || $this->unclean_course();
 
         if ($uncleaned) {
             $this->create_uncleaned_url();
@@ -283,17 +283,6 @@ class uncleaner_old {
         if (preg_match('#^/course/([^/]+)/?$#', $this->path, $matches)) {
             $this->path = "/course/view.php";
             $this->params['name'] = $matches[1];
-            clean_moodle_url::log("Rewritten to: {$this->path}");
-            return true;
-        }
-        return false;
-    }
-
-    private function unclean_category() {
-        if (preg_match('/^\/category(\/.*-(\d+))?$/', $this->path, $matches)) {
-            $this->path = "/course/index.php";
-            // We need at least 2 matches to get a valid id. Use the last match (last part of path).
-            $this->params['categoryid'] = (count($matches) <= 1) ? 0 : array_pop($matches);
             clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }
