@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\urlparser;
+namespace local_cleanurls\local\uncleaner;
 
 use invalid_parameter_exception;
 use local_cleanurls\clean_moodle_url;
@@ -37,7 +37,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class root_parser extends urlparser {
+class root_uncleaner extends uncleaner {
     /** @var moodle_url */
     protected $originalurl;
 

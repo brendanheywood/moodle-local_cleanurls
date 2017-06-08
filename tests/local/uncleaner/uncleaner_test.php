@@ -23,7 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\urlparser\root_parser;
+use local_cleanurls\local\uncleaner\root_uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/testparser.php');
@@ -39,11 +39,11 @@ require_once(__DIR__ . '/../../cleanurls_testcase.php');
  */
 class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
     public function test_it_exists() {
-        self::assertTrue(class_exists('\local_cleanurls\local\urlparser\urlparser'));
+        self::assertTrue(class_exists('\local_cleanurls\local\uncleaner\uncleaner'));
     }
 
     public function test_it_takes_a_parent_parser() {
-        $root = new root_parser('/');
+        $root = new root_uncleaner('/');
         $parser = new local_cleanurls_testparser($root);
         $parent = $parser->get_parent();
         self::assertSame($root, $parent);
@@ -68,19 +68,19 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
     }
 
     public function test_it_consumes_one_subpath() {
-        $root = new root_parser('/hello/world');
+        $root = new root_uncleaner('/hello/world');
         $parser = new local_cleanurls_testparser($root);
         self::assertSame(['world'], $parser->get_subpath());
     }
 
     public function test_it_has_its_path() {
-        $root = new root_parser('/hello/world');
+        $root = new root_uncleaner('/hello/world');
         $parser = new local_cleanurls_testparser($root);
         self::assertSame('hello', $parser->get_mypath());
     }
 
     public function test_it_inherits_parameters() {
-        $root = new root_parser('/hello/world?a=b&c=d');
+        $root = new root_uncleaner('/hello/world?a=b&c=d');
         $parser = new local_cleanurls_testparser($root);
         self::assertSame(['a' => 'b', 'c' => 'd'], $parser->get_parameters());
     }

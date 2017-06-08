@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\urlparser;
+namespace local_cleanurls\local\uncleaner;
 
 use invalid_parameter_exception;
 
@@ -35,8 +35,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class urlparser {
-    /** @var urlparser */
+abstract class uncleaner {
+    /** @var uncleaner */
     protected $parent;
 
     /** @var string */
@@ -51,7 +51,7 @@ abstract class urlparser {
     /**
      * urlparser constructor.
      *
-     * @param urlparser|null $parent
+     * @param uncleaner|null $parent
      * @throws invalid_parameter_exception
      */
     public function __construct($parent) {
@@ -65,7 +65,7 @@ abstract class urlparser {
     }
 
     /**
-     * @return urlparser
+     * @return uncleaner
      */
     public function get_parent() {
         return $this->parent;
