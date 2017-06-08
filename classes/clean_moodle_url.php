@@ -101,7 +101,7 @@ class clean_moodle_url extends moodle_url {
      * @return moodle_url
      */
     public static function unclean($clean) {
-        return uncleaner::unclean($clean);
+        return uncleaner_old::unclean($clean);
     }
 
     public function set_path($path) {

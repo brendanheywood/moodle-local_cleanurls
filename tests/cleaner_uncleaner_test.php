@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\uncleaner;
+use local_cleanurls\uncleaner_old;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__.'/cleanurls_testcase.php');
@@ -142,7 +142,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                                  ]);
 
         $url = 'http://www.example.com/moodle/course/shortname/somethingelse';
-        $uncleaned = uncleaner::unclean($url)->raw_out();
+        $uncleaned = uncleaner_old::unclean($url)->raw_out();
         self::assertSame($url, $uncleaned);
     }
 
@@ -157,7 +157,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         $url = 'http://www.example.com/moodle/course/shortname/';
         $expected = 'http://www.example.com/moodle/course/view.php?name=shortname';
-        $uncleaned = uncleaner::unclean($url)->raw_out();
+        $uncleaned = uncleaner_old::unclean($url)->raw_out();
         self::assertSame($expected, $uncleaned);
     }
 
@@ -302,7 +302,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
     public function test_it_returns_the_same_url_if_cannot_unclean() {
         $url = 'http://www.example.com/moodle/thisisaninvalidpath/shouldnotbechanged';
-        $uncleaned = uncleaner::unclean($url)->out();
+        $uncleaned = uncleaner_old::unclean($url)->out();
         self::assertSame($url, $uncleaned);
     }
 

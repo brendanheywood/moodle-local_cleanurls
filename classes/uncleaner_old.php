@@ -38,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class uncleaner {
+class uncleaner_old {
     /**
      * Takes a string and converts it into an unclean moodle_url object
      *
