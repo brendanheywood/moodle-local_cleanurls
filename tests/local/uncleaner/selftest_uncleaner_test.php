@@ -25,8 +25,8 @@ use local_cleanurls\local\uncleaner\root_uncleaner;
 use local_cleanurls\local\uncleaner\selftest_uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/testparser.php');
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
+require_once(__DIR__ . '/unittest_uncleaner.php');
 
 /**
  * Tests for selftest paths.
@@ -44,7 +44,7 @@ class selftest_uncleaner_test extends local_cleanurls_testcase {
     }
 
     public function test_it_cannot_create_outside_root() {
-        $parent = new local_cleanurls_testparser();
+        $parent = new local_cleanurls_unittest_uncleaner();
         $cancreate = selftest_uncleaner::can_create($parent);
         self::assertFalse($cancreate);
     }

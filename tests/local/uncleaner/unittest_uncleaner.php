@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implements parser for tests.
+ * A class inheriting 'uncleaner' for testing purposes.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
@@ -28,14 +28,14 @@ use local_cleanurls\local\uncleaner\uncleaner;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Implements parser for tests.
+ * Implements uncleaner for tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_testparser extends uncleaner { // Rename to test_uncleaner.
+class local_cleanurls_unittest_uncleaner extends uncleaner {
     /** @var string[] */
     public static $childoptions = [];
 
@@ -79,7 +79,7 @@ class local_cleanurls_testparser extends uncleaner { // Rename to test_uncleaner
 
     public function prepare_child() {
         if (['test_it_may_have_a_child', 'parent'] === $this->testparameters) {
-            $this->child = new local_cleanurls_testparser($this, 'test_it_may_have_a_child', 'child');
+            $this->child = new local_cleanurls_unittest_uncleaner($this, 'test_it_may_have_a_child', 'child');
             return;
         }
 

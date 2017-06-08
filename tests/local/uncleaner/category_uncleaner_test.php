@@ -26,7 +26,7 @@ use local_cleanurls\local\uncleaner\root_uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
-require_once(__DIR__ . '/testparser.php');
+require_once(__DIR__ . '/unittest_uncleaner.php');
 
 /**
  * Tests for category paths.
