@@ -24,6 +24,7 @@
  */
 
 use local_cleanurls\local\uncleaner\root_uncleaner;
+use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/testparser.php');
@@ -91,5 +92,10 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
         $root = new root_uncleaner('/hello/world?a=b&c=d');
         $parser = new local_cleanurls_testparser($root);
         self::assertSame(['a' => 'b', 'c' => 'd'], $parser->get_parameters());
+    }
+
+    public function test_it_lists_child_options() {
+        $options = uncleaner::list_child_options();
+        self::assertSame([], $options);
     }
 }

@@ -25,6 +25,7 @@ namespace local_cleanurls\local\uncleaner;
 
 use invalid_parameter_exception;
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\uncleaner\selftest_uncleaner;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -92,6 +93,18 @@ class root_uncleaner extends uncleaner {
         return $this->cleanurl;
     }
 
+    /**
+     * @return string[]
+     */
+    public static function list_child_options() {
+        return [
+            selftest_uncleaner::class,
+        ];
+    }
+
+    /**
+     * The 'mypath' for root is empty, while subpath contains the whole path of the URL.
+     */
     public function prepare_path() {
         $this->mypath = '';
 
@@ -101,6 +114,9 @@ class root_uncleaner extends uncleaner {
         $this->subpath = ($path === '') ? [] : explode('/', $path);
     }
 
+    /**
+     * Just use the given parameters on the URL.
+     */
     public function prepare_parameters() {
         $this->parameters = $this->get_clean_url()->params();
     }

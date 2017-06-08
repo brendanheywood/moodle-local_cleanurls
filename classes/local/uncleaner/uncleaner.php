@@ -52,7 +52,7 @@ abstract class uncleaner {
 
         $unclean = $lastnode->get_unclean_url();
 
-        // Temporarly, if there is no child, use old uncleaner.
+        // Temporary, if there is no child, use old uncleaner.
         if (is_null($unclean)) {
             return uncleaner_old::unclean($clean);
         }
@@ -74,6 +74,15 @@ abstract class uncleaner {
 
     /** @var string[] */
     protected $parameters = null;
+
+    /**
+     * It defaults to nothing.
+     *
+     * @return string[] List of uncleaner-derived classes that could be a child of this object.
+     */
+    public static function list_child_options() {
+        return [];
+    }
 
     /**
      * urlparser constructor.
@@ -133,7 +142,7 @@ abstract class uncleaner {
     }
 
     /**
-     * It defaults to no child.
+     * It defaults to trying all available options.
      */
     protected function prepare_child() {
         $this->child = null;
