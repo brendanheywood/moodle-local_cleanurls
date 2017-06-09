@@ -92,10 +92,14 @@ abstract class uncleaner {
     /**
      * Quick check if this object should be created for the given parent.
      *
+     * Defaults to false as it should be overriden by child class.
+     *
      * @param uncleaner $parent
      * @return bool
      */
-    public abstract static function can_create($parent);
+    public static function can_create($parent) {
+        return false;
+    }
 
     /**
      * urlparser constructor.
