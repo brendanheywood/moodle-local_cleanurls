@@ -97,7 +97,6 @@ class uncleaner_old {
 
         // The order here is important as it will stop on first success.
         $uncleaned = false
-                     || $this->unclean_user_in_forum()
                      || $this->unclean_course_format()
                      || $this->unclean_user_in_course()
                      || $this->unclean_course_users()
@@ -130,22 +129,6 @@ class uncleaner_old {
         if (preg_match('#^/course/(.+)/user/?$#', $this->path, $matches)) {
             $this->path = "/user/index.php";
             $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
-            clean_moodle_url::log("Rewritten to: {$this->path}");
-            return true;
-        }
-        return false;
-    }
-
-    private function unclean_user_in_forum() {
-        global $DB;
-
-        if (preg_match('#^/user/(\w+)/(discussions)$#', $this->path, $matches)) {
-            // Unclean paths
-            // e.g.: http://moodle.com/user/username/discussions
-            // into http://moodle.com/mod/forum/user.php?id=123&mode=discussions .
-            $this->path = "/mod/forum/user.php";
-            $this->params['id'] = $DB->get_field('user', 'id', ['username' => urldecode($matches[1])]);
-            $this->params['mode'] = $matches[2];
             clean_moodle_url::log("Rewritten to: {$this->path}");
             return true;
         }

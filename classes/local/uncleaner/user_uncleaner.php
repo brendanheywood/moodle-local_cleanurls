@@ -60,6 +60,20 @@ class user_uncleaner extends uncleaner {
         return [user_forum_uncleaner::class];
     }
 
+    /** @var string|false|null */
+    private $userid = null;
+
+    public function get_userid() {
+        global $DB;
+
+        if (is_null($this->userid)) {
+            $username = urldecode($this->mypath);
+            $this->userid = $DB->get_field('user', 'id', ['username' => $username]);
+        }
+
+        return $this->userid;
+    }
+
     /**
      * It:
      * - Consumes 'user' subpath.
@@ -76,15 +90,12 @@ class user_uncleaner extends uncleaner {
      * @return moodle_url
      */
     public function get_unclean_url() {
-        global $DB;
-
-        $username = urldecode($this->mypath);
-        $userid = $DB->get_field('user', 'id', ['username' => $username]);
-        if ($userid === false) {
+        $path = isset($this->parameters['course']) ? '/user/view.php' : '/user/profile.php';
+        $userid = $this->get_userid();
+        if (empty($userid)) {
             return null;
         }
 
-        $path = isset($this->parameters['course']) ? '/user/view.php' : '/user/profile.php';
         $this->parameters['id'] = $userid;
 
         return new moodle_url($path, $this->parameters);

@@ -69,22 +69,6 @@ class user_uncleaner_test extends local_cleanurls_testcase {
                                      'http://www.example.com/moodle/user/theusername?course=1');
     }
 
-    public function test_it_cleans_username() {
-        $user = $this->getDataGenerator()->create_user(
-            ['email' => 'someone@example.com', 'username' => 'theusername']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/user.php?mode=discussions&id=' . $user->id,
-                                     'http://www.example.com/moodle/user/theusername/discussions');
-    }
-
-    public function test_it_cleans_username_in_forum_discussion() {
-        $user = $this->getDataGenerator()->create_user(
-            ['email' => 'someone@example.com', 'username' => 'theusername']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/user.php?mode=discussions&id=' . $user->id,
-                                     'http://www.example.com/moodle/user/theusername/discussions');
-    }
-
     public function test_it_cleans_username_in_site_course() {
         $user = $this->getDataGenerator()->create_user(
             ['email' => 'someone@example.com', 'username' => 'theusername']);

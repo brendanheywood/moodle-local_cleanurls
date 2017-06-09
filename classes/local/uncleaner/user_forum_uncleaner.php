@@ -55,17 +55,17 @@ class user_forum_uncleaner extends uncleaner {
      * @return moodle_url
      */
     public function get_unclean_url() {
-        //global $DB;
-        //
-        //$username = urldecode($this->mypath);
-        //$userid = $DB->get_field('user', 'id', ['username' => $username]);
-        //if ($userid === false) {
-        //    return null;
-        //}
-        //
-        //$path = isset($this->parameters['course']) ? '/user/view.php' : '/user/profile.php';
-        //$this->parameters['id'] = $userid;
-        //
-        //return new moodle_url($path, $this->parameters);
+        /** @var user_uncleaner $parent */
+        $parent = $this->get_parent();
+        $userid = $parent->get_userid();
+
+        if (empty($userid)) {
+            return null;
+        }
+
+        $this->parameters['id'] = $userid;
+        $this->parameters['mode'] = $this->mypath;
+
+        return new moodle_url('/mod/forum/user.php', $this->parameters);
     }
 }
