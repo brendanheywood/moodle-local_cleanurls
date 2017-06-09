@@ -27,6 +27,7 @@ namespace local_cleanurls;
 
 use cache;
 use cache_application;
+use cm_info;
 use moodle_url;
 use stdClass;
 
@@ -189,10 +190,10 @@ class cleaner {
         $id = $this->params['id'];
         list($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
 
-        $title = clean_moodle_url::sluggify($cm->name, true);
+        $subpath = $this->clean_course_module_view_format($course, $cm);
         $shortname = urlencode($course->shortname);
+        $newpath = "/course/{$shortname}{$subpath}";
 
-        $newpath = "/course/{$shortname}/{$mod}/{$id}{$title}";
         if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
             unset($this->params['id']);
@@ -200,6 +201,38 @@ class cleaner {
         }
 
         return true;
+    }
+
+    private function clean_course_module_view_format(stdClass $course, cm_info $cm) {
+        // Hardcoded cleaning for known course formats.
+        switch ($course->format) {
+            case 'singleactivity':
+                return '';
+            case 'topics':
+            case 'weeks':
+                return $this->clean_course_module_view_format_simple_section($cm);
+        }
+
+        // Try using a plugin hook (the plugin defines the behaviour) or a local hook.
+        $classname = clean_moodle_url::find_format_hook($course->format);
+        if (!is_null($classname)) {
+            return '/' . $classname::get_clean_subpath($course, $cm);
+        }
+
+        // Default behaviour.
+        $title = clean_moodle_url::sluggify($cm->name, true);
+        return "/{$cm->modname}/{$cm->id}{$title}";
+    }
+
+    private function clean_course_module_view_format_simple_section(cm_info $cm) {
+        global $DB;
+
+        $section = $DB->get_field('course_sections', 'name', ['id' => $cm->section], MUST_EXIST);
+        $section = clean_moodle_url::sluggify($section, false);
+
+        $title = clean_moodle_url::sluggify($cm->name, true);
+
+        return "/{$section}/{$cm->id}{$title}";
     }
 
     private function clean_course_modules($mod) {

@@ -284,16 +284,6 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
         $this->assertEquals($url, $unclean, "Unclean: user list inside course");
 
-        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $thisforum->cmid;
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals(
-            'http://www.example.com/moodle/course/short%23course/forum/' . $thisforum->cmid . '-atestforum5',
-            $clean, "Clean: Module view page");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
-        $this->assertEquals($url, $unclean, "Unclean: Module view page");
-
         $url = 'http://www.example.com/moodle/mod/forum/index.php?id=' . $thiscourse->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
