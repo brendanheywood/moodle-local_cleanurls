@@ -27,7 +27,7 @@ use local_cleanurls\local\uncleaner\root_uncleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../../cleanurls_testcase.php');
+require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
  * Tests for flexsections_support.
