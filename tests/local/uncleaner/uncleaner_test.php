@@ -57,11 +57,9 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
     }
 
     public function test_it_may_have_a_child() {
-        $parent = new local_cleanurls_unittest_uncleaner(
-            null, 'test_it_may_have_a_child', 'parent');
+        $parent = new local_cleanurls_unittest_uncleaner(null, ['test_it_may_have_a_child:parent' => true]);
 
-        self::assertSame('http://www.example.com/moodle/test_it_may_have_a_child/child',
-                         $parent->get_child()->get_unclean_url()->raw_out());
+        self::assertTrue($parent->get_child()->options['test_it_may_have_a_child:child']);
     }
 
     public function provider_for_test_it_does_not_take_wrong_types() {
@@ -110,7 +108,7 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
             }
             return false;
         };
-        $test = new local_cleanurls_unittest_uncleaner();
+        $test = new local_cleanurls_unittest_uncleaner(null, ['subpath' => ['child']]);
         self::assertInstanceOf(local_cleanurls_unittest_uncleaner::class, $test->get_child());
     }
 

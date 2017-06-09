@@ -43,7 +43,7 @@ class local_cleanurls_unittest_uncleaner extends uncleaner {
     public static $cancreate = null;
 
     /**
-     * Uses a callback to determine the result, or true if no callback was registered.
+     * Uses a callback to determine the result, or true
      *
      * @param uncleaner $parent
      * @return bool
@@ -66,23 +66,35 @@ class local_cleanurls_unittest_uncleaner extends uncleaner {
     }
 
     /** @var array */
-    public $testparameters;
+    public $options;
 
-    public function __construct($parent = null, ...$parameters) {
-        $this->testparameters = $parameters;
+    public function __construct($parent = null, $options = []) {
+        $this->options = $options;
         parent::__construct($parent);
+    }
+
+    protected function prepare_path() {
+        parent::prepare_path();
+
+        if (isset($this->options['subpath'])) {
+            $this->subpath = $this->options['subpath'];
+        }
     }
 
     /**
      * @return moodle_url
      */
     public function get_unclean_url() {
-        return new moodle_url('/' . implode('/', $this->testparameters));
+        return new moodle_url('/');
     }
 
     public function prepare_child() {
-        if (['test_it_may_have_a_child', 'parent'] === $this->testparameters) {
-            $this->child = new local_cleanurls_unittest_uncleaner($this, 'test_it_may_have_a_child', 'child');
+        if (isset($this->options['test_it_may_have_a_child:parent'])) {
+            $this->child = new local_cleanurls_unittest_uncleaner($this, ['test_it_may_have_a_child:child' => true]);
+            return;
+        }
+
+        if (isset($this->options['test_it_may_have_a_child:child'])) {
             return;
         }
 

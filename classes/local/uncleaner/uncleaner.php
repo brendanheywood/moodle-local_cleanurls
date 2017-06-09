@@ -164,7 +164,12 @@ abstract class uncleaner {
     protected function prepare_child() {
         $this->child = null;
 
-        foreach (static::list_child_options() as $option) {
+        if (empty($this->subpath)) {
+            return;
+        }
+
+        $options = static::list_child_options();
+        foreach ($options as $option) {
             if ($option::can_create($this)) {
                 $this->child = new $option($this);
                 return;
