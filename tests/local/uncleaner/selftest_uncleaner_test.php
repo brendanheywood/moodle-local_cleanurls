@@ -56,12 +56,20 @@ class selftest_uncleaner_test extends local_cleanurls_testcase {
     }
 
     public function test_it_has_the_proper_parameters() {
-        $root = new root_uncleaner('/local/cleanurls/tests/this/is/my/path');
+        $root = new root_uncleaner('/local/cleanurls/tests/mytest');
         $selftest = $root->get_child();
 
         self::assertInstanceOf(selftest_uncleaner::class, $selftest);
-        self::assertSame('this/is/my/path', $selftest->get_mypath());
+        self::assertSame('mytest', $selftest->get_mypath());
         self::assertSame([], $selftest->get_subpath());
+    }
+
+    public function test_it_has_the_proper_subpaths() {
+        $root = new root_uncleaner('/local/cleanurls/tests/mytest/a/b/c');
+        $selftest = $root->get_child();
+
+        self::assertInstanceOf(selftest_uncleaner::class, $selftest);
+        self::assertSame(['a', 'b', 'c'], $selftest->get_subpath());
     }
 
     public function test_it_always_cleans_the_test_url() {

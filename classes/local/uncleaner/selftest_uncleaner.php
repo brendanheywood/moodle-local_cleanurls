@@ -62,13 +62,15 @@ class selftest_uncleaner extends uncleaner {
     /**
      * It:
      * - Consumes 3 subpaths (local/cleanurls/tests).
-     * - Adds the rest as 'mypath'.
-     * - Has no subpaths.
+     * - Reads one subpath as mypath.
+     * - The rest is subpath.
      */
     protected function prepare_path() {
         $path = array_slice($this->parent->subpath, 3);
-        $this->mypath = implode('/', $path);
-        $this->subpath = [];
+        $mypath = array_shift($path);
+
+        $this->mypath = is_null($mypath) ? '' : $mypath;
+        $this->subpath = $path;
     }
 
     /**

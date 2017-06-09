@@ -113,4 +113,9 @@ class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
         $test = new local_cleanurls_unittest_uncleaner();
         self::assertInstanceOf(local_cleanurls_unittest_uncleaner::class, $test->get_child());
     }
+
+    public function test_it_shows_a_debugging_message_if_could_not_fully_unclean_it() {
+        uncleaner::unclean('/local/cleanurls/tests/bar/extra/part');
+        $this->assertDebuggingCalled('Could not unclean until the end of address: extra/part', DEBUG_DEVELOPER);
+    }
 }

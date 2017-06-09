@@ -52,9 +52,14 @@ abstract class uncleaner {
 
         $unclean = $lastnode->get_unclean_url();
 
-        // Temporary, if there is no child, use old uncleaner.
+        // TODO - Temporary, if there is no child, use old uncleaner.
         if (is_null($unclean)) {
             return uncleaner_old::unclean($clean);
+        } else {
+            if (!empty($lastnode->get_subpath())) {
+                $subpath = implode('/', $lastnode->get_subpath());
+                debugging("Could not unclean until the end of address: {$subpath}", DEBUG_DEVELOPER);
+            }
         }
 
         return $unclean;
