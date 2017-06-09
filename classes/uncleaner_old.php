@@ -101,8 +101,7 @@ class uncleaner_old {
                      || $this->unclean_user_in_course()
                      || $this->unclean_course_users()
                      || $this->unclean_course_module_view()
-                     || $this->unclean_course_modules()
-                     || $this->unclean_course();
+                     || $this->unclean_course_modules();
 
         if ($uncleaned) {
             $this->create_uncleaned_url();
@@ -241,16 +240,6 @@ class uncleaner_old {
         $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
         clean_moodle_url::log("Rewritten to: {$this->path}");
         return true;
-    }
-
-    private function unclean_course() {
-        if (preg_match('#^/course/([^/]+)/?$#', $this->path, $matches)) {
-            $this->path = "/course/view.php";
-            $this->params['name'] = $matches[1];
-            clean_moodle_url::log("Rewritten to: {$this->path}");
-            return true;
-        }
-        return false;
     }
 
     private function find_section_by_slug($courseid, $sectionslug) {

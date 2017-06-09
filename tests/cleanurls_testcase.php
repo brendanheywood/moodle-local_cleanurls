@@ -26,6 +26,7 @@
 use local_cleanurls\clean_moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/local/uncleaner/unittest_uncleaner.php');
 
 /**
  * Testcase for Clean URLs.

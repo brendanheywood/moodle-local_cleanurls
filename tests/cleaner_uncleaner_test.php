@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\local\uncleaner\uncleaner;
 use local_cleanurls\uncleaner_old;
 
 defined('MOODLE_INTERNAL') || die();
@@ -128,21 +129,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         self::assertSame($url, $uncleaned);
     }
 
-    public function test_it_uncleans_a_course_even_with_a_slash_suffix() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $this->getDataGenerator()->create_course([
-                                                     'fullname'  => 'full name of the course',
-                                                     'shortname' => 'shortname',
-                                                     'visible'   => 1,
-                                                     'category'  => $category->id,
-                                                 ]);
-
-        $url = 'http://www.example.com/moodle/course/shortname/';
-        $expected = 'http://www.example.com/moodle/course/view.php?name=shortname';
-        $uncleaned = uncleaner_old::unclean($url)->raw_out();
-        self::assertSame($expected, $uncleaned);
-    }
-
     public function test_it_cleans_course_with_hash_in_shortname() {
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
         $course = $this->getDataGenerator()->create_course(['fullname'  => 'full name of the course #3',
@@ -190,6 +176,30 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
             "http://www.example.com/moodle/user/view.php?course=1&id={$user->id}&course={$course->id}",
             'http://www.example.com/moodle/course/mycourse/user/theusername'
         );
+    }
+
+    public function test_it_cleans_username_in_forum_discussion() {
+        $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
+                                                        'username' => 'theusername']);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/user.php?mode=discussions&id='.$user->id,
+                                    'http://www.example.com/moodle/user/theusername/discussions');
+    }
+
+    public function test_it_cleans_username_in_site_course() {
+        $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
+                                                        'username' => 'theusername']);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/user/view.php?course=1&id='.$user->id,
+                                    'http://www.example.com/moodle/user/theusername?course=1');
+    }
+
+    public function test_it_cleans_username_urls() {
+        $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
+                                                        'username' => 'theusername']);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/user/profile.php?id='.$user->id,
+                                    'http://www.example.com/moodle/user/theusername');
     }
 
     public function test_it_does_not_clean_draftfile_urls() {

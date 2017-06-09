@@ -23,6 +23,7 @@
 
 use local_cleanurls\local\uncleaner\course_uncleaner;
 use local_cleanurls\local\uncleaner\root_uncleaner;
+use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
@@ -53,9 +54,90 @@ class course_uncleaner_test extends local_cleanurls_testcase {
         self::assertInstanceOf(course_uncleaner::class, $course);
     }
 
-    public function test_it_cannot_be_uncleaned_by_itself() {
-        $root = new root_uncleaner('/course');
+    public function test_it_cannot_create_if_course_not_expected() {
+        $root = new root_uncleaner('/notacourse');
+        self::assertFalse(course_uncleaner::can_create($root));
+    }
+
+    public function test_it_has_the_shortname() {
+        $root = new root_uncleaner('/course/someshortname');
+
+        /** @var $course course_uncleaner */
         $course = $root->get_child();
-        self::assertNull($course->get_unclean_url());
+
+        $shortname = $course->get_shortname();
+        self::assertSame('someshortname', $shortname);
+    }
+
+    public function test_it_cleans_course_urls_by_id() {
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course([
+                                                               'fullname'  => 'full name of the course',
+                                                               'shortname' => 'shortname',
+                                                               'visible'   => 1,
+                                                               'category'  => $category->id,
+                                                           ]);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id=' . $course->id,
+                                     'http://www.example.com/moodle/course/shortname',
+                                     'http://www.example.com/moodle/course/view.php?name=shortname');
+    }
+
+    public function test_it_uncleans_a_course_even_with_a_slash_suffix() {
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $this->getDataGenerator()->create_course([
+                                                     'fullname'  => 'full name of the course',
+                                                     'shortname' => 'shortname',
+                                                     'visible'   => 1,
+                                                     'category'  => $category->id,
+                                                 ]);
+
+        $url = 'http://www.example.com/moodle/course/shortname/';
+        $expected = 'http://www.example.com/moodle/course/view.php?name=shortname';
+        $uncleaned = uncleaner::unclean($url)->raw_out();
+        self::assertSame($expected, $uncleaned);
+    }
+
+    public function test_it_cleans_course_with_hash_in_shortname() {
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course([
+                                                               'fullname'  => 'full name of the course #3',
+                                                               'shortname' => 'short#name',
+                                                               'visible'   => 1,
+                                                               'category'  => $category->id,
+                                                           ]);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id=' . $course->id,
+                                     'http://www.example.com/moodle/course/short%23name',
+                                     'http://www.example.com/moodle/course/view.php?name=short%2523name');
+    }
+
+    public function test_it_cleans_course_urls_by_name() {
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $this->getDataGenerator()->create_course([
+                                                     'fullname'  => 'full name',
+                                                     'shortname' => 'theshortname',
+                                                     'visible'   => 1,
+                                                     'category'  => $category->id,
+                                                 ]);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?name=theshortname',
+                                     'http://www.example.com/moodle/course/theshortname');
+    }
+
+    public function test_it_cleans_in_edit_mode() {
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course([
+                                                               'fullname'  => 'full name',
+                                                               'shortname' => 'theshortname',
+                                                               'visible'   => 1,
+                                                               'category'  => $category->id,
+                                                           ]);
+
+        static::assert_clean_unclean(
+            'http://www.example.com/moodle/course/view.php?edit=1&id=' . $course->id,
+            'http://www.example.com/moodle/course/theshortname?edit=1',
+            'http://www.example.com/moodle/course/view.php?edit=1&name=theshortname'
+        );
     }
 }

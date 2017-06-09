@@ -23,8 +23,6 @@
 
 namespace local_cleanurls\local\uncleaner;
 
-use local_cleanurls\local\uncleaner\root_uncleaner;
-use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -57,7 +55,24 @@ class course_uncleaner extends uncleaner {
             return false;
         }
 
+        // Next token must be 'course'.
+        if ((count($parent->subpath) < 1) || ($parent->subpath[0] != 'course')) {
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * It:
+     * - Consumes 'course'.
+     * - Adds the next path as 'mypath' (course shortname).
+     * - Leave the rest as subpaths.
+     */
+    protected function prepare_path() {
+        $this->subpath = $this->parent->subpath;
+        array_shift($this->subpath);
+        $this->mypath = array_shift($this->subpath);
     }
 
     /**
@@ -66,6 +81,16 @@ class course_uncleaner extends uncleaner {
      * @return moodle_url
      */
     public function get_unclean_url() {
-        return null;
+        // TODO: Remove this - Letting old uncleaner handle it for now.
+        if (!empty($this->subpath)) {
+            return null;
+        }
+
+        $this->parameters['name'] = $this->get_shortname();
+        return new moodle_url('/course/view.php', $this->parameters);
+    }
+
+    public function get_shortname() {
+        return $this->mypath;
     }
 }

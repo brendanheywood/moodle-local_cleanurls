@@ -133,15 +133,6 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: File draftfile.php should not be touched");
 
-        $url = 'http://www.example.com/moodle/course/view.php?edit=1&id=' . $thiscourse->id;
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/short%23course?edit=1', $clean, "Clean: course with param");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
-        $this->assertEquals('http://www.example.com/moodle/course/view.php?edit=1&name=short%2523course', $unclean,
-                            "Unclean: course with param");
-
         $url = 'http://www.example.com/moodle/foo/bar.php';
         $murl = new moodle_url($url);
         $clean = $murl->out();
@@ -187,14 +178,6 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $murl = new moodle_url($url);
         $clean = $murl->out();
         $this->assertEquals('http://www.example.com/moodle/course/short%23course', $clean, "Clean: course");
-
-        $url = 'http://www.example.com/moodle/course/view.php?name=' . urlencode($thiscourse->shortname);
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/short%23course', $clean, "Clean: course by name");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
-        $this->assertEquals('http://www.example.com/moodle/course/view.php?name=short%2523course', $unclean, "Unclean: course");
 
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $thismancourse->id;
         $murl = new moodle_url($url);
