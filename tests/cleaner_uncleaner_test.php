@@ -192,30 +192,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         );
     }
 
-    public function test_it_cleans_username_in_forum_discussion() {
-        $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
-                                                        'username' => 'theusername']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/user.php?mode=discussions&id='.$user->id,
-                                    'http://www.example.com/moodle/user/theusername/discussions');
-    }
-
-    public function test_it_cleans_username_in_site_course() {
-        $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
-                                                        'username' => 'theusername']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/user/view.php?course=1&id='.$user->id,
-                                    'http://www.example.com/moodle/user/theusername?course=1');
-    }
-
-    public function test_it_cleans_username_urls() {
-        $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
-                                                        'username' => 'theusername']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/user/profile.php?id='.$user->id,
-                                    'http://www.example.com/moodle/user/theusername');
-    }
-
     public function test_it_does_not_clean_draftfile_urls() {
         $url = 'http://moodle.test/moodle/draftfile.php/5/user/draft/949704188/daniel-roperto.jpg';
         static::assert_clean_unclean($url, $url);
