@@ -67,7 +67,7 @@ class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
                                                                'format'      => 'flexsections',
                                                                'numsections' => 3,
                                                            ]);
-        // Set flex 'Topic 1' -> 'Topic 2' -> 'Topic 3'
+        // Set flex 'Topic 1' -> 'Topic 2' -> 'Topic 3'.
         $sections = $DB->get_records('course_sections', ['course' => $course->id], 'section ASC');
         $sections = array_values($sections);
         for ($i = 1; $i < 3; $i++) {
