@@ -68,9 +68,9 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
 
     /**
      * @dataProvider provider_for_test_it_takes_only_strings
+     * @expectedException \invalid_parameter_exception
      */
     public function test_it_takes_only_strings_or_moodle_urls($input) {
-        $this->expectException(invalid_parameter_exception::class);
         new root_uncleaner($input);
     }
 
