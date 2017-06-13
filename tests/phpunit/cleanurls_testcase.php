@@ -26,6 +26,8 @@
 use local_cleanurls\clean_moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/mocks/unittest_uncleaner.php');
+require_once(__DIR__ . '/mocks/cleanurls_support.php');
 
 /**
  * Testcase for Clean URLs.
@@ -91,5 +93,11 @@ class local_cleanurls_testcase extends advanced_testcase {
         parent::setUp();
         $this->resetAfterTest(true);
         static::enable_cleanurls();
+        static::reset_testuncleaner();
+    }
+
+    private static function reset_testuncleaner() {
+        local_cleanurls_unittest_uncleaner::$childoptions = [];
+        local_cleanurls_unittest_uncleaner::$cancreate = null;
     }
 }

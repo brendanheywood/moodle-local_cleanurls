@@ -27,7 +27,7 @@ use local_cleanurls\local\uncleaner\root_uncleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../../cleanurls_testcase.php');
+require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
  * Tests for flexsections_support.
@@ -49,7 +49,7 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
 
     public function test_it_takes_a_url_as_string() {
         $root = new root_uncleaner('/');
-        self::assertSame('/', $root->get_original_raw_url());
+        self::assertSame('http://www.example.com/moodle/', $root->get_original_raw_url());
     }
 
     public function test_it_gives_the_clean_url() {
@@ -63,15 +63,14 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
             [1],
             [['array']],
             [new stdClass()],
-            [new moodle_url('/')],
         ];
     }
 
     /**
      * @dataProvider provider_for_test_it_takes_only_strings
+     * @expectedException \invalid_parameter_exception
      */
-    public function test_it_takes_only_strings($input) {
-        $this->expectException(invalid_parameter_exception::class);
+    public function test_it_takes_only_strings_or_moodle_urls($input) {
         new root_uncleaner($input);
     }
 
@@ -133,5 +132,25 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
     public function test_it_has_its_path_empty() {
         $root = new root_uncleaner('/hello/world');
         self::assertSame('', $root->get_mypath());
+    }
+
+    public function test_it_never_uncleans() {
+        $root = new root_uncleaner('/');
+        self::assertNull($root->get_unclean_url());
+    }
+
+    public function test_it_has_some_child_options() {
+        $expected = [
+            'local_cleanurls\local\uncleaner\selftest_uncleaner',
+            'local_cleanurls\local\uncleaner\category_uncleaner',
+            'local_cleanurls\local\uncleaner\user_uncleaner',
+            'local_cleanurls\local\uncleaner\course_uncleaner',
+        ];
+        self::assertSame($expected, root_uncleaner::list_child_options());
+    }
+
+    public function test_it_can_only_be_created_without_parent() {
+        self::assertTrue(root_uncleaner::can_create(null), 'Without parent.');
+        self::assertFalse(root_uncleaner::can_create(new root_uncleaner('/')), 'With parent.');
     }
 }

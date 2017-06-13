@@ -15,25 +15,57 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implements parser for tests.
- *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\uncleaner;
+namespace local_cleanurls\local\uncleaner;
+
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Implements parser for tests.
+ * Class user_forum_uncleaner
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_testparser extends uncleaner {
+class user_forum_uncleaner extends uncleaner {
+    /**
+     * It must be in user.
+     *
+     * @param uncleaner $parent
+     * @return bool
+     */
+    public static function can_create($parent) {
+        // Parent must be 'user'.
+        if (!is_a($parent, user_uncleaner::class)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return moodle_url
+     */
+    public function get_unclean_url() {
+        /** @var user_uncleaner $parent */
+        $parent = $this->get_parent();
+        $userid = $parent->get_userid();
+
+        if (empty($userid)) {
+            return null;
+        }
+
+        $this->parameters['id'] = $userid;
+        $this->parameters['mode'] = $this->mypath;
+
+        return new moodle_url('/mod/forum/user.php', $this->parameters);
+    }
 }

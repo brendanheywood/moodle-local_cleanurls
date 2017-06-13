@@ -25,6 +25,8 @@
 
 namespace local_cleanurls;
 
+use local_cleanurls\local\uncleaner\root_uncleaner;
+use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -97,11 +99,11 @@ class clean_moodle_url extends moodle_url {
     /**
      * Forwards the call to the uncleaner class.
      *
-     * @param string $clean
+     * @param string|moodle_url $clean
      * @return moodle_url
      */
     public static function unclean($clean) {
-        return uncleaner_old::unclean($clean);
+        return uncleaner::unclean($clean);
     }
 
     public function set_path($path) {
