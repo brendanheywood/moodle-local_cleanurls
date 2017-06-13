@@ -23,7 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\uncleaner;
 use local_cleanurls\uncleaner_old;
 
 defined('MOODLE_INTERNAL') || die();
@@ -129,18 +128,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         self::assertSame($url, $uncleaned);
     }
 
-    public function test_it_cleans_course_with_hash_in_shortname() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $course = $this->getDataGenerator()->create_course(['fullname'  => 'full name of the course #3',
-                                                            'shortname' => 'short#name',
-                                                            'visible'   => 1,
-                                                            'category'  => $category->id]);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id='.$course->id,
-                                    'http://www.example.com/moodle/course/short%23name',
-                                    'http://www.example.com/moodle/course/view.php?name=short%2523name');
-    }
-
     public function test_it_cleans_course_urls_by_name() {
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
         $this->getDataGenerator()->create_course(['fullname'  => 'full name',
@@ -161,21 +148,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         static::assert_clean_unclean('http://www.example.com/moodle/user/index.php?id='.$course->id,
                                     'http://www.example.com/moodle/course/shortcoursename/user');
-    }
-
-    public function test_it_cleans_username_in_course() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $course = $this->getDataGenerator()->create_course(['fullname'  => 'a course',
-                                                            'shortname' => 'mycourse',
-                                                            'visible'   => 1,
-                                                            'category'  => $category->id]);
-        $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
-                                                        'username' => 'theusername']);
-
-        static::assert_clean_unclean(
-            "http://www.example.com/moodle/user/view.php?course=1&id={$user->id}&course={$course->id}",
-            'http://www.example.com/moodle/course/mycourse/user/theusername'
-        );
     }
 
     public function test_it_cleans_username_in_forum_discussion() {

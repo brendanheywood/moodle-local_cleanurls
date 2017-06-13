@@ -28,23 +28,14 @@ use moodle_url;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class course_uncleaner
+ * Class user_course_uncleaner
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_uncleaner extends uncleaner {
-    /**
-     * @return string[]
-     */
-    public static function list_child_options() {
-        return [
-            user_course_uncleaner::class,
-        ];
-    }
-
+class user_course_uncleaner extends uncleaner {
     /**
      * Quick check if this object should be created for the given parent.
      *
@@ -52,25 +43,28 @@ class course_uncleaner extends uncleaner {
      * @return bool
      */
     public static function can_create($parent) {
-        // It must be child of root.
-        if (!is_a($parent, root_uncleaner::class)) {
+        // It must come from course.
+        if (!is_a($parent, course_uncleaner::class)) {
             return false;
         }
 
-        // Next token must be 'course'.
-        if ((count($parent->subpath) < 1) || ($parent->subpath[0] != 'course')) {
+        // It must have the 'user/username' subpath.
+        if (count($parent->subpath) < 2) {
+            return false;
+        }
+
+        // It must have the 'user' subpath.
+        if ($parent->subpath[0] != 'user') {
             return false;
         }
 
         return true;
     }
 
-    protected $courseid = null;
-
     /**
      * It:
-     * - Consumes 'course'.
-     * - Adds the next path as 'mypath' (course shortname).
+     * - Consumes 'user' subpath.
+     * - Adds the next path as 'mypath' (username).
      * - Leave the rest as subpaths.
      */
     protected function prepare_path() {
@@ -79,32 +73,39 @@ class course_uncleaner extends uncleaner {
         $this->mypath = array_shift($this->subpath);
     }
 
+    protected $userid = null;
+
     /**
-     * It does not return an URL, it relies on a child instead.
-     *
      * @return moodle_url
      */
     public function get_unclean_url() {
-        // TODO: Remove this - Letting old uncleaner handle it for now.
-        if (!empty($this->subpath)) {
+        /** @var course_uncleaner $courseuncleaner */
+        $courseuncleaner = $this->parent;
+
+        $course = $courseuncleaner->get_course_id();
+        if (is_null($course)) {
             return null;
         }
+        $this->parameters['course'] = $course;
 
-        $this->parameters['name'] = $this->get_course_shortname();
-        return new moodle_url('/course/view.php', $this->parameters);
-    }
-
-    public function get_course_shortname() {
-        return urldecode($this->mypath);
-    }
-
-    public function get_course_id() {
-        global $DB;
-
-        if (is_null($this->courseid)) {
-            $this->courseid = $DB->get_field('course', 'id', ['shortname' => $this->get_course_shortname()]);
+        $user = $this->get_user_id();
+        if (is_null($user)) {
+            return null;
         }
+        $this->parameters['id'] = $user;
 
-        return $this->courseid;
+        return new moodle_url('/user/view.php', $this->parameters);
+    }
+
+    public function get_user_id() {
+        global $DB;
+        if (is_null($this->userid)) {
+            $this->userid = $DB->get_field('user', 'id', ['username' => $this->get_username()]);
+        }
+        return $this->userid;
+    }
+
+    public function get_username() {
+        return urldecode($this->mypath);
     }
 }

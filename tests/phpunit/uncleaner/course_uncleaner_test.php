@@ -64,7 +64,7 @@ class course_uncleaner_test extends local_cleanurls_testcase {
         /** @var $course course_uncleaner */
         $course = $root->get_child();
 
-        $shortname = $course->get_shortname();
+        $shortname = $course->get_course_shortname();
         self::assertSame('someshortname', $shortname);
     }
 
@@ -108,7 +108,7 @@ class course_uncleaner_test extends local_cleanurls_testcase {
 
         static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id=' . $course->id,
                                      'http://www.example.com/moodle/course/short%23name',
-                                     'http://www.example.com/moodle/course/view.php?name=short%2523name');
+                                     'http://www.example.com/moodle/course/view.php?name=short%23name');
     }
 
     public function test_it_cleans_course_urls_by_name() {

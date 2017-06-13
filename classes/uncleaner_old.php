@@ -98,7 +98,6 @@ class uncleaner_old {
         // The order here is important as it will stop on first success.
         $uncleaned = false
                      || $this->unclean_course_format()
-                     || $this->unclean_user_in_course()
                      || $this->unclean_course_users()
                      || $this->unclean_course_module_view()
                      || $this->unclean_course_modules();
@@ -108,19 +107,6 @@ class uncleaner_old {
         } else {
             $this->uncleanurl = $this->cleanurl;
         }
-    }
-
-    private function unclean_user_in_course() {
-        global $DB;
-
-        if (preg_match('#^/course/(.+)/user/(.+)$#', $this->path, $matches)) {
-            $this->path = "/user/view.php";
-            $this->params['id'] = $DB->get_field('user', 'id', ['username' => urldecode($matches[2])]);
-            $this->params['course'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
-            clean_moodle_url::log("Rewritten to: {$this->path}");
-            return true;
-        }
-        return false;
     }
 
     private function unclean_course_users() {
