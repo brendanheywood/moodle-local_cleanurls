@@ -23,6 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// We are enforcing a namespace outside cleanurls scope to emulate a format plugin.
 namespace format_cleanurls;
 
 use cm_info;

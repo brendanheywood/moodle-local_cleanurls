@@ -38,6 +38,28 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class root_uncleaner extends uncleaner {
+    /**
+     * It can only be created without any parent.
+     *
+     * @param uncleaner|null $parent
+     * @return bool
+     */
+    public static function can_create($parent) {
+        return is_null($parent);
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function list_child_options() {
+        return [
+            selftest_uncleaner::class,
+            category_uncleaner::class,
+            user_uncleaner::class,
+            course_uncleaner::class,
+        ];
+    }
+
     /** @var moodle_url */
     protected $originalurl;
 
@@ -50,18 +72,18 @@ class root_uncleaner extends uncleaner {
     /**
      * root_parser constructor.
      *
-     * @param string $url
+     * @param string|moodle_url $url
      * @throws invalid_parameter_exception
      */
     public function __construct($url) {
         global $CFG;
 
-        if (!is_string($url)) {
-            throw new invalid_parameter_exception('URL must be a string.');
+        if (!is_string($url) && !is_a($url, moodle_url::class)) {
+            throw new invalid_parameter_exception('URL must be a string or moodle_url.');
         }
 
-        $this->originalurl = $url;
-        $this->cleanurl = new clean_moodle_url($this->originalurl);
+        $this->cleanurl = new clean_moodle_url($url);
+        $this->originalurl = $this->cleanurl->raw_out(false);
 
         // Save subpath where Moodle resides.
         $path = parse_url($CFG->wwwroot, PHP_URL_PATH);
@@ -92,6 +114,9 @@ class root_uncleaner extends uncleaner {
         return $this->cleanurl;
     }
 
+    /**
+     * The 'mypath' for root is empty, while subpath contains the whole path of the URL.
+     */
     public function prepare_path() {
         $this->mypath = '';
 
@@ -101,7 +126,18 @@ class root_uncleaner extends uncleaner {
         $this->subpath = ($path === '') ? [] : explode('/', $path);
     }
 
+    /**
+     * Just use the given parameters on the URL.
+     */
     public function prepare_parameters() {
         $this->parameters = $this->get_clean_url()->params();
+    }
+
+    /**
+     * @return moodle_url
+     */
+    public function get_unclean_url() {
+        // It should never unclean root (/) as it should be handled by Moodle itself.
+        return null;
     }
 }

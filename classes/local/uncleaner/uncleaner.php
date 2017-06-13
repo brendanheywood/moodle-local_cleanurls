@@ -24,6 +24,8 @@
 namespace local_cleanurls\local\uncleaner;
 
 use invalid_parameter_exception;
+use local_cleanurls\uncleaner_old;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -36,8 +38,38 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class uncleaner {
+    /**
+     * @param string|moodle_url $clean
+     * @return moodle_url
+     */
+    public static function unclean($clean) {
+        $node = new root_uncleaner($clean);
+
+        do {
+            $lastnode = $node;
+            $node = $node->get_child();
+        } while (!is_null($node));
+
+        $unclean = $lastnode->get_unclean_url();
+
+        // TODO - Temporary, if there is no child, use old uncleaner.
+        if (is_null($unclean)) {
+            return uncleaner_old::unclean($clean);
+        } else {
+            if (!empty($lastnode->get_subpath())) {
+                $subpath = implode('/', $lastnode->get_subpath());
+                debugging("Could not unclean until the end of address: {$subpath}", DEBUG_DEVELOPER);
+            }
+        }
+
+        return $unclean;
+    }
+
     /** @var uncleaner */
     protected $parent;
+
+    /** @var uncleaner */
+    protected $child;
 
     /** @var string */
     protected $mypath = null;
@@ -49,26 +81,60 @@ abstract class uncleaner {
     protected $parameters = null;
 
     /**
+     * It defaults to nothing.
+     *
+     * @return string[] List of uncleaner-derived classes that could be a child of this object.
+     */
+    public static function list_child_options() {
+        return [];
+    }
+
+    /**
+     * Quick check if this object should be created for the given parent.
+     *
+     * Defaults to false as it should be overriden by child class.
+     *
+     * @param uncleaner $parent
+     * @return bool
+     */
+    public static function can_create($parent) {
+        return false;
+    }
+
+    /**
      * urlparser constructor.
      *
      * @param uncleaner|null $parent
      * @throws invalid_parameter_exception
      */
     public function __construct($parent) {
-        if (!is_a($parent, self::class) && !is_null($parent)) {
-            throw new invalid_parameter_exception('parent must be urlparser or null.');
+        if (!static::can_create($parent)) {
+            throw new invalid_parameter_exception('Cannot create for given parent.');
         }
 
         $this->parent = $parent;
         $this->prepare_path();
         $this->prepare_parameters();
+        $this->prepare_child();
     }
+
+    /**
+     * @return moodle_url
+     */
+    public abstract function get_unclean_url();
 
     /**
      * @return uncleaner
      */
     public function get_parent() {
         return $this->parent;
+    }
+
+    /**
+     * @return uncleaner
+     */
+    public function get_child() {
+        return $this->child;
     }
 
     /**
@@ -90,6 +156,25 @@ abstract class uncleaner {
      */
     protected function prepare_parameters() {
         $this->parameters = is_null($this->parent) ? [] : $this->parent->parameters;
+    }
+
+    /**
+     * It defaults to trying all available options if there is a subpath.
+     */
+    protected function prepare_child() {
+        $this->child = null;
+
+        if (empty($this->subpath)) {
+            return;
+        }
+
+        $options = static::list_child_options();
+        foreach ($options as $option) {
+            if ($option::can_create($this)) {
+                $this->child = new $option($this);
+                return;
+            }
+        }
     }
 
     /**
