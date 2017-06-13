@@ -97,8 +97,7 @@ class uncleaner_old {
 
         // The order here is important as it will stop on first success.
         $uncleaned = false
-                     || $this->unclean_course_format()
-                     || $this->unclean_course_modules();
+                     || $this->unclean_course_format();
 
         if ($uncleaned) {
             $this->create_uncleaned_url();
@@ -183,25 +182,6 @@ class uncleaner_old {
         $this->params['id'] = $cm->id;
         clean_moodle_url::log("Rewritten to: {$this->path}");
 
-        return true;
-    }
-
-    private function unclean_course_modules() {
-        global $DB;
-
-        if (!preg_match('#^/course/(.+)/(\w+)/?$#', $this->path, $matches)) {
-            return false;
-        }
-
-        $modulename = $matches[2];
-        if ($DB->count_records('modules', ['name' => $modulename]) != 1) {
-            return false;
-        }
-
-        // Clean up course mod index.
-        $this->path = "/mod/$modulename/index.php";
-        $this->params['id'] = $DB->get_field('course', 'id', ['shortname' => urldecode($matches[1])]);
-        clean_moodle_url::log("Rewritten to: {$this->path}");
         return true;
     }
 

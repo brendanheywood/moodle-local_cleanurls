@@ -51,9 +51,9 @@ class coursemodule_uncleaner_test extends local_cleanurls_testcase {
         self::assertFalse(coursemodule_uncleaner::can_create($root));
     }
 
-    public function test_it_requires_an_cmid_slug() {
+    public function test_it_does_not_require_an_cmid_slug() {
         $root = new root_uncleaner('/forum');
-        self::assertFalse(coursemodule_uncleaner::can_create($root));
+        self::assertTrue(coursemodule_uncleaner::can_create($root));
     }
 
     public function test_it_creates_from_a_valid_url() {
@@ -83,6 +83,12 @@ class coursemodule_uncleaner_test extends local_cleanurls_testcase {
 
     public function test_it_provides_null_for_an_invalid_course_module_id() {
         $root = new root_uncleaner('/course/shortname/forum/idme');
+        $module = $root->get_child()->get_child();
+        self::assertNull($module->get_cmid());
+    }
+
+    public function test_it_provides_null_if_no_course_module_id() {
+        $root = new root_uncleaner('/course/shortname/forum');
         $module = $root->get_child()->get_child();
         self::assertNull($module->get_cmid());
     }
@@ -121,5 +127,16 @@ class coursemodule_uncleaner_test extends local_cleanurls_testcase {
         $expected = 'http://www.example.com/moodle/course/shortname/forum/' . $forum->cmid . '-a-test-forum';
         static::assert_clean_unclean($url, $expected);
         $this->resetDebugging(); // There will be a debugging regarding the invalid 'customformat'.
+    }
+
+    public function test_it_cleans_course_modules_urls() {
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course(['fullname'  => 'course long name',
+                                                            'shortname' => 'shortname',
+                                                            'visible'   => 1,
+                                                            'category'  => $category->id]);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/index.php?id='.$course->id,
+                                     'http://www.example.com/moodle/course/shortname/forum');
     }
 }

@@ -49,8 +49,8 @@ class coursemodule_uncleaner extends uncleaner {
             return false;
         }
 
-        // It requires a modname and cmid slug, ex: forum/123-myforum.
-        if (count($parent->subpath) < 2) {
+        // It requires a modname.
+        if (count($parent->subpath) < 1) {
             return false;
         }
 
@@ -96,8 +96,19 @@ class coursemodule_uncleaner extends uncleaner {
      * @return moodle_url
      */
     public function get_unclean_url() {
-        $path = "/mod/{$this->modname}/view.php";
-        $this->parameters['id'] = $this->cmid;
+        global $DB;
+
+        if ($DB->count_records('modules', ['name' => $this->modname]) != 1) {
+            return null;
+        }
+
+        if (is_null($this->cmid)) {
+            $path = "/mod/{$this->modname}/index.php";
+            $this->parameters['id'] = $this->parent->get_course_id();
+        } else {
+            $path = "/mod/{$this->modname}/view.php";
+            $this->parameters['id'] = $this->cmid;
+        }
         return new moodle_url($path, $this->parameters);
     }
 }
