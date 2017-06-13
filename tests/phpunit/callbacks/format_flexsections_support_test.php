@@ -42,7 +42,7 @@ class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
         parent::setUp();
 
         // If you are using this as an example for your plugin, check if Clean URLs is installed.
-        $testcase = $CFG->dirroot . '/local/cleanurls/tests/cleanurls_testcase.php';
+        $testcase = $CFG->dirroot . '/local/cleanurls/tests/phpunit/cleanurls_testcase.php';
         if (!file_exists($testcase)) {
             $this->markTestSkipped('CleanURLs not available.');
             return;
@@ -61,6 +61,9 @@ class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
     }
 
     public function test_it_cleans_and_uncleans() {
+        // TODO -- Implement that back.
+        $this->markTestSkipped('Not implemented anymore.');
+
         global $DB;
         $course = $this->getDataGenerator()->create_course([
                                                                'shortname'   => 'mycourse',

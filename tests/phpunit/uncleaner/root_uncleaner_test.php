@@ -27,7 +27,7 @@ use local_cleanurls\local\uncleaner\root_uncleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../../cleanurls_testcase.php');
+require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
  * Tests for flexsections_support.
@@ -144,6 +144,7 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
             'local_cleanurls\local\uncleaner\selftest_uncleaner',
             'local_cleanurls\local\uncleaner\category_uncleaner',
             'local_cleanurls\local\uncleaner\user_uncleaner',
+            'local_cleanurls\local\uncleaner\course_uncleaner',
         ];
         self::assertSame($expected, root_uncleaner::list_child_options());
     }

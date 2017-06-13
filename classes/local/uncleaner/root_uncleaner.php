@@ -56,6 +56,7 @@ class root_uncleaner extends uncleaner {
             selftest_uncleaner::class,
             category_uncleaner::class,
             user_uncleaner::class,
+            course_uncleaner::class,
         ];
     }
 

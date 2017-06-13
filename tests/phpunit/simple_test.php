@@ -133,15 +133,6 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: File draftfile.php should not be touched");
 
-        $url = 'http://www.example.com/moodle/course/view.php?edit=1&id=' . $thiscourse->id;
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/short%23course?edit=1', $clean, "Clean: course with param");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
-        $this->assertEquals('http://www.example.com/moodle/course/view.php?edit=1&name=short%2523course', $unclean,
-                            "Unclean: course with param");
-
         $url = 'http://www.example.com/moodle/foo/bar.php';
         $murl = new moodle_url($url);
         $clean = $murl->out();
@@ -188,14 +179,6 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $clean = $murl->out();
         $this->assertEquals('http://www.example.com/moodle/course/short%23course', $clean, "Clean: course");
 
-        $url = 'http://www.example.com/moodle/course/view.php?name=' . urlencode($thiscourse->shortname);
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/short%23course', $clean, "Clean: course by name");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
-        $this->assertEquals('http://www.example.com/moodle/course/view.php?name=short%2523course', $unclean, "Unclean: course");
-
         $url = 'http://www.example.com/moodle/course/view.php?id=' . $thismancourse->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();
@@ -219,37 +202,5 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $clean = $murl->out(false);
         $this->assertEquals('http://www.example.com/moodle/user/view.php?id=' . $thisstaff->id . '&course=' . $thiscourse->id,
                             $clean, "Not Cleaned: user profile url with username inside course");
-
-        set_config('cleanusernames', 1, 'local_cleanurls');
-
-        // If we change url config then we need to throw away the cache.
-        purge_all_caches();
-
-        $url = 'http://www.example.com/moodle/user/view.php?id=' . $thisstaff->id . '&course=' . $thiscourse->id;
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/short%23course/user/head1',
-                            $clean, "Clean: user profile url with username inside course");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
-        $this->assertEquals($url, $unclean, "Unclean: user view url inside course");
-
-        $url = 'http://www.example.com/moodle/user/index.php?id=' . $thiscourse->id;
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/' . urlencode($thiscourse->shortname) . '/user', $clean,
-                            "Clean: user list in course");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
-        $this->assertEquals($url, $unclean, "Unclean: user list inside course");
-
-        $url = 'http://www.example.com/moodle/mod/forum/index.php?id=' . $thiscourse->id;
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/short%23course/forum', $clean, "Clean: course mod index page");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
-        $this->assertEquals('http://www.example.com/moodle/mod/forum/index.php?id=' . $thiscourse->id, $unclean,
-                            "Unclean: course mod index page");
     }
 }
