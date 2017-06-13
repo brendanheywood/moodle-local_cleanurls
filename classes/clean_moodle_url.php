@@ -111,6 +111,8 @@ class clean_moodle_url extends moodle_url {
     }
 
     public static function find_format_callback($format) {
+        // TODO delete me after removing old uncleaner.
+
         $classname = "\\format_{$format}\\cleanurls_support";
         if (class_exists($classname)) {
             return $classname;

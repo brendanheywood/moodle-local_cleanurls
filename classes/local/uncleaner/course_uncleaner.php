@@ -24,6 +24,7 @@
 namespace local_cleanurls\local\uncleaner;
 
 use moodle_url;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,6 +43,7 @@ class course_uncleaner extends uncleaner {
     public static function list_child_options() {
         return [
             user_course_uncleaner::class,
+            courseformat_uncleaner::class,
             coursemodule_uncleaner::class,
         ];
     }
@@ -66,7 +68,7 @@ class course_uncleaner extends uncleaner {
         return true;
     }
 
-    protected $courseid = null;
+    protected $course = null;
 
     /**
      * It:
@@ -99,13 +101,36 @@ class course_uncleaner extends uncleaner {
         return urldecode($this->mypath);
     }
 
-    public function get_course_id() {
+    /**
+     * @return stdClass
+     */
+    public function get_course() {
         global $DB;
 
-        if (is_null($this->courseid)) {
-            $this->courseid = $DB->get_field('course', 'id', ['shortname' => $this->get_course_shortname()]);
+        if (is_null($this->course)) {
+            $this->course = $DB->get_record('course', ['shortname' => $this->get_course_shortname()]);
         }
 
-        return $this->courseid;
+        return $this->course;
+    }
+
+    public function get_course_id() {
+        $course = $this->get_course();
+
+        if (!is_object($course)) {
+            return null;
+        }
+
+        return $this->course->id;
+    }
+
+    public function get_course_format() {
+        $course = $this->get_course();
+
+        if (!is_object($course)) {
+            return null;
+        }
+
+        return $this->course->format;
     }
 }

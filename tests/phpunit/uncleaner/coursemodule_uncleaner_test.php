@@ -115,7 +115,7 @@ class coursemodule_uncleaner_test extends local_cleanurls_testcase {
             ]
         );
         // We are enforcing 'customformat' to not trigger format-specific cleaning/uncleaning.
-        $course->format = 'customformat';
+        $course->format = 'invalidformat';
         $DB->update_record('course', $course);
 
         $forum = $this->getDataGenerator()->create_module('forum', [
