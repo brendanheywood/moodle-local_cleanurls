@@ -36,7 +36,7 @@ require_once(__DIR__ . '/../cleanurls_testcase.php');
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class user_forum_uncleaner_test extends local_cleanurls_testcase {
+class local_cleanurls_user_forum_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_can_be_created_in_user_uncleaner() {
         $root = new root_uncleaner('/user/username/forum');
 
