@@ -101,20 +101,20 @@ class clean_moodle_url extends moodle_url {
      * @return moodle_url
      */
     public static function unclean($clean) {
-        return uncleaner::unclean($clean);
+        return uncleaner_old::unclean($clean);
     }
 
     public function set_path($path) {
         $this->path = $path;
     }
 
-    public static function find_format_hook($format) {
+    public static function find_format_callback($format) {
         $classname = "\\format_{$format}\\cleanurls_support";
         if (class_exists($classname)) {
             return $classname;
         }
 
-        $classname = "\\local_cleanurls\\local\\hooks\\{$format}_support";
+        $classname = "\\local_cleanurls\\local\\callbacks\\{$format}_support";
         if (class_exists($classname)) {
             return $classname;
         }

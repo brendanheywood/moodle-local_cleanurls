@@ -139,7 +139,7 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         self::assertSame($url, $unclean->out());
     }
 
-    public function test_it_supports_format_hooks() {
+    public function test_it_supports_format_callbacks() {
         require_once(__DIR__ . '/course_section_routing_test_format.php');
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
         $course = $this->getDataGenerator()->create_course(
@@ -164,7 +164,7 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         $this->resetDebugging(); // There will be a debugging regarding the invalid 'cleanurls'.
     }
 
-    public function test_it_supports_format_hooks_at_course_level() {
+    public function test_it_supports_format_callbacks_at_course_level() {
         require_once(__DIR__ . '/course_section_routing_test_format.php');
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
         $course = $this->getDataGenerator()->create_course(

@@ -38,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class uncleaner {
+class uncleaner_old {
     /**
      * Takes a string and converts it into an unclean moodle_url object
      *
@@ -212,7 +212,7 @@ class uncleaner {
     }
 
     private function unclean_course_format_hook(stdClass $course, array $parameters) {
-        $classname = clean_moodle_url::find_format_hook($course->format);
+        $classname = clean_moodle_url::find_format_callback($course->format);
         if (is_null($classname)) {
             return false;
         }
