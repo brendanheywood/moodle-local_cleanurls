@@ -139,17 +139,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                     'http://www.example.com/moodle/course/theshortname');
     }
 
-    public function test_it_cleans_course_users_urls() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $course = $this->getDataGenerator()->create_course(['fullname'  => 'a course name',
-                                                            'shortname' => 'shortcoursename',
-                                                            'visible'   => 1,
-                                                            'category'  => $category->id]);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/user/index.php?id='.$course->id,
-                                    'http://www.example.com/moodle/course/shortcoursename/user');
-    }
-
     public function test_it_cleans_username_in_forum_discussion() {
         $user = $this->getDataGenerator()->create_user(['email'    => 'someone@example.com',
                                                         'username' => 'theusername']);

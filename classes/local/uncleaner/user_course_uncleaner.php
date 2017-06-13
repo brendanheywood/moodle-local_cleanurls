@@ -48,13 +48,8 @@ class user_course_uncleaner extends uncleaner {
             return false;
         }
 
-        // It must have the 'user/username' subpath.
-        if (count($parent->subpath) < 2) {
-            return false;
-        }
-
         // It must have the 'user' subpath.
-        if ($parent->subpath[0] != 'user') {
+        if ((count($parent->subpath) < 1) || ($parent->subpath[0] != 'user')) {
             return false;
         }
 
@@ -82,30 +77,44 @@ class user_course_uncleaner extends uncleaner {
         /** @var course_uncleaner $courseuncleaner */
         $courseuncleaner = $this->parent;
 
-        $course = $courseuncleaner->get_course_id();
-        if (is_null($course)) {
+        $courseid = $courseuncleaner->get_course_id();
+        if (is_null($courseid)) {
             return null;
         }
-        $this->parameters['course'] = $course;
 
-        $user = $this->get_user_id();
-        if (is_null($user)) {
-            return null;
+        $userid = $this->get_user_id();
+        if (is_null($userid)) {
+            $path = '/user/index.php';
+            $this->parameters['id'] = $courseid;
+        } else {
+            $path = '/user/view.php';
+            $this->parameters['id'] = $userid;
+            $this->parameters['course'] = $courseid;
         }
-        $this->parameters['id'] = $user;
 
-        return new moodle_url('/user/view.php', $this->parameters);
+        return new moodle_url($path, $this->parameters);
     }
 
     public function get_user_id() {
         global $DB;
-        if (is_null($this->userid)) {
-            $this->userid = $DB->get_field('user', 'id', ['username' => $this->get_username()]);
+
+        $username = $this->get_username();
+        if (is_null($username)) {
+            return null;
         }
+
+        if (is_null($this->userid)) {
+            $this->userid = $DB->get_field('user', 'id', ['username' => $username]);
+        }
+
         return $this->userid;
     }
 
     public function get_username() {
+        if (is_null($this->mypath)) {
+            return null;
+        }
+
         return urldecode($this->mypath);
     }
 }

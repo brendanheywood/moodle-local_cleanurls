@@ -208,15 +208,6 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         // If we change url config then we need to throw away the cache.
         purge_all_caches();
 
-        $url = 'http://www.example.com/moodle/user/index.php?id=' . $thiscourse->id;
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/' . urlencode($thiscourse->shortname) . '/user', $clean,
-                            "Clean: user list in course");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out(false);
-        $this->assertEquals($url, $unclean, "Unclean: user list inside course");
-
         $url = 'http://www.example.com/moodle/mod/forum/index.php?id=' . $thiscourse->id;
         $murl = new moodle_url($url);
         $clean = $murl->out();

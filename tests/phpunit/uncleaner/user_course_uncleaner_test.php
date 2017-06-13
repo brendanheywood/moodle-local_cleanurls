@@ -51,10 +51,15 @@ class user_course_uncleaner_test extends local_cleanurls_testcase {
         self::assertSame('theusername', $courseuser->get_username());
     }
 
-    public function test_it_must_have_a_username() {
+    public function test_it_does_not_require_a_username() {
         $root = new root_uncleaner('/course/learnphp/user');
         $course = $root->get_child();
-        self::assertFalse(user_course_uncleaner::can_create($course));
+        self::assertTrue(user_course_uncleaner::can_create($course), 'It should be allowed to create.');
+
+        /** @var user_course_uncleaner $user */
+        $user = $course->get_child();
+        self::assertNull($user->get_username(), 'If not provided, username should be null.');
+        self::assertNull($user->get_user_id(), 'If not provided, user id should be null.');
     }
 
     public function test_it_cannot_have_an_unexpected_keyword() {
@@ -82,5 +87,18 @@ class user_course_uncleaner_test extends local_cleanurls_testcase {
             "http://www.example.com/moodle/user/view.php?course=1&id={$user->id}&course={$course->id}",
             'http://www.example.com/moodle/course/mycourse/user/theusername'
         );
+    }
+
+    public function test_it_cleans_course_users_urls() {
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course([
+                                                               'fullname'  => 'a course name',
+                                                               'shortname' => 'shortcoursename',
+                                                               'visible'   => 1,
+                                                               'category'  => $category->id,
+                                                           ]);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/user/index.php?id=' . $course->id,
+                                     'http://www.example.com/moodle/course/shortcoursename/user');
     }
 }
