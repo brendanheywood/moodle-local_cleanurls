@@ -60,8 +60,6 @@ class course_uncleaner_test extends local_cleanurls_testcase {
 
     public function test_it_has_the_shortname() {
         $root = new root_uncleaner('/course/someshortname');
-
-        /** @var $course course_uncleaner */
         $course = $root->get_child();
 
         $shortname = $course->get_course_shortname();
