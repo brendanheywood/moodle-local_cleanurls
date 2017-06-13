@@ -98,7 +98,6 @@ class uncleaner_old {
         // The order here is important as it will stop on first success.
         $uncleaned = false
                      || $this->unclean_course_format()
-                     || $this->unclean_course_module_view()
                      || $this->unclean_course_modules();
 
         if ($uncleaned) {
@@ -185,16 +184,6 @@ class uncleaner_old {
         clean_moodle_url::log("Rewritten to: {$this->path}");
 
         return true;
-    }
-
-    private function unclean_course_module_view() {
-        if (preg_match('#^/course/(.+)/(\w+)/(\d+)(-.*)?$#', $this->path, $matches)) {
-            $this->path = "/mod/$matches[2]/view.php";
-            $this->params['id'] = $matches[3];
-            clean_moodle_url::log("Rewritten to: {$this->path}");
-            return true;
-        }
-        return false;
     }
 
     private function unclean_course_modules() {

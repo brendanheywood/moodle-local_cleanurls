@@ -202,19 +202,5 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $clean = $murl->out(false);
         $this->assertEquals('http://www.example.com/moodle/user/view.php?id=' . $thisstaff->id . '&course=' . $thiscourse->id,
                             $clean, "Not Cleaned: user profile url with username inside course");
-
-        set_config('cleanusernames', 1, 'local_cleanurls');
-
-        // If we change url config then we need to throw away the cache.
-        purge_all_caches();
-
-        $url = 'http://www.example.com/moodle/mod/forum/index.php?id=' . $thiscourse->id;
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course/short%23course/forum', $clean, "Clean: course mod index page");
-
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
-        $this->assertEquals('http://www.example.com/moodle/mod/forum/index.php?id=' . $thiscourse->id, $unclean,
-                            "Unclean: course mod index page");
     }
 }

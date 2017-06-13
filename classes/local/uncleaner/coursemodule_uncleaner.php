@@ -28,24 +28,14 @@ use moodle_url;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class course_uncleaner
+ * Class coursemodule_uncleaner
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_uncleaner extends uncleaner {
-    /**
-     * @return string[]
-     */
-    public static function list_child_options() {
-        return [
-            user_course_uncleaner::class,
-            coursemodule_uncleaner::class,
-        ];
-    }
-
+class coursemodule_uncleaner extends uncleaner {
     /**
      * Quick check if this object should be created for the given parent.
      *
@@ -53,59 +43,61 @@ class course_uncleaner extends uncleaner {
      * @return bool
      */
     public static function can_create($parent) {
-        // It must be child of root.
-        if (!is_a($parent, root_uncleaner::class)) {
+        global $CFG;
+
+        if (!is_a($parent, uncleaner::class)) {
             return false;
         }
 
-        // Next token must be 'course'.
-        if ((count($parent->subpath) < 1) || ($parent->subpath[0] != 'course')) {
+        // It requires a modname and cmid slug, ex: forum/123-myforum.
+        if (count($parent->subpath) < 2) {
+            return false;
+        }
+
+        // The modname should be valid.
+        if (!file_exists($CFG->dirroot . '/mod/' . $parent->subpath[0])) {
             return false;
         }
 
         return true;
     }
 
-    protected $courseid = null;
+    /** @var string */
+    protected $modname = null;
+
+    /** @var int|null */
+    protected $cmid = null;
 
     /**
      * It:
-     * - Consumes 'course'.
-     * - Adds the next path as 'mypath' (course shortname).
+     * - Reads the modname.
+     * - Reads the the cmid.
      * - Leave the rest as subpaths.
      */
     protected function prepare_path() {
         $this->subpath = $this->parent->subpath;
-        array_shift($this->subpath);
-        $this->mypath = array_shift($this->subpath);
+        $this->modname = array_shift($this->subpath);
+        $modid = array_shift($this->subpath);
+        $this->mypath = "{$this->modname}/{$modid}";
+
+        list($cmid) = explode('-', $modid);
+        $this->cmid = ($cmid === (string)(int)$cmid) ? (int)$cmid : null;
+    }
+
+    public function get_modname() {
+        return $this->modname;
+    }
+
+    public function get_cmid() {
+        return $this->cmid;
     }
 
     /**
-     * It does not return an URL, it relies on a child instead.
-     *
      * @return moodle_url
      */
     public function get_unclean_url() {
-        // TODO: Remove this - Letting old uncleaner handle it for now.
-        if (!empty($this->subpath)) {
-            return null;
-        }
-
-        $this->parameters['name'] = $this->get_course_shortname();
-        return new moodle_url('/course/view.php', $this->parameters);
-    }
-
-    public function get_course_shortname() {
-        return urldecode($this->mypath);
-    }
-
-    public function get_course_id() {
-        global $DB;
-
-        if (is_null($this->courseid)) {
-            $this->courseid = $DB->get_field('course', 'id', ['shortname' => $this->get_course_shortname()]);
-        }
-
-        return $this->courseid;
+        $path = "/mod/{$this->modname}/view.php";
+        $this->parameters['id'] = $this->cmid;
+        return new moodle_url($path, $this->parameters);
     }
 }
