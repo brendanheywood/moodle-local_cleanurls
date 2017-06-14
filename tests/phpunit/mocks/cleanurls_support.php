@@ -27,7 +27,7 @@
 namespace format_cleanurls;
 
 use cm_info;
-use local_cleanurls\cleanurls_support_interface;
+use local_cleanurls\local\cleaner\cleanurls_support_interface;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();

@@ -25,7 +25,7 @@ namespace local_cleanurls\local\callbacks;
 
 use cm_info;
 use local_cleanurls\clean_moodle_url;
-use local_cleanurls\cleanurls_support_interface;
+use local_cleanurls\local\cleaner\cleanurls_support_interface;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
