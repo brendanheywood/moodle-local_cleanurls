@@ -36,7 +36,7 @@ require_once(__DIR__ . '/../cleanurls_testcase.php');
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_uncleaner_test extends local_cleanurls_testcase {
+class local_cleanurls_course_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_can_be_in_root() {
         $this->getDataGenerator()->create_course(['shortname' => 'shortname']);
         $root = new root_uncleaner('/course/shortname');

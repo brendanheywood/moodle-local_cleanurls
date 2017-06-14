@@ -35,7 +35,7 @@ require_once(__DIR__ . '/../cleanurls_testcase.php');
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class category_uncleaner_test extends local_cleanurls_testcase {
+class local_cleanurls_category_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_can_be_a_category_in_root() {
         $root = new root_uncleaner('/category/abc-123');
         self::assertTrue(category_uncleaner::can_create($root));

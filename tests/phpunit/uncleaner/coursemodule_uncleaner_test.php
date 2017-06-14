@@ -35,7 +35,7 @@ require_once(__DIR__ . '/../cleanurls_testcase.php');
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class coursemodule_uncleaner_test extends local_cleanurls_testcase {
+class local_cleanurls_coursemodule_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_can_be_created() {
         local_cleanurls_unittest_uncleaner::$course = (object)['id' => 123];
         $subpath = ['forum', '123-idme'];

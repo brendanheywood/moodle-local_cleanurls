@@ -35,7 +35,7 @@ require_once(__DIR__ . '/../cleanurls_testcase.php');
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class selftest_uncleaner_test extends local_cleanurls_testcase {
+class local_cleanurls_selftest_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_can_create() {
         $parent = new root_uncleaner('/local/cleanurls/tests/bar');
         $cancreate = selftest_uncleaner::can_create($parent);
