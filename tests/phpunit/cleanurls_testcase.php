@@ -23,8 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\clean_moodle_url;
-use local_cleanurls\cleaner;
+use local_cleanurls\local\cleaner\cleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();

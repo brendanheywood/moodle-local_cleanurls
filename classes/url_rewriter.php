@@ -27,7 +27,8 @@ namespace local_cleanurls;
 
 defined('MOODLE_INTERNAL') || die();
 
-use \moodle_url;
+use local_cleanurls\local\cleaner\cleaner;
+use moodle_url;
 
 /**
  * A clean url rewriter
