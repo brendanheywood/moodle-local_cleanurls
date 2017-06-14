@@ -73,6 +73,10 @@ class courseformat_uncleaner extends uncleaner implements hascourse_uncleaner_in
         }
 
         $course = $parent->get_course();
+        if (is_null($course)) {
+            return false;
+        }
+
         $cleaner = self::get_format_uncleaner($course->format);
         if (!is_a($cleaner, uncleaner::class, true)) {
             return false;

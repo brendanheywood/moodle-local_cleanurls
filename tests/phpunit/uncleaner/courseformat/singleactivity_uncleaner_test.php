@@ -44,6 +44,18 @@ class local_cleanurls_simpleactivity_test extends local_cleanurls_testcase {
         self::assertInstanceOf(singleactivity_uncleaner::class, $format->get_child());
     }
 
+    public function test_it_cannot_be_created_if_parent_has_no_course() {
+        $root = new root_uncleaner('/course');
+        self::assertFalse(singleactivity_uncleaner::can_create($root));
+    }
+
+    public function test_it_cannot_be_created_if_course_has_the_wrong_format() {
+        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'weeks']);
+        $root = new root_uncleaner('/course/shortname/forum/123-idme');
+        $format = $root->get_child()->get_child();
+        self::assertFalse(singleactivity_uncleaner::can_create($format));
+    }
+
     public function test_it_supports_single_activity_format() {
         $course = $this->getDataGenerator()->create_course(['shortname' => 'SingleActivity', 'format' => 'singleactivity']);
         $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'name' => 'The Single Forum']);

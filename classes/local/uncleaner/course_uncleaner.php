@@ -113,6 +113,9 @@ class course_uncleaner extends uncleaner implements hascourse_uncleaner_interfac
     }
 
     public function get_course_shortname() {
+        if (is_null($this->mypath)) {
+            return null;
+        }
         return urldecode($this->mypath);
     }
 
@@ -122,8 +125,13 @@ class course_uncleaner extends uncleaner implements hascourse_uncleaner_interfac
     public function get_course() {
         global $DB;
 
+        $shortname = $this->get_course_shortname();
+        if (is_null($shortname)) {
+            return null;
+        }
+
         if (is_null($this->course)) {
-            $this->course = $DB->get_record('course', ['shortname' => $this->get_course_shortname()]);
+            $this->course = $DB->get_record('course', ['shortname' => $shortname]);
         }
 
         return $this->course;

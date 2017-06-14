@@ -46,6 +46,15 @@ class singleactivity_uncleaner extends uncleaner implements hascourse_uncleaner_
      * @return bool
      */
     public static function can_create($parent) {
+        if (!is_a($parent, hascourse_uncleaner_interface::class)) {
+            return false;
+        }
+
+        $format = $parent->get_course()->format;
+        if ($format !== 'singleactivity') {
+            return false;
+        }
+
         return true;
     }
 
