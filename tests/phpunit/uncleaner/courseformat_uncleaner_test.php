@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
- * Tests for course format paths.
+ * Tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
