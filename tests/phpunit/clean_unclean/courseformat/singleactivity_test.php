@@ -28,31 +28,20 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
 /**
- * Tests for category paths.
+ * Tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_simpleactivity_test extends local_cleanurls_testcase {
-    public function test_it_can_be_created_inside_courseformat_uncleaner() {
-        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'singleactivity']);
-        $root = new root_uncleaner('/course/shortname/forum/123-idme');
-        $format = $root->get_child()->get_child();
-        self::assertTrue(singleactivity_uncleaner::can_create($format));
-        self::assertInstanceOf(singleactivity_uncleaner::class, $format->get_child());
-    }
+class local_cleanurls_simpleactivity_cleanunclean_test extends local_cleanurls_testcase {
+    public function test_it_supports_single_activity_format() {
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'SingleActivity', 'format' => 'singleactivity']);
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'name' => 'The Single Forum']);
 
-    public function test_it_cannot_be_created_if_parent_has_no_course() {
-        $root = new root_uncleaner('/course');
-        self::assertFalse(singleactivity_uncleaner::can_create($root));
-    }
-
-    public function test_it_cannot_be_created_if_course_has_the_wrong_format() {
-        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'weeks']);
-        $root = new root_uncleaner('/course/shortname/forum/123-idme');
-        $format = $root->get_child()->get_child();
-        self::assertFalse(singleactivity_uncleaner::can_create($format));
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $forum->cmid;
+        $expected = 'http://www.example.com/moodle/course/SingleActivity';
+        static::assert_clean_unclean($url, $expected);
     }
 }
