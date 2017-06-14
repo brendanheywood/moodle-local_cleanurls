@@ -219,7 +219,7 @@ class cleaner {
         }
 
         // Try using a plugin hook (the plugin defines the behaviour) or a local hook.
-        $classname = clean_moodle_url::find_format_callback($course->format);
+        $classname = self::find_format_callback($course->format);
         if (!is_null($classname)) {
             return '/' . $classname::get_clean_subpath($course, $cm);
         }
@@ -227,6 +227,20 @@ class cleaner {
         // Default behaviour.
         $title = clean_moodle_url::sluggify($cm->name, true);
         return "/{$cm->modname}/{$cm->id}{$title}";
+    }
+
+    private static function find_format_callback($format) {
+        $classname = "\\format_{$format}\\cleanurls_support";
+        if (class_exists($classname)) {
+            return $classname;
+        }
+
+        $classname = "\\local_cleanurls\\local\\callbacks\\{$format}_support";
+        if (class_exists($classname)) {
+            return $classname;
+        }
+
+        return null;
     }
 
     private function clean_course_module_view_format_simple_section(cm_info $cm) {
