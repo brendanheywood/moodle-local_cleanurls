@@ -38,6 +38,7 @@ require_once(__DIR__ . '/../cleanurls_testcase.php');
  */
 class course_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_can_be_in_root() {
+        $this->getDataGenerator()->create_course(['shortname' => 'shortname']);
         $root = new root_uncleaner('/course/shortname');
         self::assertTrue(course_uncleaner::can_create($root));
     }
@@ -48,7 +49,8 @@ class course_uncleaner_test extends local_cleanurls_testcase {
     }
 
     public function test_it_comes_from_course_subpath_in_root() {
-        $root = new root_uncleaner('/course');
+        $this->getDataGenerator()->create_course(['shortname' => 'shortname']);
+        $root = new root_uncleaner('/course/shortname');
         $course = $root->get_child();
         self::assertInstanceOf(course_uncleaner::class, $course);
     }
@@ -59,6 +61,7 @@ class course_uncleaner_test extends local_cleanurls_testcase {
     }
 
     public function test_it_has_the_shortname() {
+        $this->getDataGenerator()->create_course(['shortname' => 'someshortname']);
         $root = new root_uncleaner('/course/someshortname');
         $course = $root->get_child();
 

@@ -122,46 +122,12 @@ class uncleaner_old {
         }
 
         switch ($course->format) {
-            case 'singleactivity':
-                return $this->unclean_course_format_singleactivity($course);
             case 'topics':
             case 'weeks':
                 return $this->unclean_course_format_simple_section($course, $parameters);
-            default:
-                return $this->unclean_course_format_hook($course, $parameters);
-        }
-    }
-
-    private function unclean_course_format_hook(stdClass $course, array $parameters) {
-        $classname = clean_moodle_url::find_format_callback($course->format);
-        if (is_null($classname)) {
-            return false;
         }
 
-        $cmid = $classname::get_cmid_for_path($course, $parameters);
-        if (is_null($cmid)) {
-            return false;
-        }
-
-        list(, $cm) = get_course_and_cm_from_cmid($cmid);
-
-        $this->path = "/mod/{$cm->modname}/view.php";
-        $this->params['id'] = $cm->id;
-        clean_moodle_url::log("Rewritten to: {$this->path}");
-
-        return true;
-    }
-
-    private function unclean_course_format_singleactivity(stdClass $course) {
-        global $DB;
-        $cm = $DB->get_record('course_modules', ['course' => $course->id], 'id,module', MUST_EXIST);
-        $modname = $DB->get_field('modules', 'name', ['id' => $cm->module], MUST_EXIST);
-
-        $this->path = "/mod/$modname/view.php";
-        $this->params['id'] = $cm->id;
-        clean_moodle_url::log("Rewritten to: {$this->path}");
-
-        return true;
+        return false;
     }
 
     private function unclean_course_format_simple_section(stdClass $course, array $parameters) {

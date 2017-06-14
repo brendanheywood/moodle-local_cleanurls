@@ -37,30 +37,6 @@ require_once(__DIR__ . '/cleanurls_testcase.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_course_section_routing_test extends local_cleanurls_testcase {
-    public function test_it_supports_single_activity_format() {
-        // TODO -- Implement that back.
-        $this->markTestSkipped('Not implemented anymore.');
-
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $course = $this->getDataGenerator()->create_course(
-            [
-                'fullname'  => 'Single Activity Course',
-                'shortname' => 'SingleActivity',
-                'visible'   => 1,
-                'category'  => $category->id,
-                'format'    => 'singleactivity',
-            ]
-        );
-        $forum = $this->getDataGenerator()->create_module(
-            'forum',
-            ['course' => $course->id, 'name' => 'The Single Forum']
-        );
-
-        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $forum->cmid;
-        $expected = 'http://www.example.com/moodle/course/SingleActivity';
-        static::assert_clean_unclean($url, $expected);
-    }
-
     public function test_it_supports_social_format() {
         // No special handling for those URLs as it uses the course URL already.
 

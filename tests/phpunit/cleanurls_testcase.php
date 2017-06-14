@@ -94,12 +94,7 @@ class local_cleanurls_testcase extends advanced_testcase {
     protected function setUp() {
         parent::setUp();
         $this->resetAfterTest(true);
+        local_cleanurls_unittest_uncleaner::reset();
         static::enable_cleanurls();
-        static::reset_testuncleaner();
-    }
-
-    private static function reset_testuncleaner() {
-        local_cleanurls_unittest_uncleaner::$childoptions = [];
-        local_cleanurls_unittest_uncleaner::$cancreate = null;
     }
 }

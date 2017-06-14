@@ -63,6 +63,7 @@ class local_cleanurls_user_course_uncleaner_test extends local_cleanurls_testcas
     }
 
     public function test_it_cannot_have_an_unexpected_keyword() {
+        $this->getDataGenerator()->create_course(['shortname' => 'learnphp']);
         $root = new root_uncleaner('/course/learnphp/notuser/whatever');
         $course = $root->get_child();
         self::assertFalse(user_course_uncleaner::can_create($course));

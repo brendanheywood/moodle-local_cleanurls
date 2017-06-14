@@ -61,7 +61,7 @@ class courseformat_uncleaner_test extends local_cleanurls_testcase {
             $uncleaner);
     }
 
-    public function test_it_cannot_create_if_parent_is_not_course() {
+    public function test_it_cannot_create_if_parent_has_no_course() {
         self::assertFalse(courseformat_uncleaner::can_create(new root_uncleaner('/')));
     }
 

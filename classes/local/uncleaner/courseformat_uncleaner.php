@@ -25,6 +25,7 @@ namespace local_cleanurls\local\uncleaner;
 
 use moodle_exception;
 use moodle_url;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -36,7 +37,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class courseformat_uncleaner extends uncleaner {
+class courseformat_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
     /**
      * This should never be called for this uncleaner.
      *
@@ -51,7 +52,7 @@ class courseformat_uncleaner extends uncleaner {
     }
 
     protected function prepare_child() {
-        $format = self::get_format_uncleaner($this->parent->get_course_format());
+        $format = self::get_format_uncleaner($this->get_course()->format);
         $this->child = new $format($this);
     }
 
@@ -67,11 +68,12 @@ class courseformat_uncleaner extends uncleaner {
      * @return bool
      */
     public static function can_create($parent) {
-        if (!is_a($parent, course_uncleaner::class)) {
+        if (!is_a($parent, hascourse_uncleaner_interface::class)) {
             return false;
         }
 
-        $cleaner = self::get_format_uncleaner($parent->get_course_format());
+        $course = $parent->get_course();
+        $cleaner = self::get_format_uncleaner($course->format);
         if (!is_a($cleaner, uncleaner::class, true)) {
             return false;
         }
@@ -106,5 +108,14 @@ class courseformat_uncleaner extends uncleaner {
      */
     public function get_unclean_url() {
         return null;
+    }
+
+    /**
+     * Finds the course related to this uncleaner, most likely by getting it from its parent.
+     *
+     * @return stdClass Course data object.
+     */
+    public function get_course() {
+        return $this->parent->get_course();
     }
 }

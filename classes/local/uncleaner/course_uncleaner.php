@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_uncleaner extends uncleaner {
+class course_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
     /**
      * @return string[]
      */
@@ -80,6 +80,21 @@ class course_uncleaner extends uncleaner {
         $this->subpath = $this->parent->subpath;
         array_shift($this->subpath);
         $this->mypath = array_shift($this->subpath);
+    }
+
+    /**
+     * Allow creating child even without subpath (for example singleactivity format).
+     */
+    protected function prepare_child() {
+        $this->child = null;
+
+        $options = static::list_child_options();
+        foreach ($options as $option) {
+            if ($option::can_create($this)) {
+                $this->child = new $option($this);
+                return;
+            }
+        }
     }
 
     /**
