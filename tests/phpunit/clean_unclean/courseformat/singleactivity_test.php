@@ -44,4 +44,24 @@ class local_cleanurls_simpleactivity_cleanunclean_test extends local_cleanurls_t
         $expected = 'http://www.example.com/moodle/course/SingleActivity';
         static::assert_clean_unclean($url, $expected);
     }
+
+    public function test_it_can_be_created_inside_courseformat_uncleaner() {
+        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'singleactivity']);
+        $root = new root_uncleaner('/course/shortname/forum/123-idme');
+        $format = $root->get_child()->get_child();
+        self::assertTrue(singleactivity_uncleaner::can_create($format));
+        self::assertInstanceOf(singleactivity_uncleaner::class, $format->get_child());
+    }
+
+    public function test_it_cannot_be_created_if_parent_has_no_course() {
+        $root = new root_uncleaner('/course');
+        self::assertFalse(singleactivity_uncleaner::can_create($root));
+    }
+
+    public function test_it_cannot_be_created_if_course_has_the_wrong_format() {
+        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'weeks']);
+        $root = new root_uncleaner('/course/shortname/forum/123-idme');
+        $format = $root->get_child()->get_child();
+        self::assertFalse(singleactivity_uncleaner::can_create($format));
+    }
 }
