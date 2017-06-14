@@ -41,7 +41,7 @@ require_once(__DIR__ . '/mocks/cleanurls_support.php');
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_testcase extends advanced_testcase {
+abstract class local_cleanurls_testcase extends advanced_testcase {
     /**
      * Configures and enables Clean URLs.
      *
