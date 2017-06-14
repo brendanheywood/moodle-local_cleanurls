@@ -86,17 +86,6 @@ class clean_moodle_url extends moodle_url {
         return ($dashprefix ? '-' : '').$string;
     }
 
-    /**
-     * Forwards the call to the cleaner class.
-     *
-     * @param moodle_url $orig
-     * @return moodle_url
-     */
-    public static function clean(moodle_url $orig) {
-        // TODO change usages to cleaner
-        return cleaner::clean($orig);
-    }
-
     public function set_path($path) {
         $this->path = $path;
     }

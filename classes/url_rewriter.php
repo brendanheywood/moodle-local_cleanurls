@@ -49,7 +49,7 @@ class url_rewriter implements \core\output\url_rewriter {
         global $CFG;
 
         if (empty($CFG->upgraderunning)) {
-            return clean_moodle_url::clean($url);
+            return cleaner::clean($url);
         }
 
         return $url;

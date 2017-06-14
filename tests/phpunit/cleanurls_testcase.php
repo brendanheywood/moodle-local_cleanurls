@@ -24,6 +24,7 @@
  */
 
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\cleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
@@ -68,7 +69,7 @@ class local_cleanurls_testcase extends advanced_testcase {
      */
     public static function assert_clean_unclean($input, $expectedcleaned = null, $expecteduncleaned = null) {
         $inputurl = new moodle_url($input);
-        $clean = clean_moodle_url::clean($inputurl);
+        $clean = cleaner::clean($inputurl);
         self::assertInstanceOf(moodle_url::class, $clean);
         self::assertSame($expectedcleaned, $clean->out(false), 'Failed CLEANING.');
 
