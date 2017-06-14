@@ -40,7 +40,8 @@ defined('MOODLE_INTERNAL') || die();
 abstract class uncleaner {
     /**
      * @param string|moodle_url $clean
-     * @return moodle_url
+     * @return \moodle_url
+     * @throws \moodle_exception
      */
     public static function unclean($clean) {
         $root = new root_uncleaner($clean);
