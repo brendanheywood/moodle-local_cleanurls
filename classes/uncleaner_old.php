@@ -25,6 +25,7 @@
 
 namespace local_cleanurls;
 
+use local_cleanurls\local\uncleaner\courseformat\topics_uncleaner;
 use moodle_url;
 use stdClass;
 
@@ -122,7 +123,6 @@ class uncleaner_old {
         }
 
         switch ($course->format) {
-            case 'topics':
             case 'weeks':
                 return $this->unclean_course_format_simple_section($course, $parameters);
         }
@@ -137,7 +137,7 @@ class uncleaner_old {
         list($sectionslug, $moduleslug) = $parameters;
         list($cmid) = explode('-', $moduleslug);
 
-        $section = $this->find_section_by_slug($course->id, $sectionslug);
+        $section = topics_uncleaner::find_section_by_slug($course->id, $sectionslug);
         if (is_null($section)) {
             return false;
         }
@@ -149,19 +149,5 @@ class uncleaner_old {
         clean_moodle_url::log("Rewritten to: {$this->path}");
 
         return true;
-    }
-
-    private function find_section_by_slug($courseid, $sectionslug) {
-        global $DB;
-
-        $sections = $DB->get_records('course_sections', ['course' => $courseid]);
-        foreach ($sections as $section) {
-            $slug = clean_moodle_url::sluggify($section->name, false);
-            if ($slug == $sectionslug) {
-                return $section;
-            }
-        }
-
-        return null;
     }
 }

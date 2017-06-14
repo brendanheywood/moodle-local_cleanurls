@@ -58,7 +58,6 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
 
     public function provider_for_simple_section_format_tests() {
         return [
-            'topics' => ['topics'],
             'weeks' => ['weeks'],
         ];
     }
@@ -95,31 +94,6 @@ class local_cleanurls_course_section_routing_test extends local_cleanurls_testca
         $expected = 'http://www.example.com/moodle/course/simple_' . $format . '/' .
                     "custom-section/{$forum->cmid}-forum-first-section";
         static::assert_clean_unclean($url, $expected);
-    }
-
-    public function test_it_does_not_unclean_a_topic_if_section_not_found() {
-        // TODO -- Implement that back.
-        $this->markTestSkipped('Not implemented anymore.');
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $course = $this->getDataGenerator()->create_course(
-            [
-                'fullname'  => 'Weekly Course',
-                'shortname' => 'Weekly',
-                'visible'   => 1,
-                'category'  => $category->id,
-                'format'    => 'topics',
-            ]
-        );
-        $forum = $this->getDataGenerator()->create_module(
-            'forum',
-            ['course' => $course->id, 'name' => "Forum First Week"]
-        );
-
-        // When a URL cannot uncleaned, it must return the same as the input.
-        $url = 'http://www.example.com/moodle/course/Weekly/' .
-                    "this-section-does-not-exists/{$forum->cmid}-forum-first-week";
-        $unclean = clean_moodle_url::unclean($url);
-        self::assertSame($url, $unclean->out());
     }
 
     public function test_it_supports_format_callbacks() {
