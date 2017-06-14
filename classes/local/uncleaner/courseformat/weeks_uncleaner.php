@@ -26,12 +26,12 @@ namespace local_cleanurls\local\uncleaner\courseformat;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class topics_uncleaner
+ * Class weeks_uncleaner
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class topics_uncleaner extends simplesection_uncleaner_base {
+class weeks_uncleaner extends simplesection_uncleaner_base {
 }

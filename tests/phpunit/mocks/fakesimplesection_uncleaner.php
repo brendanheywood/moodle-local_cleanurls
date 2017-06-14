@@ -23,15 +23,24 @@
 
 namespace local_cleanurls\local\uncleaner\courseformat;
 
+use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
+use local_cleanurls\local\uncleaner\uncleaner;
+use moodle_url;
+use ReflectionClass;
+use stdClass;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class topics_uncleaner
+ * Implements simplesection_uncleaner_base
+ *
+ * Provides a base for course formats consisting of a simple (non-nested) subsections.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class topics_uncleaner extends simplesection_uncleaner_base {
+class fakesimplesection_uncleaner extends simplesection_uncleaner_base {
 }

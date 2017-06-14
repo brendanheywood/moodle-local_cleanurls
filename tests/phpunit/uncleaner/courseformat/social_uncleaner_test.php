@@ -15,23 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package     local_cleanurls
- * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
- * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace local_cleanurls\local\uncleaner\courseformat;
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Class topics_uncleaner
+ * CleanURLs unit tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class topics_uncleaner extends simplesection_uncleaner_base {
+
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../cleanurls_testcase.php');
+
+/**
+ * Tests cleaning/uncleaning course section activities.
+ *
+ * @package     local_cleanurls
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class local_cleanurls_social_test extends local_cleanurls_testcase {
+    public function test_it_supports_social_format() {
+        // No special handling for those URLs as it uses the course URL already.
+
+        $this->getDataGenerator()->create_course(['shortname' => 'Social', 'format' => 'social']);
+
+        $url = 'http://www.example.com/moodle/course/view.php?name=Social';
+        $expected = 'http://www.example.com/moodle/course/Social';
+        static::assert_clean_unclean($url, $expected);
+    }
 }

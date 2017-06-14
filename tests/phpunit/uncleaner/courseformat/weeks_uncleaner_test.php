@@ -21,17 +21,34 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\uncleaner\courseformat;
-
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
 /**
- * Class topics_uncleaner
+ * Tests local_cleanurls_weeks
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class topics_uncleaner extends simplesection_uncleaner_base {
+class local_cleanurls_weeks_test extends local_cleanurls_testcase {
+    public function test_it_supports_weeks_format() {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'weekscourse', 'format' => 'weeks']);
+        $forum = $this->getDataGenerator()->create_module(
+            'forum',
+            ['course' => $course->id, 'name' => "Week 1 Discussion"]
+        );
+        list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
+
+        // Give a name to the section.
+        $DB->update_record('course_sections', (object)['id' => $cm->section, 'name' => 'First Week']);
+
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
+        $expected = 'http://www.example.com/moodle/course/weekscourse/' .
+                    "first-week/{$forum->cmid}-week-1-discussion";
+        static::assert_clean_unclean($url, $expected);
+    }
 }
