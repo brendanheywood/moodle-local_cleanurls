@@ -93,17 +93,8 @@ class clean_moodle_url extends moodle_url {
      * @return moodle_url
      */
     public static function clean(moodle_url $orig) {
+        // TODO change usages to cleaner
         return cleaner::clean($orig);
-    }
-
-    /**
-     * Forwards the call to the uncleaner class.
-     *
-     * @param string|moodle_url $clean
-     * @return moodle_url
-     */
-    public static function unclean($clean) {
-        return uncleaner::unclean($clean);
     }
 
     public function set_path($path) {
@@ -111,7 +102,7 @@ class clean_moodle_url extends moodle_url {
     }
 
     public static function find_format_callback($format) {
-        // TODO delete me after removing old uncleaner.
+        // TODO remove me
 
         $classname = "\\format_{$format}\\cleanurls_support";
         if (class_exists($classname)) {

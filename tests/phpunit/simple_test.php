@@ -25,6 +25,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\local\uncleaner\uncleaner;
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__.'/cleanurls_testcase.php');
 
@@ -138,7 +140,8 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $clean = $murl->out();
         $this->assertEquals('http://www.example.com/moodle/foo/bar.php', $clean, "Clean: Don't remove php extension");
 
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
+        $unclean = uncleaner::unclean($clean)->raw_out();
+        $this->assertDebuggingCalled('Could not unclean until the end of address: foo/bar.php');
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back");
 
         $url = 'http://www.example.com/moodle/foo/bar.php?ding=pop';
@@ -147,7 +150,8 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $this->assertEquals('http://www.example.com/moodle/foo/bar.php?ding=pop', $clean,
                             "Clean: Do not remove php extension with params");
 
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
+        $unclean = uncleaner::unclean($clean)->raw_out();
+        $this->assertDebuggingCalled('Could not unclean until the end of address: foo/bar.php');
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with params");
 
         $url = 'http://www.example.com/moodle/foo/bar.php#hash';
@@ -156,7 +160,8 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $this->assertEquals('http://www.example.com/moodle/foo/bar.php#hash', $clean,
                             "Clean: Don't remove php extension with hash");
 
-        $unclean = local_cleanurls\clean_moodle_url::unclean($clean)->raw_out();
+        $unclean = uncleaner::unclean($clean)->raw_out();
+        $this->assertDebuggingCalled('Could not unclean until the end of address: foo/bar.php');
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
 
         $url = 'http://www.example.com/moodle/course/index.php?foo=bar#hash';

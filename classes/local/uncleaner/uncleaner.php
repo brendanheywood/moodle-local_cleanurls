@@ -24,7 +24,7 @@
 namespace local_cleanurls\local\uncleaner;
 
 use invalid_parameter_exception;
-use local_cleanurls\uncleaner_old;
+use moodle_exception;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -43,7 +43,8 @@ abstract class uncleaner {
      * @return moodle_url
      */
     public static function unclean($clean) {
-        $node = new root_uncleaner($clean);
+        $root = new root_uncleaner($clean);
+        $node = $root;
 
         do {
             $lastnode = $node;
@@ -51,15 +52,17 @@ abstract class uncleaner {
         } while (!is_null($node));
 
         $unclean = $lastnode->get_unclean_url();
-
-        // TODO - Temporary, if there is no child, use old uncleaner.
-        if (is_null($unclean)) {
-            return uncleaner_old::unclean($clean);
-        } else {
-            if (!empty($lastnode->get_subpath())) {
-                $subpath = implode('/', $lastnode->get_subpath());
-                debugging("Could not unclean until the end of address: {$subpath}", DEBUG_DEVELOPER);
+        while (is_null($unclean)) {
+            $lastnode = $lastnode->parent;
+            if (is_null($lastnode)) {
+                throw new moodle_exception('At least root_uncleaner should have returned something.');
             }
+            $unclean = $lastnode->get_unclean_url();
+        }
+
+        if (!empty($lastnode->get_subpath())) {
+            $subpath = implode('/', $lastnode->get_subpath());
+            debugging("Could not unclean until the end of address: {$subpath}", DEBUG_DEVELOPER);
         }
 
         return $unclean;

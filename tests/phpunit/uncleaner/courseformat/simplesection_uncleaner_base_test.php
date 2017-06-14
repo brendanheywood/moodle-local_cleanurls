@@ -108,16 +108,25 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
     }
 
     public function test_it_does_not_unclean_if_section_not_found() {
+        global $DB;
+
         $course = $this->getDataGenerator()->create_course(['shortname' => 'Weekly', 'format' => 'fakesimplesection']);
         $forum = $this->getDataGenerator()->create_module(
             'forum',
             ['course' => $course->id, 'name' => "Forum First Week"]
         );
+        list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
+        // Give a name to the section.
+        $DB->update_record('course_sections', (object)['id' => $cm->section, 'name' => 'Custom Section']);
 
-        // When a URL cannot uncleaned, it must return the same as the input.
+        // When a URL cannot uncleaned, it will warn (debug) and use the course as fallback.
         $url = 'http://www.example.com/moodle/course/Weekly/' .
                "this-section-does-not-exists/{$forum->cmid}-forum-first-week";
+        $expected = 'http://www.example.com/moodle/course/view.php?name=Weekly';
+
         $unclean = uncleaner::unclean($url);
-        self::assertSame($url, $unclean->out());
+        self::assertSame($expected, $unclean->raw_out());
+
+        $this->assertDebuggingCalled(); // Could not unclean warning.
     }
 }

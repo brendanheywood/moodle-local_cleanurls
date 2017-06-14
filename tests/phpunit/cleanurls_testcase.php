@@ -24,6 +24,7 @@
  */
 
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/mocks/unittest_uncleaner.php');
@@ -75,7 +76,7 @@ class local_cleanurls_testcase extends advanced_testcase {
             return; // The URL was not cleaned, do not test uncleaning it.
         }
 
-        $unclean = clean_moodle_url::unclean($clean);
+        $unclean = uncleaner::unclean($clean);
         self::assertInstanceOf(moodle_url::class, $unclean);
 
         if (is_null($expecteduncleaned)) {
