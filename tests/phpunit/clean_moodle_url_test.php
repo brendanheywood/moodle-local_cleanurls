@@ -24,6 +24,7 @@
  */
 
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/cleanurls_testcase.php');
@@ -36,7 +37,7 @@ require_once(__DIR__ . '/cleanurls_testcase.php');
  * @copyright  2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_clean_moodle_url_test extends local_cleanurls_testcase {
+class local_cleanurls_clean_moodle_url_test extends local_cleanurls_testcase implements courseformat_cleaner_interface {
     public function test_it_cannot_detect_format_uncleaner_if_no_implementation_found() {
         $support = clean_moodle_url::get_format_support('an-invalid-format');
         self::assertNull($support);
@@ -55,10 +56,21 @@ class local_cleanurls_clean_moodle_url_test extends local_cleanurls_testcase {
     }
 
     public function test_it_rejects_format_support_if_not_uncleaner() {
-        $uncleaner = clean_moodle_url::get_format_support('notuncleanerfakeformat');
+        $support = clean_moodle_url::get_format_support('notuncleanerfakeformat');
         self::assertDebuggingCalled("Class '" .
                                     '\local_cleanurls\local\courseformat\notuncleanerfakeformat' .
                                     "' must inherit uncleaner.");
-        self::assertNull($uncleaner);
+        self::assertNull($support);
+    }
+    public function test_it_rejects_format_support_if_not_cleaner() {
+        $support = clean_moodle_url::get_format_support('notcleanerfakeformat');
+        self::assertDebuggingCalled("Class '" .
+                                    '\local_cleanurls\local\courseformat\notcleanerfakeformat' .
+                                    "' must implement courseformat_cleaner_interface.");
+        self::assertNull($support);
+    }
+
+    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+        return null;
     }
 }

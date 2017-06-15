@@ -25,6 +25,7 @@
 
 namespace local_cleanurls;
 
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 
@@ -110,6 +111,11 @@ class clean_moodle_url extends moodle_url {
 
         if (!is_a($classname, uncleaner::class, true)) {
             debugging("Class '{$classname}' must inherit uncleaner.");
+            return null;
+        }
+
+        if (!is_a($classname, courseformat_cleaner_interface::class, true)) {
+            debugging("Class '{$classname}' must implement courseformat_cleaner_interface.");
             return null;
         }
 
