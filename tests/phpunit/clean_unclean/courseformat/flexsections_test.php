@@ -50,8 +50,11 @@ class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
     /** @var stdClass */
     private $course = null;
 
-    /** @var stdClass */
-    private $forum = null;
+    /** @var stdClass[] */
+    private $forums = [];
+
+    /** @var stdClass[] */
+    private $sections = null;
 
     protected function setUp() {
         global $CFG;
@@ -78,9 +81,8 @@ class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
 
     public function test_its_uncleaner_can_be_created() {
         $this->create_course();
-        $root = new root_uncleaner('/course/mycourse/topic-1/topic-2/topic-3/');
-        $course = $root->get_child();
-        $format = $course->get_child();
+        $root = new root_uncleaner($this->get_example_url());
+        $format = $root->get_child()->get_child();
         self::assertTrue(flexsections_uncleaner::can_create($format));
         $flex = $format->get_child();
         self::assertInstanceOf(flexsections_uncleaner::class, $flex);
@@ -93,45 +95,114 @@ class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
     }
 
     public function test_its_uncleaner_requires_the_correct_format() {
-        $this->getDataGenerator()->create_course(['shortname' => 'mycourse', 'format' => 'topics']);
-        $root = new root_uncleaner('/course/mycourse/topic-1/topic-2/topic-3/');
+        $this->create_course(['format' => 'topics']);
+        $root = new root_uncleaner($this->get_example_url());
         $course = $root->get_child();
         $format = $course->get_child();
         self::assertFalse(flexsections_uncleaner::can_create($format));
     }
 
+    public function test_it_creates_a_section_tree() {
+        $this->create_course();
+        $root = new root_uncleaner($this->get_example_url());
+        $flex = $root->get_child()->get_child()->get_child();
+        $tree = $flex->get_section_tree();
+
+        self::assertCount(2, $tree->flexsections);
+        self::assertEquals(1, $tree->flexsections[0]->section);
+        self::assertEquals(4, $tree->flexsections[1]->section);
+
+        self::assertCount(2, $tree->flexsections[0]->flexsections);
+        self::assertEquals(2, $tree->flexsections[0]->flexsections[0]->section);
+        self::assertEquals(3, $tree->flexsections[0]->flexsections[1]->section);
+
+        self::assertCount(2, $tree->flexsections[0]->flexsections[0]->flexsections);
+        self::assertEquals(5, $tree->flexsections[0]->flexsections[0]->flexsections[0]->section);
+        self::assertEquals(6, $tree->flexsections[0]->flexsections[0]->flexsections[1]->section);
+
+        self::assertCount(0, $tree->flexsections[0]->flexsections[0]->flexsections[0]->flexsections);
+
+        self::assertCount(0, $tree->flexsections[0]->flexsections[0]->flexsections[1]->flexsections);
+
+        self::assertCount(1, $tree->flexsections[0]->flexsections[1]->flexsections);
+        self::assertEquals(7, $tree->flexsections[0]->flexsections[1]->flexsections[0]->section);
+
+        self::assertCount(0, $tree->flexsections[0]->flexsections[1]->flexsections[0]->flexsections);
+
+        self::assertCount(0, $tree->flexsections[1]->flexsections);
+    }
+
+    public function test_it_prepares_the_path_correctly() {
+        $this->create_course();
+        $forumid = $this->forums[6]->cmid;
+        $root = $root = new root_uncleaner($this->get_example_url() . '/abc/def/ghi');
+        $flex = $root->get_child()->get_child()->get_child();
+
+        self::assertSame("topic-1/topic-2/topic-6/{$forumid}-forum", $flex->get_mypath());
+        self::assertSame(['abc', 'def', 'ghi'], $flex->get_subpath());
+        self::assertEquals($forumid, $flex->get_course_module()->id);
+
+        $sectionpath = $flex->get_section_path();
+        self::assertCount(4, $sectionpath);
+        self::assertSame('General', get_section_name($this->course, $sectionpath[0]->section));
+        self::assertSame('Topic 1', get_section_name($this->course, $sectionpath[1]->section));
+        self::assertSame('Topic 2', get_section_name($this->course, $sectionpath[2]->section));
+        self::assertSame('Topic 6', get_section_name($this->course, $sectionpath[3]->section));
+    }
+
     public function test_it_cleans_and_uncleans() {
         $this->create_course();
 
-        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $this->forum->cmid;
-        $expected = 'http://www.example.com/moodle/course/mycourse/topic-1/topic-2/topic-3/' .
-                    "{$this->forum->cmid}-the-forum";
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $this->forums[6]->cmid;
+        $expected = 'http://www.example.com/moodle/course/mycourse/topic-1/topic-2/topic-6/' .
+                    "{$this->forums[6]->cmid}-forum-6";
         local_cleanurls_testcase::assert_clean_unclean($url, $expected);
     }
 
-    protected function create_course() {
+    protected function create_course($options = []) {
         global $DB;
 
-        $this->course = $this->getDataGenerator()->create_course([
-                                                                     'shortname'   => 'mycourse',
-                                                                     'format'      => 'flexsections',
-                                                                     'numsections' => 3,
-                                                                 ]);
-        // Set flex 'Topic 1' -> 'Topic 2' -> 'Topic 3'.
-        $sections = $DB->get_records('course_sections', ['course' => $this->course->id], 'section ASC');
-        $sections = array_values($sections);
-        for ($i = 1; $i < 3; $i++) {
+        $defaults = [
+            'shortname'   => 'mycourse',
+            'format'      => 'flexsections',
+            'numsections' => 7,
+        ];
+        $options = array_merge($defaults, $options);
+        $this->course = $this->getDataGenerator()->create_course($options);
+        $sectionstmp = $DB->get_records('course_sections', ['course' => $this->course->id], 'section ASC');
+        $this->sections = [];
+        foreach ($sectionstmp as $section) {
+            $this->sections[$section->section] = $section;
+        }
+
+        $this->create_course_section_parent(1, null); // No parent.
+        $this->create_course_section_parent(2, 1);
+        $this->create_course_section_parent(3, 1);
+        $this->create_course_section_parent(4, 0); // Another way for no parent (root parent).
+        $this->create_course_section_parent(5, 2);
+        $this->create_course_section_parent(6, 2);
+        $this->create_course_section_parent(7, 3);
+    }
+
+    private function create_course_section_parent($idchild, $numparent) {
+        global $DB;
+        if (!is_null($numparent)) {
             $DB->insert_record('course_format_options', (object)[
                 'courseid'  => $this->course->id,
                 'format'    => 'flexsections',
-                'sectionid' => $sections[$i + 1]->id,
+                'sectionid' => $this->sections[$idchild]->id,
                 'name'      => 'parent',
-                'value'     => $i,
+                'value'     => $this->sections[$numparent]->section,
             ]);
         }
-        $this->forum = $this->getDataGenerator()->create_module(
+        $num = $this->sections[$idchild]->section;
+        $this->forums[$num] = $this->getDataGenerator()->create_module(
             'forum',
-            ['course' => $this->course->id, 'name' => 'The Forum', 'section' => 3]
+            ['course' => $this->course->id, 'name' => "Forum {$num}", 'section' => $num]
         );
+    }
+
+    private function get_example_url() {
+        return "/course/mycourse/topic-1/topic-2/topic-6/{$this->forums[6]->cmid}-forum";
     }
 }
