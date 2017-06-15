@@ -46,7 +46,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
+class local_cleanurls_flexsections_support_test extends advanced_testcase {
     /** @var stdClass */
     private $course = null;
 
