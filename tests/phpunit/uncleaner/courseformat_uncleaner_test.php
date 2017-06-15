@@ -44,23 +44,6 @@ class local_cleanurls_courseformat_uncleaner_test extends local_cleanurls_testca
         courseformat_uncleaner::list_child_options();
     }
 
-    public function test_it_cannot_detect_format_uncleaner_if_no_implementation_found() {
-        $uncleaner = courseformat_uncleaner::get_format_uncleaner('an-invalid-format');
-        self::assertNull($uncleaner);
-    }
-
-    public function test_it_can_detect_an_externally_coded_uncleaner() {
-        $uncleaner = courseformat_uncleaner::get_format_uncleaner('cleanurlsfakeformat');
-        self::assertSame('\format_cleanurlsfakeformat\cleanurls_uncleaner', $uncleaner);
-    }
-
-    public function test_it_can_detect_an_internally_coded_uncleaner() {
-        $uncleaner = courseformat_uncleaner::get_format_uncleaner('fakeformat');
-        self::assertSame(
-            '\local_cleanurls\local\courseformat\fakeformat',
-            $uncleaner);
-    }
-
     public function test_it_cannot_create_if_parent_has_no_course() {
         self::assertFalse(courseformat_uncleaner::can_create(new root_uncleaner('/')));
     }
