@@ -113,7 +113,6 @@ class clean_moodle_url extends moodle_url {
             return null;
         }
 
-
         return $classname;
     }
 }
