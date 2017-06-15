@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\uncleaner\courseformat;
+namespace local_cleanurls\local\courseformat;
 
 use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
@@ -38,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class singleactivity_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
+class singleactivity extends uncleaner implements hascourse_uncleaner_interface {
     /**
      * Quick check if this object should be created for the given parent.
      *

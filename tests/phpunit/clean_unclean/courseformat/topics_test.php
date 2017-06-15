@@ -21,10 +21,6 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\courseformat\topics_uncleaner;
-use local_cleanurls\local\uncleaner\root_uncleaner;
-use local_cleanurls\local\uncleaner\uncleaner;
-
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
 

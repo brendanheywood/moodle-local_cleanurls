@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\courseformat\fakeformat_uncleaner;
+use local_cleanurls\local\courseformat\fakeformat;
 use local_cleanurls\local\uncleaner\courseformat_uncleaner;
 use local_cleanurls\local\uncleaner\root_uncleaner;
 
@@ -57,7 +57,7 @@ class local_cleanurls_courseformat_uncleaner_test extends local_cleanurls_testca
     public function test_it_can_detect_an_internally_coded_uncleaner() {
         $uncleaner = courseformat_uncleaner::get_format_uncleaner('fakeformat');
         self::assertSame(
-            '\local_cleanurls\local\uncleaner\courseformat\fakeformat_uncleaner',
+            '\local_cleanurls\local\courseformat\fakeformat',
             $uncleaner);
     }
 
@@ -157,6 +157,6 @@ class local_cleanurls_courseformat_uncleaner_test extends local_cleanurls_testca
         $format = $course->get_child();
         $fakeformat = $format->get_child();
 
-        self::assertInstanceOf(fakeformat_uncleaner::class, $fakeformat);
+        self::assertInstanceOf(fakeformat::class, $fakeformat);
     }
 }

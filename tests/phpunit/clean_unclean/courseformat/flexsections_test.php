@@ -33,7 +33,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\courseformat\flexsections_uncleaner;
+use local_cleanurls\local\courseformat\flexsections;
 use local_cleanurls\local\uncleaner\root_uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
@@ -83,15 +83,15 @@ class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
         $this->create_course();
         $root = new root_uncleaner($this->get_example_url());
         $format = $root->get_child()->get_child();
-        self::assertTrue(flexsections_uncleaner::can_create($format));
+        self::assertTrue(flexsections::can_create($format));
         $flex = $format->get_child();
-        self::assertInstanceOf(flexsections_uncleaner::class, $flex);
+        self::assertInstanceOf(flexsections::class, $flex);
     }
 
     public function test_its_uncleaner_requires_a_course() {
         $this->create_course();
         $root = new root_uncleaner('/');
-        self::assertFalse(flexsections_uncleaner::can_create($root));
+        self::assertFalse(flexsections::can_create($root));
     }
 
     public function test_its_uncleaner_requires_the_correct_format() {
@@ -99,7 +99,7 @@ class local_cleanurls_callbacks_flexsections_support extends advanced_testcase {
         $root = new root_uncleaner($this->get_example_url());
         $course = $root->get_child();
         $format = $course->get_child();
-        self::assertFalse(flexsections_uncleaner::can_create($format));
+        self::assertFalse(flexsections::can_create($format));
     }
 
     public function test_it_creates_a_section_tree() {

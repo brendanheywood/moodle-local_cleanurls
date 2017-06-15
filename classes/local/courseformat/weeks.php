@@ -15,28 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a mock format for CleanURLs uncleaner tests.
- *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Add it to the following namespace, require is needed as it is not the correct autoloader path.
-namespace local_cleanurls\local\uncleaner\courseformat;
-
-use local_cleanurls_unittest_uncleaner;
+namespace local_cleanurls\local\courseformat;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * This is a mock format for CleanURLs uncleaner tests.
+ * Class weeks_uncleaner
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class fakeformat_uncleaner extends local_cleanurls_unittest_uncleaner {
+class weeks extends simplesection_base {
 }

@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\courseformat\fakesimplesection_uncleaner;
+use local_cleanurls\local\courseformat\fakesimplesection;
 use local_cleanurls\local\uncleaner\root_uncleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
 
@@ -52,8 +52,8 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
                                    "custom-section/{$forum->cmid}-forum-first-section");
 
         $format = $root->get_child()->get_child();
-        self::assertTrue(fakesimplesection_uncleaner::can_create($format));
-        self::assertInstanceOf(fakesimplesection_uncleaner::class, $format->get_child());
+        self::assertTrue(fakesimplesection::can_create($format));
+        self::assertInstanceOf(fakesimplesection::class, $format->get_child());
 
         $this->resetDebugging(); // Invalid format message.
     }
@@ -73,7 +73,7 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         $root = new root_uncleaner('/course/simplecourse/' .
                                    "custom-section/{$forum->cmid}-forum-first-section/sub/path");
         $format = $root->get_child()->get_child()->get_child();
-        self::assertInstanceOf(fakesimplesection_uncleaner::class, $format);
+        self::assertInstanceOf(fakesimplesection::class, $format);
         self::assertSame("custom-section/{$forum->cmid}-forum-first-section", $format->get_mypath(), 'Invalid mypath.');
         self::assertSame(['sub', 'path'], $format->get_subpath(), 'Invalid subpath.');
         self::assertSame('Custom Section', $format->get_section()->name, 'Invalid section.');
@@ -82,14 +82,14 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
 
     public function test_it_cannot_be_created_if_parent_has_no_course() {
         $root = new root_uncleaner('/course');
-        self::assertFalse(fakesimplesection_uncleaner::can_create($root));
+        self::assertFalse(fakesimplesection::can_create($root));
     }
 
     public function test_it_cannot_be_created_if_course_has_the_wrong_format() {
         $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'somethingelse']);
         $root = new root_uncleaner('/course/shortname/forum/123-idme');
         $format = $root->get_child()->get_child();
-        self::assertFalse(fakesimplesection_uncleaner::can_create($format));
+        self::assertFalse(fakesimplesection::can_create($format));
         $this->resetDebugging(); // Invalid format message.
     }
 
@@ -97,14 +97,14 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'fakesimplesection']);
         $root = new root_uncleaner('/course/shortname');
         $format = $root->get_child()->get_child();
-        self::assertFalse(fakesimplesection_uncleaner::can_create($format));
+        self::assertFalse(fakesimplesection::can_create($format));
     }
 
     public function test_it_requires_an_coursemodule() {
         $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'fakesimplesection']);
         $root = new root_uncleaner('/course/shortname/section');
         $format = $root->get_child()->get_child();
-        self::assertFalse(fakesimplesection_uncleaner::can_create($format));
+        self::assertFalse(fakesimplesection::can_create($format));
     }
 
     public function test_it_does_not_unclean_if_section_not_found() {

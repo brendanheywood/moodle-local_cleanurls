@@ -21,14 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\uncleaner\courseformat;
-
-use local_cleanurls\clean_moodle_url;
-use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
-use local_cleanurls\local\uncleaner\uncleaner;
-use moodle_url;
-use ReflectionClass;
-use stdClass;
+namespace local_cleanurls\local\courseformat;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,5 +35,5 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class fakesimplesection_uncleaner extends simplesection_uncleaner_base {
+class fakesimplesection extends simplesection_base {
 }

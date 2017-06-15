@@ -99,7 +99,7 @@ class courseformat_uncleaner extends uncleaner implements hascourse_uncleaner_in
             return $classname;
         }
 
-        $classname = "\\local_cleanurls\\local\\uncleaner\\courseformat\\{$format}_uncleaner";
+        $classname = "\\local_cleanurls\\local\\courseformat\\{$format}";
         if (class_exists($classname)) {
             return $classname;
         }

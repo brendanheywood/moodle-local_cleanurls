@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\uncleaner\courseformat;
+namespace local_cleanurls\local\courseformat;
 
 use local_cleanurls\clean_moodle_url;
 use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
@@ -42,11 +42,10 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class simplesection_uncleaner_base extends uncleaner implements hascourse_uncleaner_interface {
+abstract class simplesection_base extends uncleaner implements hascourse_uncleaner_interface {
     private static function get_my_format() {
         $class = new ReflectionClass(static::class);
-        $class = $class->getShortName();
-        $format = substr($class, 0, -10); // Remove the '_uncleaner' suffix.
+        $format = $class->getShortName();
         return $format;
     }
 
