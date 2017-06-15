@@ -49,20 +49,4 @@ interface cleanurls_support_interface {
      * @return string          The relative path from the course in which this course module will be accessed.
      */
     public static function get_clean_subpath(stdClass $course, cm_info $cm);
-
-    /**
-     * This method will be called when CleanURLs needs to find the activity (course module) for a given URL.
-     *
-     * When requesting a URL like http://moodle/course/mycourse/subpath1/subpath2 then CleanURLs will:
-     *      1) Resolve the URL until the course 'mycourse'.
-     *      2) Discover the format of 'mycourse' to call this method from.
-     *      3) Pass the subpaths as an array, such as ['subpath1', 'subpath2'].
-     *
-     * It will then expect a course module id (cmid) that was resolved from the path.
-     *
-     * @param stdClass $course The Course being uncleaned.
-     * @param string[] $path   All subpaths in the URL after the course name.
-     * @return int|null The course module id (cmid) translated from that path or null if it cannot be translated.
-     */
-    public static function get_cmid_for_path(stdClass $course, array $path);
 }

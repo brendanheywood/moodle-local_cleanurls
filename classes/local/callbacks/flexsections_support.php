@@ -67,16 +67,4 @@ class flexsections_support implements cleanurls_support_interface {
 
         return implode('/', $path);
     }
-
-    /**
-     * @inheritdoc
-     */
-    public static function get_cmid_for_path(stdClass $course, array $path) {
-        if (count($path) == 0) {
-            return null;
-        }
-        $last = array_pop($path);
-        list($id) = explode('-', $last);
-        return (int)$id;
-    }
 }

@@ -47,14 +47,4 @@ class cleanurls_support implements cleanurls_support_interface {
     public static function get_clean_subpath(stdClass $course, cm_info $cm) {
         return "customurlforforums/My{$cm->id}";
     }
-
-    /**
-     * @inheritdoc
-     */
-    public static function get_cmid_for_path(stdClass $course, array $path) {
-        if (count($path) != 2) {
-            return null;
-        }
-        return (int)substr($path[1], 2);
-    }
 }
