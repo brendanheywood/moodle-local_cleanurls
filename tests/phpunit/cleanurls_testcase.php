@@ -32,7 +32,6 @@ require_once(__DIR__ . '/mocks/external_uncleaner.php');
 require_once(__DIR__ . '/mocks/notuncleanerfakeformat.php');
 require_once(__DIR__ . '/mocks/fakeformat.php');
 require_once(__DIR__ . '/mocks/fakesimplesection.php');
-require_once(__DIR__ . '/mocks/cleanurls_support.php');
 
 /**
  * Testcase for Clean URLs.

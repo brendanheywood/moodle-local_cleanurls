@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a mock format for CleanURLs test.
+ * Provides an interface for adding CleanURLs support.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
@@ -23,28 +23,30 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// We are enforcing a namespace outside cleanurls scope to emulate a format plugin.
-namespace format_cleanurls;
+namespace local_cleanurls\local\cleaner;
 
 use cm_info;
-use local_cleanurls\local\cleaner\cleanurls_support_interface;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * This is a mock format for CleanURLs test.
+ * courseformat_cleaner_interface
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanurls_support implements cleanurls_support_interface {
+interface courseformat_cleaner_interface {
     /**
-     * @inheritdoc
+     * This method will be called when CleanURLs wants to translate an activity (course module) into an URL.
+     *
+     * It will result a subpath which will appear like in a URL such as http://moodle/course/mycourse/subpath
+     *
+     * @param stdClass $course The Course being cleaned.
+     * @param cm_info  $cm     The Course Module being cleaned.
+     * @return string          The relative path from the course in which this course module will be accessed.
      */
-    public static function get_clean_subpath(stdClass $course, cm_info $cm) {
-        return "customurlforforums/My{$cm->id}";
-    }
+    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm);
 }

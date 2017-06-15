@@ -222,7 +222,7 @@ class cleaner {
         // Try using a plugin hook (the plugin defines the behaviour) or a local hook.
         $classname = self::find_format_callback($course->format);
         if (!is_null($classname)) {
-            return '/' . $classname::get_clean_subpath($course, $cm);
+            return '/' . $classname::get_courseformat_clean_subpath($course, $cm);
         }
 
         // Default behaviour.

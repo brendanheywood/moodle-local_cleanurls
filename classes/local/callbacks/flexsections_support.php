@@ -25,7 +25,7 @@ namespace local_cleanurls\local\callbacks;
 
 use cm_info;
 use local_cleanurls\clean_moodle_url;
-use local_cleanurls\local\cleaner\cleanurls_support_interface;
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -38,11 +38,11 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flexsections_support implements cleanurls_support_interface {
+class flexsections_support implements courseformat_cleaner_interface {
     /**
      * @inheritdoc
      */
-    public static function get_clean_subpath(stdClass $course, cm_info $cm) {
+    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
         global $DB;
         $info = get_fast_modinfo($course);
 
