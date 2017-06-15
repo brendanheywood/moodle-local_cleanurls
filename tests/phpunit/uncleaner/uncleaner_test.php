@@ -115,4 +115,24 @@ class local_cleanurls_uncleaner_test extends local_cleanurls_testcase {
         uncleaner::unclean('/local/cleanurls/tests/bar/extra/part');
         $this->assertDebuggingCalled('Could not unclean until the end of address: extra/part', DEBUG_DEVELOPER);
     }
+
+    public function test_it_should_use_cached_version() {
+        $clean = 'http://www.example.com/moodle/a-clean/and-cached/beautiful-url?with=nice%20parameters';
+        $unclean = 'http://www.example.com/moodle/uncleaned/cached.php?nice=para%20meter';
+
+        uncleaner::get_cache()->set($clean, $unclean);
+        $actual = uncleaner::unclean($clean);
+        self::assertSame($unclean, $actual->raw_out());
+    }
+
+    public function test_it_should_cache_after_uncleaning() {
+        $this->getDataGenerator()->create_course(['shortname' => 'shortname']);
+        uncleaner::get_cache()->purge();
+
+        $url = 'http://www.example.com/moodle/course/shortname?param=foo%20bar';
+        $unclean = uncleaner::unclean($url)->raw_out();
+        $cached = uncleaner::get_cache()->get($url);
+
+        self::assertSame($unclean, $cached);
+    }
 }
