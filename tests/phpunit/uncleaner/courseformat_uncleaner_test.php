@@ -29,14 +29,14 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
- * Tests for course format paths.
+ * Tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class courseformat_uncleaner_test extends local_cleanurls_testcase {
+class local_cleanurls_courseformat_uncleaner_test extends local_cleanurls_testcase {
     /**
      * @expectedException \moodle_exception
      */
@@ -61,7 +61,7 @@ class courseformat_uncleaner_test extends local_cleanurls_testcase {
             $uncleaner);
     }
 
-    public function test_it_cannot_create_if_parent_is_not_course() {
+    public function test_it_cannot_create_if_parent_has_no_course() {
         self::assertFalse(courseformat_uncleaner::can_create(new root_uncleaner('/')));
     }
 

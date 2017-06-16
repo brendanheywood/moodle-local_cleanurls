@@ -28,14 +28,14 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
- * Tests for category paths.
+ * Tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class category_uncleaner_test extends local_cleanurls_testcase {
+class local_cleanurls_category_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_can_be_a_category_in_root() {
         $root = new root_uncleaner('/category/abc-123');
         self::assertTrue(category_uncleaner::can_create($root));
@@ -49,24 +49,5 @@ class category_uncleaner_test extends local_cleanurls_testcase {
 
     public function test_it_requires_a_parent() {
         self::assertFalse(category_uncleaner::can_create(null));
-    }
-
-    public function test_it_cleans_category_urls() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/course/index.php?categoryid=' . $category->id,
-                                     'http://www.example.com/moodle/category/category-' . $category->id);
-    }
-
-    public function test_it_cleans_subcategory_urls() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $subcategory = $this->getDataGenerator()->create_category([
-                                                                      'name'   => 'subcategory',
-                                                                      'parent' => $category->id,
-                                                                  ]);
-
-        $url = 'http://www.example.com/moodle/course/index.php?categoryid=' . $subcategory->id;
-        $expected = 'http://www.example.com/moodle/category/category-' . $category->id . '/subcategory-' . $subcategory->id;
-        static::assert_clean_unclean($url, $expected);
     }
 }

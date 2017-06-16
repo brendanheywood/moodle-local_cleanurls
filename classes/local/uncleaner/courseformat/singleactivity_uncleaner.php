@@ -15,94 +15,61 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A class inheriting 'uncleaner' for testing purposes.
- *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_cleanurls\local\uncleaner\courseformat;
+
 use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
+use moodle_url;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Implements uncleaner for tests.
+ * Class singleactivity_uncleaner
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_unittest_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
-    /** @var string[] */
-    public static $childoptions = [];
-
-    /** @var callable */
-    public static $cancreate = null;
-
-    /** @var stdClass */
-    public static $course = null;
-
+class singleactivity_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
     /**
-     * Uses a callback to determine the result, or true
+     * Quick check if this object should be created for the given parent.
      *
      * @param uncleaner $parent
      * @return bool
      */
     public static function can_create($parent) {
-        $callback = self::$cancreate;
+        if (!is_a($parent, hascourse_uncleaner_interface::class)) {
+            return false;
+        }
 
-        if (is_callable($callback)) {
-            return $callback($parent);
+        $format = $parent->get_course()->format;
+        if ($format !== 'singleactivity') {
+            return false;
         }
 
         return true;
     }
 
     /**
-     * @return string[]
-     */
-    public static function list_child_options() {
-        return self::$childoptions;
-    }
-
-    /** @var array */
-    public $options;
-
-    public function __construct($parent = null, $options = []) {
-        $this->options = $options;
-        parent::__construct($parent);
-    }
-
-    protected function prepare_path() {
-        parent::prepare_path();
-
-        if (isset($this->options['subpath'])) {
-            $this->subpath = $this->options['subpath'];
-        }
-    }
-
-    /**
      * @return moodle_url
      */
     public function get_unclean_url() {
-        return new moodle_url('/');
-    }
+        global $DB;
 
-    public function prepare_child() {
-        if (isset($this->options['test_it_may_have_a_child:parent'])) {
-            $this->child = new local_cleanurls_unittest_uncleaner($this, ['test_it_may_have_a_child:child' => true]);
-            return;
-        }
+        $courseid = $this->get_course()->id;
+        $cm = $DB->get_record('course_modules', ['course' => $courseid], 'id,module', MUST_EXIST);
+        $modname = $DB->get_field('modules', 'name', ['id' => $cm->module], MUST_EXIST);
+        $this->parameters['id'] = $cm->id;
 
-        if (isset($this->options['test_it_may_have_a_child:child'])) {
-            return;
-        }
-
-        parent::prepare_child();
+        return new moodle_url("/mod/{$modname}/view.php", $this->parameters);
     }
 
     /**
@@ -111,12 +78,6 @@ class local_cleanurls_unittest_uncleaner extends uncleaner implements hascourse_
      * @return stdClass Course data object.
      */
     public function get_course() {
-        // TODO: Implement get_course() method.
-    }
-
-    public static function reset() {
-        self::$childoptions = [];
-        self::$cancreate = null;
-        self::$course = null;
+        return $this->parent->get_course();
     }
 }

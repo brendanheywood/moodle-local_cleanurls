@@ -35,28 +35,28 @@ require_once(__DIR__ . '/../cleanurls_testcase.php');
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_user_uncleaner_test extends local_cleanurls_testcase {
-    public function test_it_can_be_in_root_after_user_keyword() {
-        $root = new root_uncleaner('/user');
-        self::assertTrue(user_uncleaner::can_create($root));
+class local_cleanurls_user_cleanunclean_test extends local_cleanurls_testcase {
+    public function test_it_cleans_user_in_course() {
+        $user = $this->getDataGenerator()->create_user(
+            ['email' => 'someone@example.com', 'username' => 'theusername']);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/user/view.php?course=1&id=' . $user->id,
+                                     'http://www.example.com/moodle/user/theusername?course=1');
     }
 
-    public function test_it_cannot_have_unexpected_parent() {
-        $parent = new local_cleanurls_unittest_uncleaner();
-        self::assertFalse(user_uncleaner::can_create($parent));
+    public function test_it_cleans_username_in_site_course() {
+        $user = $this->getDataGenerator()->create_user(
+            ['email' => 'someone@example.com', 'username' => 'theusername']);
+
+        static::assert_clean_unclean('http://www.example.com/moodle/user/view.php?course=1&id=' . $user->id,
+                                     'http://www.example.com/moodle/user/theusername?course=1');
     }
 
-    public function test_recognizes_the_username() {
-        $root = new root_uncleaner('/user/username');
-        $user = $root->get_child();
-        self::assertInstanceOf(user_uncleaner::class, $user);
-        self::assertSame('username', $user->get_mypath());
-    }
+    public function test_it_cleans_username_urls() {
+        $user = $this->getDataGenerator()->create_user(
+            ['email' => 'someone@example.com', 'username' => 'theusername']);
 
-    public function test_recognizes_the_subpath() {
-        $root = new root_uncleaner('/user/username/a/b/c');
-        $user = $root->get_child();
-        self::assertInstanceOf(user_uncleaner::class, $user);
-        self::assertSame(['a', 'b', 'c'], $user->get_subpath());
+        static::assert_clean_unclean('http://www.example.com/moodle/user/profile.php?id=' . $user->id,
+                                     'http://www.example.com/moodle/user/theusername');
     }
 }

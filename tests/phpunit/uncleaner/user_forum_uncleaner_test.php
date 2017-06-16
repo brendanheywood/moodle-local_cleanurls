@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
- * Tests for user forum paths.
+ * Tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
@@ -56,21 +56,5 @@ class local_cleanurls_user_forum_uncleaner_test extends local_cleanurls_testcase
         $userforum = $root->get_child()->get_child();
         self::assertInstanceOf(user_forum_uncleaner::class, $userforum);
         self::assertSame('mypath', $userforum->get_mypath());
-    }
-
-    public function test_it_cleans_username() {
-        $user = $this->getDataGenerator()->create_user(
-            ['email' => 'someone@example.com', 'username' => 'theusername']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/user.php?mode=discussions&id=' . $user->id,
-                                     'http://www.example.com/moodle/user/theusername/discussions');
-    }
-
-    public function test_it_cleans_username_in_forum_discussion() {
-        $user = $this->getDataGenerator()->create_user(
-            ['email' => 'someone@example.com', 'username' => 'theusername']);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/user.php?mode=discussions&id=' . $user->id,
-                                     'http://www.example.com/moodle/user/theusername/discussions');
     }
 }

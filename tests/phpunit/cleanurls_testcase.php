@@ -23,12 +23,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\cleaner\cleaner;
+use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/mocks/unittest_uncleaner.php');
 require_once(__DIR__ . '/mocks/external_uncleaner.php');
 require_once(__DIR__ . '/mocks/fakeformat_uncleaner.php');
+require_once(__DIR__ . '/mocks/fakesimplesection_uncleaner.php');
 require_once(__DIR__ . '/mocks/cleanurls_support.php');
 
 /**
@@ -39,7 +41,7 @@ require_once(__DIR__ . '/mocks/cleanurls_support.php');
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_testcase extends advanced_testcase {
+abstract class local_cleanurls_testcase extends advanced_testcase {
     /**
      * Configures and enables Clean URLs.
      *
@@ -66,7 +68,7 @@ class local_cleanurls_testcase extends advanced_testcase {
      */
     public static function assert_clean_unclean($input, $expectedcleaned = null, $expecteduncleaned = null) {
         $inputurl = new moodle_url($input);
-        $clean = clean_moodle_url::clean($inputurl);
+        $clean = cleaner::clean($inputurl);
         self::assertInstanceOf(moodle_url::class, $clean);
         self::assertSame($expectedcleaned, $clean->out(false), 'Failed CLEANING.');
 
@@ -74,7 +76,7 @@ class local_cleanurls_testcase extends advanced_testcase {
             return; // The URL was not cleaned, do not test uncleaning it.
         }
 
-        $unclean = clean_moodle_url::unclean($clean);
+        $unclean = uncleaner::unclean($clean);
         self::assertInstanceOf(moodle_url::class, $unclean);
 
         if (is_null($expecteduncleaned)) {
@@ -94,12 +96,7 @@ class local_cleanurls_testcase extends advanced_testcase {
     protected function setUp() {
         parent::setUp();
         $this->resetAfterTest(true);
+        local_cleanurls_unittest_uncleaner::reset();
         static::enable_cleanurls();
-        static::reset_testuncleaner();
-    }
-
-    private static function reset_testuncleaner() {
-        local_cleanurls_unittest_uncleaner::$childoptions = [];
-        local_cleanurls_unittest_uncleaner::$cancreate = null;
     }
 }

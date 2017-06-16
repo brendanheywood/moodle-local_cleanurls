@@ -21,42 +21,28 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\root_uncleaner;
-use local_cleanurls\local\uncleaner\user_uncleaner;
+namespace local_cleanurls\local\uncleaner;
+
+use moodle_url;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
- * Tests.
+ * Interface hascourse_uncleaner_interface
+ *
+ * Enforces that this uncleaner locate its related course.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_user_uncleaner_test extends local_cleanurls_testcase {
-    public function test_it_can_be_in_root_after_user_keyword() {
-        $root = new root_uncleaner('/user');
-        self::assertTrue(user_uncleaner::can_create($root));
-    }
-
-    public function test_it_cannot_have_unexpected_parent() {
-        $parent = new local_cleanurls_unittest_uncleaner();
-        self::assertFalse(user_uncleaner::can_create($parent));
-    }
-
-    public function test_recognizes_the_username() {
-        $root = new root_uncleaner('/user/username');
-        $user = $root->get_child();
-        self::assertInstanceOf(user_uncleaner::class, $user);
-        self::assertSame('username', $user->get_mypath());
-    }
-
-    public function test_recognizes_the_subpath() {
-        $root = new root_uncleaner('/user/username/a/b/c');
-        $user = $root->get_child();
-        self::assertInstanceOf(user_uncleaner::class, $user);
-        self::assertSame(['a', 'b', 'c'], $user->get_subpath());
-    }
+interface hascourse_uncleaner_interface {
+    /**
+     * Finds the course related to this uncleaner, most likely by getting it from its parent.
+     *
+     * @return stdClass Course data object.
+     */
+    public function get_course();
 }

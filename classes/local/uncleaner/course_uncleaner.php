@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_uncleaner extends uncleaner {
+class course_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
     /**
      * @return string[]
      */
@@ -83,21 +83,34 @@ class course_uncleaner extends uncleaner {
     }
 
     /**
+     * Allow creating child even without subpath (for example singleactivity format).
+     */
+    protected function prepare_child() {
+        $this->child = null;
+
+        $options = static::list_child_options();
+        foreach ($options as $option) {
+            if ($option::can_create($this)) {
+                $this->child = new $option($this);
+                return;
+            }
+        }
+    }
+
+    /**
      * It does not return an URL, it relies on a child instead.
      *
      * @return moodle_url
      */
     public function get_unclean_url() {
-        // TODO: Remove this - Letting old uncleaner handle it for now.
-        if (!empty($this->subpath)) {
-            return null;
-        }
-
         $this->parameters['name'] = $this->get_course_shortname();
         return new moodle_url('/course/view.php', $this->parameters);
     }
 
     public function get_course_shortname() {
+        if (is_null($this->mypath)) {
+            return null;
+        }
         return urldecode($this->mypath);
     }
 
@@ -107,8 +120,13 @@ class course_uncleaner extends uncleaner {
     public function get_course() {
         global $DB;
 
+        $shortname = $this->get_course_shortname();
+        if (is_null($shortname)) {
+            return null;
+        }
+
         if (is_null($this->course)) {
-            $this->course = $DB->get_record('course', ['shortname' => $this->get_course_shortname()]);
+            $this->course = $DB->get_record('course', ['shortname' => $shortname]);
         }
 
         return $this->course;

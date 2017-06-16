@@ -27,7 +27,8 @@ namespace local_cleanurls;
 
 defined('MOODLE_INTERNAL') || die();
 
-use \moodle_url;
+use local_cleanurls\local\cleaner\cleaner;
+use moodle_url;
 
 /**
  * A clean url rewriter
@@ -37,19 +38,17 @@ use \moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class url_rewriter implements \core\output\url_rewriter {
-
     /**
-     * Convert moodle_urls into clean_moodle_urls if possible
+     * Convert moodle_url into clean_moodle_url or returns the original moodle_url if not possible.
      *
      * @param moodle_url $url a url to potentially rewrite
-     * @return moodle_url
+     * @return moodle_url|clean_moodle_url
      */
-    public static function url_rewrite(\moodle_url $url) {
-
+    public static function url_rewrite(moodle_url $url) {
         global $CFG;
 
         if (empty($CFG->upgraderunning)) {
-            return clean_moodle_url::clean($url);
+            return cleaner::clean($url);
         }
 
         return $url;
@@ -59,14 +58,40 @@ class url_rewriter implements \core\output\url_rewriter {
      * Gives a url rewriting plugin a chance to rewrite the current page url
      * avoiding redirects and improving performance.
      *
-     * @return void
+     * @return string
      */
     public static function html_head_setup() {
         global $CFG, $PAGE;
 
         $clean = $PAGE->url->out(false);
         $output = '';
-        $anchorfixjs = <<<HTML
+
+        if (isset($CFG->uncleanedurl)) {
+            // This page came through router uncleaning.
+            $output .= self::get_base_href($CFG->uncleanedurl);
+            $output .= self::get_anchor_fix_javascript($clean);
+        } else {
+            // This page came through its canonical/legacy address (not clean version).
+            $orig = $PAGE->url->raw_out(false);
+            if ($orig != $clean) {
+                // This page URL could have been cleaned up, so do it!
+                $output .= self::get_base_href($orig);
+                $output .= self::get_replacestate_script($clean);
+                $output .= self::get_anchor_fix_javascript($clean);
+                $output .= self::get_link_canonical();
+                self::mark_apache_note($clean);
+            }
+        }
+
+        return $output;
+    }
+
+    /**
+     * @param $clean string
+     * @return string
+     */
+    private static function get_anchor_fix_javascript($clean) {
+        return <<<HTML
 <script>
 document.addEventListener('click', function (event) {
     var element = event.srcElement;
@@ -77,70 +102,74 @@ document.addEventListener('click', function (event) {
         element = element.parentElement;
     }
     if (element.getAttribute('href').charAt(0) == '#') {
-        element.href = '$clean' + element.getAttribute('href');
+        element.href = '{$clean}' + element.getAttribute('href');
     }
 }, true);
 </script>
 HTML;
+    }
 
-        if (isset($CFG->uncleanedurl)) {
+    /**
+     * One issue is that when rewriting urls we change their nesting and depth
+     * which means legacy urls in the codebase which do NOT use moodle_url and
+     * which are also relative links can be broken. To fix this we set the
+     * base href to the original uncleaned url.
+     *
+     * @param $uncleanedurl string
+     * @return string
+     */
+    private static function get_base_href($uncleanedurl) {
+        return "<base href=\"{$uncleanedurl}\">\n";
+    }
 
-            // One issue is that when rewriting urls we change their nesting and depth
-            // which means legacy urls in the codebase which do NOT use moodle_url and
-            // which are also relative links can be broken. To fix this we set the
-            // base href to the original uncleaned url.
-            $output .= "<base href='$CFG->uncleanedurl'>\n";
+    /**
+     * If we have just loaded a legacy url AND we can clean it, instead of
+     * cleaning the url, caching it, and waiting for the user or someone
+     * else to come back again to see the good url, we can use html5
+     * replaceState to fix it imeditately without a page reload.
+     *
+     * Importantly this needs to happen before any JS on the page uses it,
+     * such as any analytics tracking.
+     *
+     * @param $clean string
+     * @return string
+     */
+    private static function get_replacestate_script($clean) {
+        return "<script>history.replaceState && history.replaceState({}, '', '{$clean}');</script>\n";
+    }
 
-            // Use the canonical URL for anchors, not the base href.
-            $output .= $anchorfixjs;
+    /**
+     * Now that each page has two valid urls, we need to tell robots like
+     * GoogleBot that they are the same, otherwise Google may think they
+     * are low quality duplicates and possibly split pagerank between them.
+     *
+     * We specify that the clean one is the 'canonical' url so this is what
+     * will be shown in google search results pages.
+     * @return string
+     */
+    private static function get_link_canonical() {
+        global $PAGE;
 
-        } else {
+        $cleanescaped = $PAGE->url->out(true);
+        return "<link rel=\"canonical\" href=\"{$cleanescaped}\" />\n";
+    }
 
-            $orig = $PAGE->url->raw_out(false);
-            if ($orig != $clean) {
-                // One issue is that when rewriting urls we change their nesting and depth
-                // which means legacy urls in the codebase which do NOT use moodle_url and
-                // which are also relative links can be broken. To fix this we set the
-                // base href to our current uncleaned url.
-                $output .= "<base href='$orig'>\n";
-
-                // If we have just loaded a legacy url AND we can clean it, instead of
-                // cleaning the url, caching it, and waiting for the user or someone
-                // else to come back again to see the good url, we can use html5
-                // replaceState to fix it imeditately without a page reload.
-                //
-                // Importantly this needs to happen before any JS on the page uses it,
-                // such as any analytics tracking.
-                $output .= "<script>history.replaceState && history.replaceState({}, '', '$clean');</script>\n";
-
-                // Use the replaced URL for anchors, not the base href.
-                $output .= $anchorfixjs;
-
-                // Now that each page has two valid urls, we need to tell robots like
-                // GoogleBot that they are the same, otherwise Google may think they
-                // are low quality duplicates and possibly split pagerank between them.
-                //
-                // We specify that the clean one is the 'canonical' url so this is what
-                // will be shown in google search results pages.
-                $cleanescaped = $PAGE->url->out(true);
-                $output .= "<link rel='canonical' href='$cleanescaped' />\n";
-
-                // At this point the url is already clean, so analytics which run in
-                // the page like Google Analytics will only use clean urls and so you
-                // will get nice drill down reports etc. However analytics software
-                // that parses the apache logs will see the raw original url. Worse
-                // it will see some as clean and some as unclean and get inconsistent
-                // data. To workaround this we publish an apache note so that we can
-                // put the clean url into the logs like this:
-                //
-                // LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" ...
-                if (function_exists('apache_note')) {
-                    apache_note('CLEANURL', $clean);
-                }
-
-            }
-
+    /**
+     * At this point the url is already clean, so analytics which run in
+     * the page like Google Analytics will only use clean urls and so you
+     * will get nice drill down reports etc. However analytics software
+     * that parses the apache logs will see the raw original url. Worse
+     * it will see some as clean and some as unclean and get inconsistent
+     * data. To workaround this we publish an apache note so that we can
+     * put the clean url into the logs like this:
+     *
+     * LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" ...
+     *
+     * @param $clean string
+     */
+    private static function mark_apache_note($clean) {
+        if (function_exists('apache_note')) {
+            apache_note('CLEANURL', $clean);
         }
-        return $output;
     }
 }

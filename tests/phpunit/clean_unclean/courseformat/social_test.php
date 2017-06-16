@@ -15,17 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * CleanURLs unit tests.
+ *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\root_uncleaner;
-use local_cleanurls\local\uncleaner\user_uncleaner;
-
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../cleanurls_testcase.php');
+require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
 /**
  * Tests.
@@ -35,28 +34,14 @@ require_once(__DIR__ . '/../cleanurls_testcase.php');
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_user_uncleaner_test extends local_cleanurls_testcase {
-    public function test_it_can_be_in_root_after_user_keyword() {
-        $root = new root_uncleaner('/user');
-        self::assertTrue(user_uncleaner::can_create($root));
-    }
+class local_cleanurls_social_cleanunclean_test extends local_cleanurls_testcase {
+    public function test_it_supports_social_format() {
+        // No special handling for those URLs as it uses the course URL already.
 
-    public function test_it_cannot_have_unexpected_parent() {
-        $parent = new local_cleanurls_unittest_uncleaner();
-        self::assertFalse(user_uncleaner::can_create($parent));
-    }
+        $this->getDataGenerator()->create_course(['shortname' => 'Social', 'format' => 'social']);
 
-    public function test_recognizes_the_username() {
-        $root = new root_uncleaner('/user/username');
-        $user = $root->get_child();
-        self::assertInstanceOf(user_uncleaner::class, $user);
-        self::assertSame('username', $user->get_mypath());
-    }
-
-    public function test_recognizes_the_subpath() {
-        $root = new root_uncleaner('/user/username/a/b/c');
-        $user = $root->get_child();
-        self::assertInstanceOf(user_uncleaner::class, $user);
-        self::assertSame(['a', 'b', 'c'], $user->get_subpath());
+        $url = 'http://www.example.com/moodle/course/view.php?name=Social';
+        $expected = 'http://www.example.com/moodle/course/Social';
+        static::assert_clean_unclean($url, $expected);
     }
 }

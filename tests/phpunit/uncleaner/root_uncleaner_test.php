@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
- * Tests for flexsections_support.
+ * Tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
@@ -134,9 +134,10 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         self::assertSame('', $root->get_mypath());
     }
 
-    public function test_it_never_uncleans() {
-        $root = new root_uncleaner('/');
-        self::assertNull($root->get_unclean_url());
+    public function test_it_uses_the_original_url_if_tries_to_unclean() {
+        $root = new root_uncleaner('/abcdef');
+        $expected = 'http://www.example.com/moodle/abcdef';
+        self::assertSame($expected, $root->get_unclean_url()->out());
     }
 
     public function test_it_has_some_child_options() {

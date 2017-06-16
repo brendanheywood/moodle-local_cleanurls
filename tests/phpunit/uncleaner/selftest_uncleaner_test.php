@@ -28,14 +28,14 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
- * Tests for selftest paths.
+ * Tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class selftest_uncleaner_test extends local_cleanurls_testcase {
+class local_cleanurls_selftest_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_can_create() {
         $parent = new root_uncleaner('/local/cleanurls/tests/bar');
         $cancreate = selftest_uncleaner::can_create($parent);
@@ -69,29 +69,5 @@ class selftest_uncleaner_test extends local_cleanurls_testcase {
 
         self::assertInstanceOf(selftest_uncleaner::class, $selftest);
         self::assertSame(['a', 'b', 'c'], $selftest->get_subpath());
-    }
-
-    public function test_it_always_cleans_the_test_url() {
-        // Test with cleaning on.
-        set_config('cleaningon', true, 'local_cleanurls');
-        static::assert_clean_unclean('/local/cleanurls/tests/foo.php',
-                                     'http://www.example.com/moodle/local/cleanurls/tests/bar');
-
-        // Test with cleaning off.
-        set_config('cleaningon', false, 'local_cleanurls');
-        static::assert_clean_unclean('/local/cleanurls/tests/foo.php',
-                                     'http://www.example.com/moodle/local/cleanurls/tests/bar');
-    }
-
-    public function test_it_always_cleans_the_webservice_test() {
-        // Test with cleaning on.
-        set_config('cleaningon', true, 'local_cleanurls');
-        static::assert_clean_unclean('/local/cleanurls/tests/foo.php',
-                                     'http://www.example.com/moodle/local/cleanurls/tests/bar');
-
-        // Test with cleaning off.
-        set_config('cleaningon', false, 'local_cleanurls');
-        static::assert_clean_unclean('/local/cleanurls/tests/webserver/index.php',
-                                     'http://www.example.com/moodle/local/cleanurls/tests/webcheck');
     }
 }

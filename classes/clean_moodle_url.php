@@ -25,8 +25,6 @@
 
 namespace local_cleanurls;
 
-use local_cleanurls\local\uncleaner\root_uncleaner;
-use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -40,7 +38,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class clean_moodle_url extends moodle_url {
-
     public static function extract_moodle_path(&$path, &$moodlepath) {
         global $CFG;
 
@@ -87,42 +84,11 @@ class clean_moodle_url extends moodle_url {
     }
 
     /**
-     * Forwards the call to the cleaner class.
+     * Provides a setter not available in the parent class.
      *
-     * @param moodle_url $orig
-     * @return moodle_url
+     * @param string $path
      */
-    public static function clean(moodle_url $orig) {
-        return cleaner::clean($orig);
-    }
-
-    /**
-     * Forwards the call to the uncleaner class.
-     *
-     * @param string|moodle_url $clean
-     * @return moodle_url
-     */
-    public static function unclean($clean) {
-        return uncleaner::unclean($clean);
-    }
-
     public function set_path($path) {
         $this->path = $path;
-    }
-
-    public static function find_format_callback($format) {
-        // TODO delete me after removing old uncleaner.
-
-        $classname = "\\format_{$format}\\cleanurls_support";
-        if (class_exists($classname)) {
-            return $classname;
-        }
-
-        $classname = "\\local_cleanurls\\local\\callbacks\\{$format}_support";
-        if (class_exists($classname)) {
-            return $classname;
-        }
-
-        return null;
     }
 }

@@ -24,6 +24,7 @@
 namespace local_cleanurls\local\uncleaner;
 
 use moodle_url;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class coursemodule_uncleaner extends uncleaner {
+class coursemodule_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
     /**
      * Quick check if this object should be created for the given parent.
      *
@@ -45,7 +46,7 @@ class coursemodule_uncleaner extends uncleaner {
     public static function can_create($parent) {
         global $CFG;
 
-        if (!is_a($parent, uncleaner::class)) {
+        if (!is_a($parent, hascourse_uncleaner_interface::class)) {
             return false;
         }
 
@@ -104,11 +105,20 @@ class coursemodule_uncleaner extends uncleaner {
 
         if (is_null($this->cmid)) {
             $path = "/mod/{$this->modname}/index.php";
-            $this->parameters['id'] = $this->parent->get_course_id();
+            $this->parameters['id'] = $this->get_course()->id;
         } else {
             $path = "/mod/{$this->modname}/view.php";
             $this->parameters['id'] = $this->cmid;
         }
         return new moodle_url($path, $this->parameters);
+    }
+
+    /**
+     * Finds the course related to this uncleaner, most likely by getting it from its parent.
+     *
+     * @return stdClass Course data object.
+     */
+    public function get_course() {
+        return $this->parent->get_course();
     }
 }

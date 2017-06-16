@@ -31,6 +31,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\local\uncleaner\uncleaner;
+
 require('../../config.php');
 
 global $CFG, $ME;
@@ -38,7 +40,7 @@ global $CFG, $ME;
 $path = required_param('q', PARAM_RAW); // TODO should use PARAM_SAFEPATH instead?
 local_cleanurls\clean_moodle_url::log("Router: \$_GET: '".$path."'");
 $unclean = $CFG->wwwroot . '/' . ltrim($path, '/');
-$url = local_cleanurls\clean_moodle_url::unclean($unclean);
+$url = uncleaner::unclean($unclean);
 
 foreach ($url->params() as $k => $v) {
     $v = str_replace('+', ' ', $v);

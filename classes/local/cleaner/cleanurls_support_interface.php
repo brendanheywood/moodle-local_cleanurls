@@ -23,7 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls;
+namespace local_cleanurls\local\cleaner;
 
 use cm_info;
 use stdClass;

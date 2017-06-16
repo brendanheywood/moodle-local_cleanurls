@@ -30,14 +30,14 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
- * Tests for urlparser.
+ * Tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_urlparser_test extends local_cleanurls_testcase {
+class local_cleanurls_uncleaner_test extends local_cleanurls_testcase {
     public function test_it_exists() {
         self::assertTrue(class_exists('\local_cleanurls\local\uncleaner\uncleaner'));
     }
