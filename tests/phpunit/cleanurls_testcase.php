@@ -27,6 +27,8 @@ use local_cleanurls\clean_moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/mocks/unittest_uncleaner.php');
+require_once(__DIR__ . '/mocks/external_uncleaner.php');
+require_once(__DIR__ . '/mocks/fakeformat_uncleaner.php');
 require_once(__DIR__ . '/mocks/cleanurls_support.php');
 
 /**
