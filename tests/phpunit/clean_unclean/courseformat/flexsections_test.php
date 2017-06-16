@@ -35,6 +35,7 @@
 
 use local_cleanurls\local\courseformat\flexsections;
 use local_cleanurls\local\uncleaner\root_uncleaner;
+use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -157,6 +158,16 @@ class local_cleanurls_flexsections_support_test extends advanced_testcase {
         $expected = 'http://www.example.com/moodle/course/mycourse/topic-1/topic-2/topic-6/' .
                     "{$this->forums[6]->cmid}-forum-6";
         local_cleanurls_testcase::assert_clean_unclean($url, $expected);
+    }
+
+    public function test_it_uncleans_at_course_level() {
+        $this->create_course();
+
+        $clean = 'http://www.example.com/moodle/course/mycourse';
+        $unclean = uncleaner::unclean($clean);
+
+        $expected = 'http://www.example.com/moodle/course/view.php?name=mycourse';
+        self::assertSame($expected, $unclean->raw_out());
     }
 
     protected function create_course($options = []) {

@@ -58,6 +58,11 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
             return false;
         }
 
+        // Parent (course) must have subpath, otherwise we are at course level.
+        if (count($parent->get_subpath()) == 0) {
+            return false;
+        }
+
         return true;
     }
 
