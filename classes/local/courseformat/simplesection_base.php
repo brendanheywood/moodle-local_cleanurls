@@ -51,14 +51,13 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         return $format;
     }
 
-    public static function find_section_by_slug($courseid, $sectionslug) {
-        global $DB;
-
-        $sections = $DB->get_records('course_sections', ['course' => $courseid]);
-        foreach ($sections as $section) {
-            $slug = clean_moodle_url::sluggify($section->name, false);
+    public static function find_section_by_slug($course, $sectionslug) {
+        $cminfo = get_fast_modinfo($course);
+        foreach (array_keys($cminfo->sections) as $sectionnum) {
+            $name = get_section_name($course, $sectionnum);
+            $slug = clean_moodle_url::sluggify($name, false);
             if ($slug == $sectionslug) {
-                return $section;
+                return $name;
             }
         }
 
@@ -110,7 +109,7 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         $section = array_shift($this->subpath);
         $coursemodule = array_shift($this->subpath);
 
-        $this->section = self::find_section_by_slug($this->get_course()->id, $section);
+        $this->section = self::find_section_by_slug($this->get_course(), $section);
 
         list($cmid) = explode('-', $coursemodule);
         $this->cmid = (int)$cmid;
@@ -158,9 +157,7 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
      * @return string          The relative path from the course in which this course module will be accessed.
      */
     public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
-        global $DB;
-
-        $section = $DB->get_field('course_sections', 'name', ['id' => $cm->section], MUST_EXIST);
+        $section = get_section_name($course, $cm->sectionnum);
         $section = clean_moodle_url::sluggify($section, false);
 
         $title = clean_moodle_url::sluggify($cm->name, true);
