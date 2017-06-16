@@ -151,16 +151,20 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
     }
 
     /**
-     * This method will be called when CleanURLs wants to translate an activity (course module) into an URL.
-     *
-     * It will result a subpath which will appear like in a URL such as http://moodle/course/mycourse/subpath
+     * Adds the section name followed by the activity slug.
      *
      * @param stdClass $course The Course being cleaned.
      * @param cm_info  $cm     The Course Module being cleaned.
      * @return string          The relative path from the course in which this course module will be accessed.
      */
     public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
-        // TODO: Implement get_courseformat_clean_subpath() method.
-        return null;
+        global $DB;
+
+        $section = $DB->get_field('course_sections', 'name', ['id' => $cm->section], MUST_EXIST);
+        $section = clean_moodle_url::sluggify($section, false);
+
+        $title = clean_moodle_url::sluggify($cm->name, true);
+
+        return "{$section}/{$cm->id}{$title}";
     }
 }

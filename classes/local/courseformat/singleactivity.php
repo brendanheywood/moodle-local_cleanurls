@@ -84,16 +84,13 @@ class singleactivity extends uncleaner implements hascourse_uncleaner_interface,
     }
 
     /**
-     * This method will be called when CleanURLs wants to translate an activity (course module) into an URL.
-     *
-     * It will result a subpath which will appear like in a URL such as http://moodle/course/mycourse/subpath
+     * Single Activities do not add anything to the URL, they use the Course URL.
      *
      * @param stdClass $course The Course being cleaned.
      * @param cm_info  $cm     The Course Module being cleaned.
      * @return string          The relative path from the course in which this course module will be accessed.
      */
     public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
-        // TODO: Implement get_courseformat_clean_subpath() method.
-        return null;
+        return '';
     }
 }
