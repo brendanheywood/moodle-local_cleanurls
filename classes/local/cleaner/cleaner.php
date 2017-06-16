@@ -328,7 +328,7 @@ class cleaner {
 
     private function create_cleaned_url() {
         // Add back moodle path.
-        $this->path = $this->moodlepath . '/' . trim($this->path, '/');
+        $this->path = $this->moodlepath . '/' . ltrim($this->path, '/');
 
         // URL was not rewritten.
         if ($this->path == $this->originalpath) {

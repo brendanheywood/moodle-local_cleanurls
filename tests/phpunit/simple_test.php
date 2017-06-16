@@ -167,7 +167,7 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $url = 'http://www.example.com/moodle/course/index.php?foo=bar#hash';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course?foo=bar#hash', $clean, "Clean: Remove index");
+        $this->assertEquals('http://www.example.com/moodle/course/?foo=bar#hash', $clean, "Clean: Remove index");
 
         $url = 'http://www.example.com/moodle/admin/settings.php?section=local_cleanurls';
         $murl = new moodle_url($url);
@@ -193,7 +193,7 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $url = 'http://www.example.com/moodle/course/index.php';
         $murl = new moodle_url($url);
         $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/course', $clean, "Clean: index.php off url");
+        $this->assertEquals('http://www.example.com/moodle/course/', $clean, "Clean: index.php off url");
 
         // Nothing to unclean because these urls will get routed directly by apache not router.php.
 

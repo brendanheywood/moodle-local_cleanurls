@@ -41,7 +41,7 @@ class local_cleanurls_simpleactivity_cleanunclean_test extends local_cleanurls_t
         $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'name' => 'The Single Forum']);
 
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $forum->cmid;
-        $expected = 'http://www.example.com/moodle/course/SingleActivity';
+        $expected = 'http://www.example.com/moodle/course/SingleActivity/';
         static::assert_clean_unclean($url, $expected);
     }
 
