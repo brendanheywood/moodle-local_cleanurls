@@ -176,7 +176,6 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
     }
 
     public function test_it_should_use_a_cache() {
-        $this->markTestSkipped('improve test');
         $url = 'http://www.example.com/moodle/cache/test.php';
         $cached = 'http://www.example.com/moodle/cachedurl.php';
 
