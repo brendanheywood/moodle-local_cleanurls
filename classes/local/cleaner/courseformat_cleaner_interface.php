@@ -30,6 +30,9 @@ use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once($CFG->dirroot . '/course/lib.php');
+
 /**
  * courseformat_cleaner_interface
  *
