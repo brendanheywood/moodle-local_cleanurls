@@ -76,7 +76,7 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         self::assertInstanceOf(fakesimplesection::class, $format);
         self::assertSame("custom-section/{$forum->cmid}-forum-first-section", $format->get_mypath(), 'Invalid mypath.');
         self::assertSame(['sub', 'path'], $format->get_subpath(), 'Invalid subpath.');
-        self::assertSame('Custom Section', $format->get_section()->name, 'Invalid section.');
+        self::assertSame('Custom Section', $format->get_section(), 'Invalid section.');
         self::assertSame($forum->cmid, $format->get_cmid(), 'Invalid cmid.');
     }
 
