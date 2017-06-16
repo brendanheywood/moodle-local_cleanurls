@@ -23,6 +23,7 @@
 
 namespace local_cleanurls\local\uncleaner;
 
+use local_cleanurls\clean_moodle_url;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -52,7 +53,7 @@ class courseformat_uncleaner extends uncleaner implements hascourse_uncleaner_in
     }
 
     protected function prepare_child() {
-        $format = self::get_format_uncleaner($this->get_course()->format);
+        $format = clean_moodle_url::get_format_support($this->get_course()->format);
         $this->child = new $format($this);
     }
 
@@ -77,7 +78,7 @@ class courseformat_uncleaner extends uncleaner implements hascourse_uncleaner_in
             return false;
         }
 
-        $cleaner = self::get_format_uncleaner($course->format);
+        $cleaner = clean_moodle_url::get_format_support($course->format);
         if (!is_a($cleaner, uncleaner::class, true)) {
             return false;
         }
@@ -85,26 +86,6 @@ class courseformat_uncleaner extends uncleaner implements hascourse_uncleaner_in
         // Note we are passing the parent to ask if we can create,
         // but if we can we are going to pass 'this' as parent instead.
         return $cleaner::can_create($parent);
-    }
-
-    /**
-     * Locates the class that should handle the course format.
-     *
-     * @param string $format
-     * @return string
-     */
-    public static function get_format_uncleaner($format) {
-        $classname = "\\format_{$format}\\cleanurls_uncleaner";
-        if (class_exists($classname)) {
-            return $classname;
-        }
-
-        $classname = "\\local_cleanurls\\local\\uncleaner\\courseformat\\{$format}_uncleaner";
-        if (class_exists($classname)) {
-            return $classname;
-        }
-
-        return null;
     }
 
     /**

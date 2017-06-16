@@ -24,9 +24,12 @@
  */
 
 // Add it to the following namespace, require is needed as it is not the correct autoloader path.
-namespace local_cleanurls\local\uncleaner\courseformat;
+namespace local_cleanurls\local\courseformat;
 
+use cm_info;
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
 use local_cleanurls_unittest_uncleaner;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,5 +41,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class fakeformat_uncleaner extends local_cleanurls_unittest_uncleaner {
+class fakeformat extends local_cleanurls_unittest_uncleaner implements courseformat_cleaner_interface {
+    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+        return null;
+    }
 }

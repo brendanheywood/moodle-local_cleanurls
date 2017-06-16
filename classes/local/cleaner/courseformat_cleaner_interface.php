@@ -15,23 +15,38 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package     local_cleanurls
- * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
- * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace local_cleanurls\local\uncleaner\courseformat;
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Class weeks_uncleaner
+ * Provides an interface for adding CleanURLs support.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class weeks_uncleaner extends simplesection_uncleaner_base {
+
+namespace local_cleanurls\local\cleaner;
+
+use cm_info;
+use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * courseformat_cleaner_interface
+ *
+ * @package     local_cleanurls
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+interface courseformat_cleaner_interface {
+    /**
+     * This method will be called when CleanURLs wants to translate an activity (course module) into an URL.
+     *
+     * It will result a subpath which will appear like in a URL such as http://moodle/course/mycourse/subpath
+     *
+     * @param stdClass $course The Course being cleaned.
+     * @param cm_info  $cm     The Course Module being cleaned.
+     * @return string          The relative path from the course in which this course module will be accessed.
+     */
+    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm);
 }

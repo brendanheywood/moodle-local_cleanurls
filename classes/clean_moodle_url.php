@@ -25,6 +25,8 @@
 
 namespace local_cleanurls;
 
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
+use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -90,5 +92,33 @@ class clean_moodle_url extends moodle_url {
      */
     public function set_path($path) {
         $this->path = $path;
+    }
+
+    /**
+     * Locates the class that should handle the course format cleaner and uncleaner.
+     *
+     * @param string $format
+     * @return string
+     */
+    public static function get_format_support($format) {
+        $classname = "\\format_{$format}\\cleanurls_uncleaner";
+        if (!class_exists($classname)) {
+            $classname = "\\local_cleanurls\\local\\courseformat\\{$format}";
+            if (!class_exists($classname)) {
+                return null;
+            }
+        }
+
+        if (!is_a($classname, uncleaner::class, true)) {
+            debugging("Class '{$classname}' must inherit uncleaner.");
+            return null;
+        }
+
+        if (!is_a($classname, courseformat_cleaner_interface::class, true)) {
+            debugging("Class '{$classname}' must implement courseformat_cleaner_interface.");
+            return null;
+        }
+
+        return $classname;
     }
 }

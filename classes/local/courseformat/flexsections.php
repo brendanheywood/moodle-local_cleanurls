@@ -21,10 +21,11 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\uncleaner\courseformat;
+namespace local_cleanurls\local\courseformat;
 
 use cm_info;
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
 use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
@@ -40,7 +41,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flexsections_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
+class flexsections extends uncleaner implements hascourse_uncleaner_interface, courseformat_cleaner_interface {
     /**
      * Quick check if this object should be created for the given parent.
      *
@@ -230,5 +231,34 @@ class flexsections_uncleaner extends uncleaner implements hascourse_uncleaner_in
         // Too bad, put back the section path before failing.
         array_unshift($this->subpath, $sectionpath);
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+        global $DB;
+        $info = get_fast_modinfo($course);
+
+        // Create section path.
+        $sectionnum = $cm->sectionnum;
+        $path = [];
+        while ($sectionnum) {
+            $sectionid = $info->get_section_info($sectionnum)->id;
+            $slug = clean_moodle_url::sluggify(get_section_name($course, $sectionnum), false);
+            array_unshift($path, $slug);
+            $sectionnum = $DB->get_field('course_format_options', 'value', [
+                'courseid'  => $course->id,
+                'format'    => 'flexsections',
+                'sectionid' => $sectionid,
+                'name'      => 'parent',
+            ]);
+        }
+
+        // Add activity path.
+        $title = clean_moodle_url::sluggify($cm->name, true);
+        $path[] = "{$cm->id}{$title}";
+
+        return implode('/', $path);
     }
 }

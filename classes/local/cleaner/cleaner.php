@@ -210,49 +210,15 @@ class cleaner {
     }
 
     private function clean_course_module_view_format(stdClass $course, cm_info $cm) {
-        // Hardcoded cleaning for known course formats.
-        switch ($course->format) {
-            case 'singleactivity':
-                return '';
-            case 'topics':
-            case 'weeks':
-                return $this->clean_course_module_view_format_simple_section($cm);
-        }
-
-        // Try using a plugin hook (the plugin defines the behaviour) or a local hook.
-        $classname = self::find_format_callback($course->format);
+        // Try to find a clean handler for the course format.
+        $classname = clean_moodle_url::get_format_support($course->format);
         if (!is_null($classname)) {
-            return '/' . $classname::get_clean_subpath($course, $cm);
+            return '/' . $classname::get_courseformat_clean_subpath($course, $cm);
         }
 
         // Default behaviour.
         $title = clean_moodle_url::sluggify($cm->name, true);
         return "/{$cm->modname}/{$cm->id}{$title}";
-    }
-
-    private static function find_format_callback($format) {
-        $classname = "\\format_{$format}\\cleanurls_support";
-        if (class_exists($classname)) {
-            return $classname;
-        }
-
-        $classname = "\\local_cleanurls\\local\\callbacks\\{$format}_support";
-        if (class_exists($classname)) {
-            return $classname;
-        }
-
-        return null;
-    }
-
-    private function clean_course_module_view_format_simple_section(cm_info $cm) {
-        global $DB;
-
-        $section = $DB->get_field('course_sections', 'name', ['id' => $cm->section], MUST_EXIST);
-        $section = clean_moodle_url::sluggify($section, false);
-
-        $title = clean_moodle_url::sluggify($cm->name, true);
-
-        return "/{$section}/{$cm->id}{$title}";
     }
 
     private function clean_course_modules($mod) {
@@ -362,7 +328,7 @@ class cleaner {
 
     private function create_cleaned_url() {
         // Add back moodle path.
-        $this->path = $this->moodlepath.$this->path;
+        $this->path = $this->moodlepath . '/' . trim($this->path, '/');
 
         // URL was not rewritten.
         if ($this->path == $this->originalpath) {

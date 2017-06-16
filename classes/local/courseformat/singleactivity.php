@@ -21,8 +21,10 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\uncleaner\courseformat;
+namespace local_cleanurls\local\courseformat;
 
+use cm_info;
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
 use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
@@ -38,7 +40,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class singleactivity_uncleaner extends uncleaner implements hascourse_uncleaner_interface {
+class singleactivity extends uncleaner implements hascourse_uncleaner_interface, courseformat_cleaner_interface {
     /**
      * Quick check if this object should be created for the given parent.
      *
@@ -79,5 +81,16 @@ class singleactivity_uncleaner extends uncleaner implements hascourse_uncleaner_
      */
     public function get_course() {
         return $this->parent->get_course();
+    }
+
+    /**
+     * Single Activities do not add anything to the URL, they use the Course URL.
+     *
+     * @param stdClass $course The Course being cleaned.
+     * @param cm_info  $cm     The Course Module being cleaned.
+     * @return string          The relative path from the course in which this course module will be accessed.
+     */
+    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+        return '';
     }
 }

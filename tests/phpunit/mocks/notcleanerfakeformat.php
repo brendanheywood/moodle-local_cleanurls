@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a mock format for CleanURLs test.
+ * This is a mock format for CleanURLs uncleaner tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
@@ -23,38 +23,24 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// We are enforcing a namespace outside cleanurls scope to emulate a format plugin.
-namespace format_cleanurls;
+// Add it to the following namespace, require is needed as it is not the correct autoloader path.
+namespace local_cleanurls\local\courseformat;
 
-use cm_info;
-use local_cleanurls\local\cleaner\cleanurls_support_interface;
-use stdClass;
+use local_cleanurls\local\uncleaner\uncleaner;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * This is a mock format for CleanURLs test.
+ * This is a mock format for CleanURLs uncleaner tests.
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanurls_support implements cleanurls_support_interface {
-    /**
-     * @inheritdoc
-     */
-    public static function get_clean_subpath(stdClass $course, cm_info $cm) {
-        return "customurlforforums/My{$cm->id}";
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function get_cmid_for_path(stdClass $course, array $path) {
-        if (count($path) != 2) {
-            return null;
-        }
-        return (int)substr($path[1], 2);
+class notcleanerfakeformat extends uncleaner {
+    public function get_unclean_url() {
+        return null;
     }
 }

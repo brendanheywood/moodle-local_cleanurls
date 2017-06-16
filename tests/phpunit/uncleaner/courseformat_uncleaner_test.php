@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\uncleaner\courseformat\fakeformat_uncleaner;
+use local_cleanurls\local\courseformat\fakeformat;
 use local_cleanurls\local\uncleaner\courseformat_uncleaner;
 use local_cleanurls\local\uncleaner\root_uncleaner;
 
@@ -42,23 +42,6 @@ class local_cleanurls_courseformat_uncleaner_test extends local_cleanurls_testca
      */
     public function test_it_cannot_know_its_possible_children() {
         courseformat_uncleaner::list_child_options();
-    }
-
-    public function test_it_cannot_detect_format_uncleaner_if_no_implementation_found() {
-        $uncleaner = courseformat_uncleaner::get_format_uncleaner('an-invalid-format');
-        self::assertNull($uncleaner);
-    }
-
-    public function test_it_can_detect_an_externally_coded_uncleaner() {
-        $uncleaner = courseformat_uncleaner::get_format_uncleaner('cleanurlsfakeformat');
-        self::assertSame('\format_cleanurlsfakeformat\cleanurls_uncleaner', $uncleaner);
-    }
-
-    public function test_it_can_detect_an_internally_coded_uncleaner() {
-        $uncleaner = courseformat_uncleaner::get_format_uncleaner('fakeformat');
-        self::assertSame(
-            '\local_cleanurls\local\uncleaner\courseformat\fakeformat_uncleaner',
-            $uncleaner);
     }
 
     public function test_it_cannot_create_if_parent_has_no_course() {
@@ -157,6 +140,6 @@ class local_cleanurls_courseformat_uncleaner_test extends local_cleanurls_testca
         $format = $course->get_child();
         $fakeformat = $format->get_child();
 
-        self::assertInstanceOf(fakeformat_uncleaner::class, $fakeformat);
+        self::assertInstanceOf(fakeformat::class, $fakeformat);
     }
 }

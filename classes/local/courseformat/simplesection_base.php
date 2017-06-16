@@ -21,9 +21,11 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls\local\uncleaner\courseformat;
+namespace local_cleanurls\local\courseformat;
 
+use cm_info;
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
 use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
@@ -42,11 +44,10 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class simplesection_uncleaner_base extends uncleaner implements hascourse_uncleaner_interface {
+abstract class simplesection_base extends uncleaner implements hascourse_uncleaner_interface, courseformat_cleaner_interface {
     private static function get_my_format() {
         $class = new ReflectionClass(static::class);
-        $class = $class->getShortName();
-        $format = substr($class, 0, -10); // Remove the '_uncleaner' suffix.
+        $format = $class->getShortName();
         return $format;
     }
 
@@ -147,5 +148,23 @@ abstract class simplesection_uncleaner_base extends uncleaner implements hascour
      */
     public function get_course() {
         return $this->parent->get_course();
+    }
+
+    /**
+     * Adds the section name followed by the activity slug.
+     *
+     * @param stdClass $course The Course being cleaned.
+     * @param cm_info  $cm     The Course Module being cleaned.
+     * @return string          The relative path from the course in which this course module will be accessed.
+     */
+    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+        global $DB;
+
+        $section = $DB->get_field('course_sections', 'name', ['id' => $cm->section], MUST_EXIST);
+        $section = clean_moodle_url::sluggify($section, false);
+
+        $title = clean_moodle_url::sluggify($cm->name, true);
+
+        return "{$section}/{$cm->id}{$title}";
     }
 }
