@@ -25,6 +25,8 @@
 
 namespace local_cleanurls;
 
+use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
+use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -38,7 +40,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class clean_moodle_url extends moodle_url {
-
     public static function extract_moodle_path(&$path, &$moodlepath) {
         global $CFG;
 
@@ -85,26 +86,39 @@ class clean_moodle_url extends moodle_url {
     }
 
     /**
-     * Forwards the call to the cleaner class.
+     * Provides a setter not available in the parent class.
      *
-     * @param moodle_url $orig
-     * @return moodle_url
+     * @param string $path
      */
-    public static function clean(moodle_url $orig) {
-        return cleaner::clean($orig);
+    public function set_path($path) {
+        $this->path = $path;
     }
 
     /**
-     * Forwards the call to the uncleaner class.
+     * Locates the class that should handle the course format cleaner and uncleaner.
      *
-     * @param string $clean
-     * @return moodle_url
+     * @param string $format
+     * @return string
      */
-    public static function unclean($clean) {
-        return uncleaner::unclean($clean);
-    }
+    public static function get_format_support($format) {
+        $classname = "\\format_{$format}\\cleanurls_uncleaner";
+        if (!class_exists($classname)) {
+            $classname = "\\local_cleanurls\\local\\courseformat\\{$format}";
+            if (!class_exists($classname)) {
+                return null;
+            }
+        }
 
-    public function set_path($path) {
-        $this->path = $path;
+        if (!is_a($classname, uncleaner::class, true)) {
+            debugging("Class '{$classname}' must inherit uncleaner.");
+            return null;
+        }
+
+        if (!is_a($classname, courseformat_cleaner_interface::class, true)) {
+            debugging("Class '{$classname}' must implement courseformat_cleaner_interface.");
+            return null;
+        }
+
+        return $classname;
     }
 }

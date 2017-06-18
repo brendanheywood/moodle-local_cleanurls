@@ -15,18 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Cache definitions to store cleaned url mapping.
- *
- * @package    local_cleanurls
- * @author     Brendan Heywood <brendan@catalyst-au.net>
- * @copyright  Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     local_cleanurls
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace local_cleanurls\local\courseformat;
 
 defined('MOODLE_INTERNAL') || die();
 
-$definitions = [
-    'outgoing'   => ['mode' => cache_store::MODE_APPLICATION],
-    'uncleaning' => ['mode' => cache_store::MODE_APPLICATION],
-];
-
+/**
+ * Class topics_uncleaner
+ *
+ * @package     local_cleanurls
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class topics extends simplesection_base {
+}

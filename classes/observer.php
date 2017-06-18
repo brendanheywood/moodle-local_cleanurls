@@ -25,6 +25,10 @@
 
 namespace local_cleanurls;
 
+use cache;
+use core\event\course_updated;
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -36,18 +40,16 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class observer {
-
     /**
      * Triggered via course_updated event.
      *
-     * @param \core\event\course_updated $event
+     * @param course_updated $event
      */
-    public static function course_updated(\core\event\course_updated $event) {
+    public static function course_updated(course_updated $event) {
         $courseid = $event->get_data()['objectid'];
-        $url = new \moodle_url('/course/view.php', array('id' => $courseid));
-        $cache = \cache::make('local_cleanurls', 'outgoing');
+        $url = new moodle_url('/course/view.php', array('id' => $courseid));
+        $cache = cache::make('local_cleanurls', 'outgoing');
         $cache->delete($url->raw_out(false));
     }
-
 }
 

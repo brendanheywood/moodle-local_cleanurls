@@ -23,10 +23,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_cleanurls;
+namespace local_cleanurls\local\cleaner;
 
 use cache;
 use cache_application;
+use cm_info;
+use local_cleanurls\clean_moodle_url;
 use moodle_url;
 use stdClass;
 
@@ -118,6 +120,11 @@ class cleaner {
             $this->cleanedurl = new clean_moodle_url('/local/cleanurls/tests/bar');
             return true;
         }
+        if (substr($this->originalpath, -42) == '/local/cleanurls/tests/webserver/index.php') {
+            clean_moodle_url::log("Rewrite test url");
+            $this->cleanedurl = new clean_moodle_url('/local/cleanurls/tests/webcheck');
+            return true;
+        }
         return false;
     }
 
@@ -189,10 +196,10 @@ class cleaner {
         $id = $this->params['id'];
         list($course, $cm) = get_course_and_cm_from_cmid($id, $mod);
 
-        $title = clean_moodle_url::sluggify($cm->name, true);
+        $subpath = $this->clean_course_module_view_format($course, $cm);
         $shortname = urlencode($course->shortname);
+        $newpath = "/course/{$shortname}{$subpath}";
 
-        $newpath = "/course/{$shortname}/{$mod}/{$id}{$title}";
         if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
             unset($this->params['id']);
@@ -200,6 +207,18 @@ class cleaner {
         }
 
         return true;
+    }
+
+    private function clean_course_module_view_format(stdClass $course, cm_info $cm) {
+        // Try to find a clean handler for the course format.
+        $classname = clean_moodle_url::get_format_support($course->format);
+        if (!is_null($classname)) {
+            return '/' . $classname::get_courseformat_clean_subpath($course, $cm);
+        }
+
+        // Default behaviour.
+        $title = clean_moodle_url::sluggify($cm->name, true);
+        return "/{$cm->modname}/{$cm->id}{$title}";
     }
 
     private function clean_course_modules($mod) {
@@ -309,7 +328,7 @@ class cleaner {
 
     private function create_cleaned_url() {
         // Add back moodle path.
-        $this->path = $this->moodlepath.$this->path;
+        $this->path = $this->moodlepath . '/' . ltrim($this->path, '/');
 
         // URL was not rewritten.
         if ($this->path == $this->originalpath) {
