@@ -58,6 +58,7 @@ class webserver_tester {
             new webtest_simple_parameters(),
             new webtest_encoded_parameters(),
             new webtest_slash_arguments(),
+            new webtest_configphp(),
         ];
 
         foreach ($this->tests as $test) {
