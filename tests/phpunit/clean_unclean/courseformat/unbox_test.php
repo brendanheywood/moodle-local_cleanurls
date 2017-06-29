@@ -109,11 +109,7 @@ class local_cleanurls_unbox_format_test extends local_cleanurls_testcase {
 
         $this->create_course_section_parent(1, null); // No parent.
         $this->create_course_section_parent(2, 1);
-        $this->create_course_section_parent(3, 1);
-        $this->create_course_section_parent(4, 0); // Another way for no parent (root parent).
-        $this->create_course_section_parent(5, 2);
         $this->create_course_section_parent(6, 2);
-        $this->create_course_section_parent(7, 3);
     }
 
     private function create_course_section_parent($idchild, $numparent) {
