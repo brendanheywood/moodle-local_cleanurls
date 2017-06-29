@@ -46,4 +46,5 @@ $string['cachedef_uncleaning'] = 'Clean URLs mapping: clean to unclean.';
 $string['webservertest'] = 'Clean URLs Webserver Test';
 $string['webservertesthelp'] = 'Click here to view instructions on how to configure your webserver.';
 $string['webservertestdebug'] = 'Debug Information';
+$string['webservertestsummary'] = 'Test Summary';
 

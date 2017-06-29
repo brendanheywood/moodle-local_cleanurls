@@ -32,11 +32,22 @@ echo $OUTPUT->heading(get_string('webservertest', 'local_cleanurls'));
 echo '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md" target="_blank">' .
      get_string('webservertesthelp', 'local_cleanurls') . '</a><br/><br/>';
 
+echo $OUTPUT->heading(get_string('webservertestsummary', 'local_cleanurls'));
+
+$tester = new \local_cleanurls\test\webserver\webserver_tester();
+$tester->set_verbose(false);
+
+ob_start();
+$tester->test();
+$debug = ob_get_contents();
+ob_end_clean();
+
+echo '<pre>'.htmlentities($debug).'</pre>';
+
 echo $OUTPUT->heading(get_string('webservertestdebug', 'local_cleanurls'));
 
-$tester = new \local_cleanurls\webserver_tester();
+$tester = new \local_cleanurls\test\webserver\webserver_tester();
 $tester->set_verbose(true);
-$tester->enable_dump_content(true);
 
 ob_start();
 $tester->test();

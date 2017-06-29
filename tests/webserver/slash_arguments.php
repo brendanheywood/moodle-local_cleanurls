@@ -15,18 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version info
+ * This file is used for the webserver test.
  *
- * @package    local_cleanurls
- * @author     Brendan Heywood <brendan@catalyst-au.net>
- * @copyright  Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @var $plugin stdClass
+ * @package     local_cleanurls
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require(__DIR__.'/../../../../config.php');
 
-$plugin->version   = 2017062900;
-$plugin->requires  = 2013110500;
-$plugin->component = 'local_cleanurls';
-
+echo get_file_argument();

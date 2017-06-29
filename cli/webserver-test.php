@@ -61,8 +61,8 @@ TXT;
     return;
 }
 
-$tester = new \local_cleanurls\webserver_tester();
+$tester = new \local_cleanurls\test\webserver\webserver_tester();
 $tester->set_verbose($options['verbose']);
-$tester->enable_dump_content($options['dump']);
+$tester->set_dump_contents($options['dump']);
 
 $tester->test();
