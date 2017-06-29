@@ -105,6 +105,13 @@ class webserver_tester {
             $this->passed = $this->passed && $test->has_passed();
         }
 
+        echo <<<TXT
+
+For more information on configuring Clean URLs please check:
+https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md#step-3-add-the-webserver-rewrite-to-the-custom-router
+
+TXT;
+
         return $this->passed;
     }
 }
