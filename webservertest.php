@@ -34,7 +34,7 @@ echo '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/mas
 
 echo $OUTPUT->heading(get_string('webservertestdebug', 'local_cleanurls'));
 
-$tester = new \local_cleanurls\webserver_tester();
+$tester = new \local_cleanurls\test\webserver\webserver_tester();
 $tester->set_verbose(true);
 $tester->enable_dump_content(true);
 
