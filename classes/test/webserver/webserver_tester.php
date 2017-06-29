@@ -23,8 +23,6 @@
 
 namespace local_cleanurls\test\webserver;
 
-use stdClass;
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -46,56 +44,42 @@ class webserver_tester {
     /** @var bool */
     private $dumpcontentenabled = false;
 
+    /** @var webtest[] */
+    private $tests;
+
+    public function __construct() {
+        $this->tests = [
+            new webtest_existing_file(),
+            new webtest_directory_without_slash(),
+            new webtest_directory_with_slash(),
+            new webtest_invalid_path(),
+            new webtest_selftest(),
+            new webtest_no_parameters(),
+            new webtest_simple_parameters(),
+            new webtest_encoded_parameters(),
+        ];
+
+        foreach ($this->tests as $test) {
+            $test->set_tester($this);
+        }
+    }
+
     public function set_verbose($yn) {
         $this->isverbose = $yn;
     }
 
-    public function enable_dump_content($yn) {
+    public function set_dump_contents($yn) {
         $this->dumpcontentenabled = $yn;
     }
 
-    private function verbose($message) {
+    public function verbose($message) {
         if ($this->isverbose) {
             printf("%s\n", $message);
         }
     }
 
-    private function curl($url) {
-        $data = new stdClass();
-
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_HEADER, 1);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 1);
-        $response = curl_exec($curl);
-        $data->code = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $headersize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
-        curl_close($curl);
-
-        $data->header = trim(substr($response, 0, $headersize));
-        $data->body = trim(substr($response, $headersize));
-
-        return $data;
-    }
-
-    private function show_result($name, $result, $actual, $expected) {
+    public function dump_contents($data) {
         if ($this->isverbose) {
-            printf("\n  Actual: %s\nExpected: %s\n", $actual, $expected);
-        }
-        printf("%-60s: %s\n", $name, $result ? 'PASSED' : 'FAILED');
-    }
-
-    private function fetch($url) {
-        global $CFG;
-
-        $url = $CFG->wwwroot . '/' . $url;
-
-        $this->verbose('GET: ' . $url);
-        $data = $this->curl($url);
-
-        if ($this->dumpcontentenabled) {
             if ($data->code == 0) {
                 printf("*** DATA DUMP: Error fetching URL!\n");
             } else {
@@ -106,91 +90,19 @@ class webserver_tester {
                 printf("*** DATA DUMP: End ***\n");
             }
         }
-
-        return $data;
     }
 
     public function test() {
         $this->verbose('Verbose Mode!');
-        $this->test_existing_file();
-        $this->test_existing_directory_without_slash();
-        $this->test_existing_directory_with_slash();
-        $this->test_invalid_path_not_found();
-        $this->test_cleanurls_selftest();
-        $this->test_cleanurls_rewrite_no_parameters();
-        $this->test_cleanurls_rewrite_simple_parameters();
-        $this->test_cleanurls_rewrite_encoded_parameters();
+
+        $this->passed = true;
+        foreach ($this->tests as $test) {
+            $this->verbose("\nRunning: " . get_class($test));
+            $test->run();
+            $test->print_result();
+            $this->passed = $this->passed && $test->has_passed();
+        }
+
         return $this->passed;
-    }
-
-    private function test_existing_file() {
-        $data = $this->fetch('local/cleanurls/tests/webserver/index.php');
-        $expected = '[]';
-        $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Fetch an existing file', $result, $data->body, $expected);
-        $this->passed = $this->passed && $result;
-    }
-
-    private function test_existing_directory_without_slash() {
-        $url = 'local/cleanurls/tests/webserver';
-        $data = $this->fetch($url);
-
-        $gotcontents = ($data->code == 200) && ($data->body == '[]');
-        $haslocation = (strpos($data->header, "\nLocation:") !== false);
-        $hasurl = (strpos($data->header, $url . '/') !== false);
-        $redirected = ($data->code == 301) && $haslocation && $hasurl;
-        $result = $gotcontents || $redirected;
-
-        $this->show_result('Fetch an existing directory without slash', $result,
-                           '[' . $data->code . ';' . ($haslocation ? 'T' : 'F') . ';' . ($hasurl ? 'T' : 'F') . ']',
-                           '[301;T;T]');
-        $this->passed = $this->passed && $result;
-    }
-
-    private function test_existing_directory_with_slash() {
-        $data = $this->fetch('local/cleanurls/tests/webserver/');
-        $expected = '[]';
-        $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Fetch an existing directory with slash', $result, $data->body, $expected);
-        $this->passed = $this->passed && $result;
-    }
-
-    private function test_invalid_path_not_found() {
-        $data = $this->fetch('local/cleanurls/givemea404error');
-        $result = ($data->code == 404);
-        $this->show_result('Fetch an invalid path', $result, $data->code, '404');
-        $this->passed = $this->passed && $result;
-    }
-
-    private function test_cleanurls_selftest() {
-        $data = $this->fetch('local/cleanurls/tests/bar');
-        $expected = 'OK';
-        $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Fetch Clean URLs self test', $result, $data->body, $expected);
-        $this->passed = $this->passed && $result;
-    }
-
-    private function test_cleanurls_rewrite_no_parameters() {
-        $data = $this->fetch('local/cleanurls/tests/webcheck');
-        $expected = '{"q":"local\/cleanurls\/tests\/webcheck"}';
-        $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Test rewrite without parameters', $result, $data->body, $expected);
-        $this->passed = $this->passed && $result;
-    }
-
-    private function test_cleanurls_rewrite_simple_parameters() {
-        $data = $this->fetch('local/cleanurls/tests/webcheck?param=simple');
-        $expected = '{"q":"local\/cleanurls\/tests\/webcheck","param":"simple"}';
-        $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Test rewrite without a simple parameter', $result, $data->body, $expected);
-        $this->passed = $this->passed && $result;
-    }
-
-    private function test_cleanurls_rewrite_encoded_parameters() {
-        $data = $this->fetch('local/cleanurls/tests/webcheck?xyz=x%20%26%20y%2Fz');
-        $expected = '{"q":"local\/cleanurls\/tests\/webcheck","xyz":"x & y\/z"}';
-        $result = ($data->code == 200) && ($data->body == $expected);
-        $this->show_result('Test rewrite with \'x & y/z\' as a parameter value', $result, $data->body, $expected);
-        $this->passed = $this->passed && $result;
     }
 }
