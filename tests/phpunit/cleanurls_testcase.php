@@ -43,6 +43,13 @@ require_once(__DIR__ . '/mocks/fakesimplesection.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class local_cleanurls_testcase extends advanced_testcase {
+    public static function setUpBeforeClass() {
+        parent::setUpBeforeClass();
+
+        // Trigger classloaders (helps debugging).
+        class_exists(cleaner::class);
+    }
+
     /**
      * Configures and enables Clean URLs.
      *
