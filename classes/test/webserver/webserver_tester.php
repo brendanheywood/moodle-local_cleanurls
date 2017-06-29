@@ -57,6 +57,7 @@ class webserver_tester {
             new webtest_no_parameters(),
             new webtest_simple_parameters(),
             new webtest_encoded_parameters(),
+            new webtest_slash_arguments(),
         ];
 
         foreach ($this->tests as $test) {
