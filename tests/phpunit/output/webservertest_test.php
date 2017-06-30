@@ -73,4 +73,29 @@ class local_cleanurls_output_webservertest_test extends advanced_testcase {
         self::assertContains('This is a fake test name.', $html);
         self::assertContains('This is a fake test description.', $html);
     }
+
+    public function test_it_outputs_passed_entry() {
+        $webtest = new webtest_fake();
+        $webtest->run();
+        $this->renderer->set_results([$webtest]);
+        $html = $this->renderer->render_tests_table();
+        self::assertContains('<span class="statusok">Passed</span>', $html);
+    }
+
+    public function test_it_outputs_failed_entry() {
+        $webtest = new webtest_fake();
+        $webtest->fakeerrors = ['Error'];
+        $webtest->run();
+        $this->renderer->set_results([$webtest]);
+        $html = $this->renderer->render_tests_table();
+        self::assertContains('<span class="statuscritical">Failed</span>', $html);
+    }
+
+    public function test_it_outputs_link_for_single_test() {
+        $webtest = new webtest_fake();
+        $webtest->run();
+        $this->renderer->set_results([$webtest]);
+        $html = $this->renderer->render_tests_table();
+        self::assertContains('webservertest.php?details=webtest_fake', $html);
+    }
 }

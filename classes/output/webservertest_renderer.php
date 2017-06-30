@@ -27,6 +27,7 @@ use html_table;
 use html_writer;
 use local_cleanurls\test\webserver\webtest;
 use plugin_renderer_base;
+use ReflectionClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -70,13 +71,22 @@ class webservertest_renderer extends plugin_renderer_base {
 
         $table->data = [];
         foreach ($this->tests as $webtest) {
+            $classname = (new ReflectionClass($webtest))->getShortName();
             $table->data[] = [
-                $webtest->get_name(),
-                get_string('webservertest_' . ($webtest->has_passed() ? 'passed' : 'failed'), 'local_cleanurls'),
+                html_writer::link("/local/cleanurls/webservertest.php?details={$classname}", $webtest->get_name()),
+                self::render_passed_or_fail($webtest),
                 $webtest->get_description(),
             ];
         }
 
         return html_writer::table($table);
+    }
+
+    protected function render_passed_or_fail(webtest $webtest) {
+        $message = 'webservertest_' . ($webtest->has_passed() ? 'passed' : 'failed');
+        $message = get_string($message, 'local_cleanurls');
+
+        $class = 'status' . ($webtest->has_passed() ? 'ok' : 'critical');
+        return '<span class="' . $class . '">' . $message . '</span>';
     }
 }
