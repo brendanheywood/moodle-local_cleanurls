@@ -33,6 +33,7 @@ require_once(__DIR__ . '/mocks/notcleanerfakeformat.php');
 require_once(__DIR__ . '/mocks/notuncleanerfakeformat.php');
 require_once(__DIR__ . '/mocks/fakeformat.php');
 require_once(__DIR__ . '/mocks/fakesimplesection.php');
+require_once(__DIR__ . '/mocks/webtest_fake.php');
 
 /**
  * Testcase for Clean URLs.

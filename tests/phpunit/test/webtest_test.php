@@ -27,7 +27,7 @@ use local_cleanurls\test\webserver\webtest;
 use local_cleanurls\test\webserver\webtest_fake;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../mocks/webtest_fake.php');
+require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
  * Testcase for clean_moodle_url class.
@@ -37,7 +37,7 @@ require_once(__DIR__ . '/../mocks/webtest_fake.php');
  * @copyright  2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_webtest_test extends advanced_testcase {
+class local_cleanurls_webtest_test extends local_cleanurls_testcase {
     public function provider_for_test_it_makes_short_strings() {
 
         return [
@@ -177,7 +177,7 @@ class local_cleanurls_webtest_test extends advanced_testcase {
         $webtest = new webtest_fake();
         $webtest->fetch('500:HEADER:BODY');
         $actual = $webtest->get_debug();
-        $expected = "Fetching: https://www.example.com/moodle/500:HEADER:BODY\n" .
+        $expected = "Fetching: http://www.example.com/moodle/500:HEADER:BODY\n" .
                     "*** DATA DUMP: Header ***\n" .
                     "HEADER\n" .
                     "*** DATA DUMP: Body ***\n" .

@@ -27,7 +27,7 @@ use local_cleanurls\output\webserver_summary_renderer;
 use local_cleanurls\test\webserver\webtest_fake;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../mocks/webtest_fake.php');
+require_once(__DIR__ . '/../cleanurls_testcase.php');
 
 /**
  * Tests.
@@ -37,7 +37,7 @@ require_once(__DIR__ . '/../mocks/webtest_fake.php');
  * @copyright  2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_output_webserver_details_test extends advanced_testcase {
+class local_cleanurls_output_webserver_details_test extends local_cleanurls_testcase {
     /** @var webserver_summary_renderer */
     protected $renderer = null;
 
@@ -130,7 +130,7 @@ class local_cleanurls_output_webserver_details_test extends advanced_testcase {
     }
 
     public function test_it_has_debugging_information() {
-        $debugging = "Fetching: https://www.example.com/moodle/200:My Header:My Body
+        $debugging = "Fetching: http://www.example.com/moodle/200:My Header:My Body
 *** DATA DUMP: Header ***
 My Header
 *** DATA DUMP: Body ***
