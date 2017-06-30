@@ -62,14 +62,24 @@ class webserver_details_renderer extends plugin_renderer_base {
 
     private function render_description() {
         return $this->heading('Description') .
-               $this->test->get_description() .
+               htmlentities($this->test->get_description()) .
                '<br /><br />';
     }
 
     private function render_errors() {
-        return $this->heading('Problems') .
-               'No problems found.' .
-               '<br /><br />';
+        $html = $this->heading('Problems');
+
+        if ($this->test->has_passed()) {
+            $html .= 'No problems found.<br /><br />';
+        } else {
+            $html .= '<ul>';
+            foreach ($this->test->get_errors() as $error) {
+                $html .= '<li>' . htmlentities($error) . '</li>';
+            }
+            $html .= '</ul>';
+        }
+
+        return $html;
     }
 
     private function render_troubleshooting() {
@@ -77,7 +87,7 @@ class webserver_details_renderer extends plugin_renderer_base {
 
         $html .= '<ul>';
         foreach ($this->test->get_troubleshooting() as $hint) {
-            $html .= "<li>{$hint}</li>";
+            $html .= '<li>' . htmlentities($hint) . '</li>';
         }
 
         $html .= '<li><a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md" target="_blank">' .
@@ -88,9 +98,16 @@ class webserver_details_renderer extends plugin_renderer_base {
     }
 
     private function render_debugging() {
+        $debug = $this->test->get_debug();
+
         $html = $this->heading('Debugging');
-        $html .= 'No debugging information.';
+        if (empty($debug)) {
+            $html .= 'No debugging information.';
+        } else {
+            $html .= '<pre>' . htmlentities($debug) . '</pre>';
+        }
         $html .= '<br /><br />';
+
         return $html;
     }
 }

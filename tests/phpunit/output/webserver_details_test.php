@@ -83,22 +83,77 @@ class local_cleanurls_output_webserver_details_test extends advanced_testcase {
     }
 
     public function test_it_outputs_one_error() {
-        $this->markTestSkipped('Test not implemented.');
+        $contains = [
+            '<h2>Problems</h2>',
+            '<li>I have an error.</li>',
+        ];
+
+        $notcontains = [
+            'No problems found.',
+        ];
+
+        $this->test->fakeerrors = ['I have an error.'];
+        $this->test->run();
+        $output = $this->renderer->render_page();
+
+        foreach ($contains as $contain) {
+            self::assertContains($contain, $output);
+        }
+
+        foreach ($notcontains as $notcontain) {
+            self::assertNotContains($notcontain, $output);
+        }
     }
 
     public function test_it_outputs_many_errors() {
-        $this->markTestSkipped('Test not implemented.');
-    }
+        $contains = [
+            '<h2>Problems</h2>',
+            '<li>I have an error.</li>',
+            '<li>I have another error.</li>',
+        ];
 
-    public function test_it_outputs_troubleshooting_with_special_html_characters() {
-        $this->markTestSkipped('Test not implemented.');
+        $notcontains = [
+            'No problems found.',
+        ];
+
+        $this->test->fakeerrors = ['I have an error.', 'I have another error.'];
+        $this->test->run();
+        $output = $this->renderer->render_page();
+
+        foreach ($contains as $contain) {
+            self::assertContains($contain, $output);
+        }
+
+        foreach ($notcontains as $notcontain) {
+            self::assertNotContains($notcontain, $output);
+        }
     }
 
     public function test_it_has_debugging_information() {
-        $this->markTestSkipped('Test not implemented.');
-    }
+        $debugging = "Fetching: https://www.example.com/moodle/200:My Header:My Body
+*** DATA DUMP: Header ***
+My Header
+*** DATA DUMP: Body ***
+My Body
+*** DATA DUMP: End ***";
+        $contains = [
+            '<h2>Debugging</h2>',
+            $debugging,
+        ];
 
-    public function test_it_has_debugging_information_with_special_html_characters() {
-        $this->markTestSkipped('Test not implemented.');
+        $notcontains = [
+            'No debugging information.',
+        ];
+
+        $this->test->fetch('200:My Header:My Body');
+        $output = $this->renderer->render_page();
+
+        foreach ($contains as $contain) {
+            self::assertContains($contain, $output);
+        }
+
+        foreach ($notcontains as $notcontain) {
+            self::assertNotContains($notcontain, $output);
+        }
     }
 }

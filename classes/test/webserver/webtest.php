@@ -40,14 +40,8 @@ abstract class webtest {
      * @param $var mixed
      * @return string
      */
-    public static function make_short_string($var) {
-        $var = var_export($var, true);
-        $var = preg_replace('#[\s]#', ' ', $var);
-        $var = preg_replace('#[^ -~]#', '?', $var);
-        if (strlen($var) > 100) {
-            $var = substr($var, 0, 97) . '...';
-        }
-        return $var;
+    public static function make_debug_string($var) {
+        return var_export($var, true);
     }
 
     /**
@@ -163,10 +157,14 @@ abstract class webtest {
      * @return void
      */
     public function assert_same($expected, $actual, $message) {
-        if ($expected !== $actual) {
-            $expected = self::make_short_string($expected);
-            $actual = self::make_short_string($actual);
-            $this->errors[] = "Failed: {$message}\nExpected: {$expected}\nFound: {$actual}";
+        $passed = ($expected === $actual);
+
+        $this->debug .= "\n*** " . ($passed ? 'PASSED' : 'FAILED') . ": assert_same ***\n" .
+                        "Expected:\n" . self::make_debug_string($expected) . "\n" .
+                        "Actual:\n" . self::make_debug_string($actual) . "\n\n";
+
+        if (!$passed) {
+            $this->errors[] = $message;
         }
     }
 
@@ -186,10 +184,12 @@ abstract class webtest {
                  || (is_array($haystack) && in_array($needle, $haystack))
                  || (is_string($haystack) && (strpos($haystack, $needle) !== false));
 
+        $this->debug .= "\n*** " . ($found ? 'PASSED' : 'FAILED') . ": assert_contains ***\n" .
+                        "Needle:\n" . self::make_debug_string($needle) . "\n" .
+                        "Haystack:\n" . self::make_debug_string($haystack) . "\n\n";
+
         if (!$found) {
-            $needle = self::make_short_string($needle);
-            $haystack = self::make_short_string($haystack);
-            $this->errors[] = "Failed: {$message}\nNeedle: {$needle}\nHaystack: {$haystack}";
+            $this->errors[] = $message;
         }
     }
 }

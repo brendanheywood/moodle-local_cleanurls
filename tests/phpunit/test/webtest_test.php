@@ -43,27 +43,14 @@ class local_cleanurls_webtest_test extends advanced_testcase {
         return [
             ['', "''"],
             ['abc', "'abc'"],
-            [
-                'This is a very long string that is on the limit of characters expected, it will not be cropped ok?',
-                "'This is a very long string that is on the limit of characters expected, it will not be cropped ok?'",
-            ],
-            [
-                'This is a very long string that is on the limit of characters expected, so it will be cropped okay?',
-                "'This is a very long string that is on the limit of characters expected, so it will be cropped ok...",
-            ],
-            ["All\nblank\tcharacters\rshould become blanks\n\n!", "'All blank characters should become blanks  !'"],
-            [
-                'Anything 😰non 😕 basic 👍 🚩 ASCII 😃 should become❤question ? marks',
-                "'Anything ????non ???? basic ???? ???? ASCII ???? should become???question ? marks'",
-            ],
             [123, '123'],
-            [['a' => 'b'], "array (   'a' => 'b', )"],
+            [['a' => 'b'], "array (\n  'a' => 'b',\n)"],
         ];
     }
 
     /** @dataProvider provider_for_test_it_makes_short_strings */
     public function test_it_makes_short_strings($input, $expected) {
-        $actual = webtest::make_short_string($input);
+        $actual = webtest::make_debug_string($input);
         self::assertSame($expected, $actual);
     }
 
@@ -138,15 +125,7 @@ class local_cleanurls_webtest_test extends advanced_testcase {
         $webtest = new webtest_fake();
         $webtest->run();
         $webtest->assert_same('A', 'B', 'Not the Same');
-        $expected = "Failed: Not the Same\nExpected: 'A'\nFound: 'B'";
-        self::assertSame([$expected], $webtest->get_errors());
-    }
-
-    public function test_it_asserts_same_generates_errors_with_short_string() {
-        $webtest = new webtest_fake();
-        $webtest->run();
-        $webtest->assert_same(['A'], ['B'], 'Not the Same');
-        $expected = "Failed: Not the Same\nExpected: array (   0 => 'A', )\nFound: array (   0 => 'B', )";
+        $expected = 'Not the Same';
         self::assertSame([$expected], $webtest->get_errors());
     }
 
@@ -161,7 +140,7 @@ class local_cleanurls_webtest_test extends advanced_testcase {
         $webtest = new webtest_fake();
         $webtest->run();
         $webtest->assert_contains('universe', 'Hello world!', 'Not contains');
-        $expected = "Failed: Not contains\nNeedle: 'universe'\nHaystack: 'Hello world!'";
+        $expected = "Not contains";
         self::assertSame([$expected], $webtest->get_errors());
     }
 
@@ -176,7 +155,7 @@ class local_cleanurls_webtest_test extends advanced_testcase {
         $webtest = new webtest_fake();
         $webtest->run();
         $webtest->assert_contains('universe', ['hello', 'world'], 'Not contains');
-        $expected = "Failed: Not contains\nNeedle: 'universe'\nHaystack: array (   0 => 'hello',   1 => 'world', )";
+        $expected = "Not contains";
         self::assertSame([$expected], $webtest->get_errors());
     }
 
@@ -217,5 +196,55 @@ class local_cleanurls_webtest_test extends advanced_testcase {
         $actual = webtest_fake::run_available_tests();
         self::assertCount(1, $actual);
         self::assertInstanceOf(webtest_fake::class, $actual[0]);
+    }
+
+    public function test_it_adds_to_debugging_when_asserting_same_valid() {
+        $webtest = new webtest_fake();
+        $webtest->run();
+        $webtest->assert_same('A', 'A', 'The Same');
+
+        $expected = "\n*** PASSED: assert_same ***\n" .
+                    "Expected:\n'A'\nActual:\n'A'\n\n";
+        self::assertSame($expected, $webtest->get_debug());
+    }
+
+    public function test_it_adds_to_debugging_when_asserting_same_invalid() {
+        $webtest = new webtest_fake();
+        $webtest->run();
+        $webtest->assert_same('A', 'B', 'Not The Same');
+
+        $expected = "\n*** FAILED: assert_same ***\n" .
+                    "Expected:\n'A'\nActual:\n'B'\n\n";
+        self::assertSame($expected, $webtest->get_debug());
+    }
+
+    public function test_it_adds_to_debugging_when_asserting_contains_valid() {
+        $webtest = new webtest_fake();
+        $webtest->run();
+        $webtest->assert_contains('Hello', 'Hello World!', 'Contains');
+
+        $expected = "\n*** PASSED: assert_contains ***\n" .
+                    "Needle:\n'Hello'\nHaystack:\n'Hello World!'\n\n";
+        self::assertSame($expected, $webtest->get_debug());
+    }
+
+    public function test_it_test_it_adds_to_debugging_when_asserting_contains_invalid() {
+        $webtest = new webtest_fake();
+        $webtest->run();
+        $webtest->assert_contains('Universe', 'Hello World!', 'Contains');
+
+        $expected = "\n*** FAILED: assert_contains ***\n" .
+                    "Needle:\n'Universe'\nHaystack:\n'Hello World!'\n\n";
+        self::assertSame($expected, $webtest->get_debug());
+    }
+
+    public function test_it_asserts_same_generates_errors_with_short_string() {
+        $webtest = new webtest_fake();
+        $webtest->run();
+        $webtest->assert_same(['A'], ['B'], 'Not the Same');
+        $expected = "\n*** FAILED: assert_same ***\n" .
+                    "Expected:\narray (\n  0 => 'A',\n)\n" .
+                    "Actual:\narray (\n  0 => 'B',\n)\n\n";
+        self::assertSame($expected, $webtest->get_debug());
     }
 }

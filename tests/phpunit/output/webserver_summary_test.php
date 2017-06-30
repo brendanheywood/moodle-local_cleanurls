@@ -70,7 +70,7 @@ class local_cleanurls_output_webserver_summary_test extends advanced_testcase {
         $webtest->run();
         $this->renderer->set_results([$webtest]);
         $html = $this->renderer->render_tests_table();
-        self::assertContains('This is a fake test name.', $html);
+        self::assertContains('This is a fake test name', $html);
         self::assertContains('This is a fake test description.', $html);
     }
 

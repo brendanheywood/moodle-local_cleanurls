@@ -38,7 +38,7 @@ class webtest_configphp extends webtest {
      * @return string
      */
     public function get_name() {
-        return 'Test the config.php is properly set.';
+        return 'Test the config.php is properly set';
     }
 
     /**
