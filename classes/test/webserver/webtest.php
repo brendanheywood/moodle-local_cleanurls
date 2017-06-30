@@ -50,6 +50,9 @@ abstract class webtest {
         return $var;
     }
 
+    /**
+     * @return webtest[]
+     */
     public static function get_available_tests() {
         return [
             webtest_existing_file::class,
@@ -63,6 +66,17 @@ abstract class webtest {
             webtest_slash_arguments::class,
             webtest_configphp::class,
         ];
+    }
+
+    public static function run_available_tests() {
+        $tests = static::get_available_tests();
+        $results = [];
+        foreach ($tests as $test) {
+            $test = new $test();
+            $test->run();
+            $results[] = $test;
+        }
+        return $results;
     }
 
     /** @var string */

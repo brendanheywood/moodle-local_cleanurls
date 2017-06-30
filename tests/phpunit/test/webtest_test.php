@@ -206,4 +206,16 @@ class local_cleanurls_webtest_test extends advanced_testcase {
                     "*** DATA DUMP: End ***\n";
         self::assertSame($expected, $actual);
     }
+
+    public function test_it_gets_available_tests_mocked() {
+        $expected = ['local_cleanurls\test\webserver\webtest_fake'];
+        $actual = webtest_fake::get_available_tests();
+        self::assertSame($expected, $actual);
+    }
+
+    public function test_it_runs_available_tests_mocked() {
+        $actual = webtest_fake::run_available_tests();
+        self::assertCount(1, $actual);
+        self::assertInstanceOf(webtest_fake::class, $actual[0]);
+    }
 }

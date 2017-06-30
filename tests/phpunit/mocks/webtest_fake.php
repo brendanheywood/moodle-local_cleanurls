@@ -34,6 +34,10 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class webtest_fake extends webtest {
+    public static function get_available_tests() {
+        return [self::class];
+    }
+
     public $fakename = 'This is a fake test name.';
 
     public $fakedescription = 'This is a fake test description.';
