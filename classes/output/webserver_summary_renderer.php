@@ -39,7 +39,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class webservertest_renderer extends plugin_renderer_base {
+class webserver_summary_renderer extends plugin_renderer_base {
     /** @var webtest[] */
     protected $tests = [];
 

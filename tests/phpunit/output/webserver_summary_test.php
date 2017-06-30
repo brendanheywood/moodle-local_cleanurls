@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\output\webservertest_renderer;
+use local_cleanurls\output\webserver_summary_renderer;
 use local_cleanurls\test\webserver\webtest_fake;
 
 defined('MOODLE_INTERNAL') || die();
@@ -37,15 +37,15 @@ require_once(__DIR__ . '/../mocks/webtest_fake.php');
  * @copyright  2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_output_webservertest_test extends advanced_testcase {
-    /** @var webservertest_renderer */
+class local_cleanurls_output_webserver_summary_test extends advanced_testcase {
+    /** @var webserver_summary_renderer */
     protected $renderer = null;
 
     protected function setUp() {
         global $PAGE;
         parent::setUp();
         $PAGE->set_url('/local/cleanurls/webservertest.php');
-        $this->renderer = $PAGE->get_renderer('local_cleanurls', 'webservertest', RENDERER_TARGET_GENERAL);
+        $this->renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_summary', RENDERER_TARGET_GENERAL);
     }
 
     public function test_it_outputs() {

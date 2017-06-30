@@ -31,7 +31,7 @@ require_once($CFG->libdir . '/adminlib.php');
 admin_externalpage_setup('local_cleanurls_webservertest');
 
 $tests = webtest::run_available_tests();
-$renderer = $PAGE->get_renderer('local_cleanurls', 'webservertest');
+$renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_summary');
 $renderer->set_results($tests);
 echo $renderer->render_page($tests);
 return;
