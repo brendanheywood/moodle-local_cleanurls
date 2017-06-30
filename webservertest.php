@@ -30,10 +30,28 @@ require_once($CFG->libdir . '/adminlib.php');
 
 admin_externalpage_setup('local_cleanurls_webservertest');
 
-$tests = webtest::run_available_tests();
-$renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_summary');
-$renderer->set_results($tests);
-echo $renderer->render_page($tests);
+$details = optional_param('details', '', PARAM_SAFEDIR);
+if (!empty($details)) {
+    $details = "\\local_cleanurls\\test\\webserver\\{$details}";
+    if (!class_exists($details)) {
+        $details = '';
+    }
+}
+
+if (empty($details)) {
+    $renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_summary');
+    $tests = webtest::run_available_tests();
+    $renderer->set_results($tests);
+    echo $renderer->render_page();
+} else {
+    $test = new $details();
+    $renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_details');
+    $test->run();
+    $renderer->set_result($test);
+    echo $renderer->render_page();
+}
+
+
 return;
 echo '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md" target="_blank">' .
      get_string('webservertesthelp', 'local_cleanurls') . '</a><br/><br/>';

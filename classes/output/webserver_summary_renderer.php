@@ -32,7 +32,7 @@ use ReflectionClass;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class webservertest_renderer
+ * Class webserver_summary_renderer
  *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>

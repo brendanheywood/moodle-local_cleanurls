@@ -37,7 +37,7 @@ require_once(__DIR__ . '/../mocks/webtest_fake.php');
  * @copyright  2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_output_webserver_summary_test extends advanced_testcase {
+class local_cleanurls_output_webserver_details_test extends advanced_testcase {
     /** @var webserver_summary_renderer */
     protected $renderer = null;
 
@@ -45,7 +45,7 @@ class local_cleanurls_output_webserver_summary_test extends advanced_testcase {
         global $PAGE;
         parent::setUp();
         $PAGE->set_url('/local/cleanurls/webservertest.php');
-        $this->renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_summary', RENDERER_TARGET_GENERAL);
+        $this->renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_details', RENDERER_TARGET_GENERAL);
     }
 
     public function test_it_outputs() {
@@ -54,8 +54,6 @@ class local_cleanurls_output_webserver_summary_test extends advanced_testcase {
             '<body',
             '</body',
             '</html',
-            'Clean URLs Webserver Test',
-            'id="cleanurls_webservertest_table"',
         ];
 
         $output = $this->renderer->render_page([new webtest_fake()]);
@@ -63,47 +61,5 @@ class local_cleanurls_output_webserver_summary_test extends advanced_testcase {
         foreach ($contains as $contain) {
             self::assertContains($contain, $output);
         }
-    }
-
-    public function test_it_outputs_the_given_results() {
-        $webtest = new webtest_fake();
-        $webtest->run();
-        $this->renderer->set_results([$webtest]);
-        $html = $this->renderer->render_tests_table();
-        self::assertContains('This is a fake test name.', $html);
-        self::assertContains('This is a fake test description.', $html);
-    }
-
-    public function test_it_outputs_passed_entry() {
-        $webtest = new webtest_fake();
-        $webtest->run();
-        $this->renderer->set_results([$webtest]);
-        $html = $this->renderer->render_tests_table();
-        self::assertContains('<span class="statusok">Passed</span>', $html);
-    }
-
-    public function test_it_outputs_failed_entry() {
-        $webtest = new webtest_fake();
-        $webtest->fakeerrors = ['Error'];
-        $webtest->run();
-        $this->renderer->set_results([$webtest]);
-        $html = $this->renderer->render_tests_table();
-        self::assertContains('<span class="statuscritical">Failed</span>', $html);
-    }
-
-    public function test_it_outputs_link_for_single_test() {
-        $webtest = new webtest_fake();
-        $webtest->run();
-        $this->renderer->set_results([$webtest]);
-        $html = $this->renderer->render_tests_table();
-        self::assertContains('webservertest.php?details=webtest_fake', $html);
-    }
-
-    public function test_it_can_show_details_of_a_test() {
-        $webtest = new webtest_fake();
-        $webtest->run();
-        $this->renderer->set_results([$webtest]);
-        $html = $this->renderer->render_tests_table();
-        self::assertContains('webservertest.php?details=webtest_fake', $html);
     }
 }
