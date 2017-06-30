@@ -51,8 +51,3 @@ if (empty($details)) {
     echo $renderer->render_page();
 }
 
-
-return;
-echo '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md" target="_blank">' .
-     get_string('webservertesthelp', 'local_cleanurls') . '</a><br/><br/>';
-

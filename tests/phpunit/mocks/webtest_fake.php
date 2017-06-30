@@ -38,7 +38,7 @@ class webtest_fake extends webtest {
         return [self::class];
     }
 
-    public $fakename = 'This is a fake test name.';
+    public $fakename = 'This is a fake test name';
 
     public $fakedescription = 'This is a fake test description.';
 

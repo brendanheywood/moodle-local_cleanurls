@@ -44,7 +44,6 @@ $string['debugginghelp'] = 'Logs rewrite process to php error log';
 $string['cachedef_outgoing'] = 'Cleaned url mapping';
 $string['cachedef_uncleaning'] = 'Clean URLs mapping: clean to unclean.';
 $string['webservertest'] = 'Clean URLs Webserver Test';
-$string['webservertesthelp'] = 'Click here to view instructions on how to configure your webserver.';
 $string['webservertest_description'] = 'Description';
 $string['webservertest_failed'] = 'Failed';
 $string['webservertest_passed'] = 'Passed';

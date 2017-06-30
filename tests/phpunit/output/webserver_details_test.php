@@ -41,11 +41,18 @@ class local_cleanurls_output_webserver_details_test extends advanced_testcase {
     /** @var webserver_summary_renderer */
     protected $renderer = null;
 
+    /** @var webtest_fake */
+    protected $test = null;
+
     protected function setUp() {
         global $PAGE;
         parent::setUp();
         $PAGE->set_url('/local/cleanurls/webservertest.php');
+
+        $this->test = new webtest_fake();
+        $this->test->run();
         $this->renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_details', RENDERER_TARGET_GENERAL);
+        $this->renderer->set_result($this->test);
     }
 
     public function test_it_outputs() {
@@ -54,12 +61,44 @@ class local_cleanurls_output_webserver_details_test extends advanced_testcase {
             '<body',
             '</body',
             '</html',
+            '<h2>This is a fake test name</h2>',
+            '<span class="statusok">Passed</span>',
+            '<h2>Description</h2>',
+            'This is a fake test description.',
+            '<h2>Problems</h2>',
+            'No problems found.',
+            '<h2>Troubleshooting</h2>',
+            '<li>Ensure fake test works at first.</li>',
+            '<li>Ensure fake test works again.</li>',
+            '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md"',
+            '<h2>Debugging</h2>',
+            'No debugging information.',
         ];
 
-        $output = $this->renderer->render_page([new webtest_fake()]);
+        $output = $this->renderer->render_page();
 
         foreach ($contains as $contain) {
             self::assertContains($contain, $output);
         }
+    }
+
+    public function test_it_outputs_one_error() {
+        $this->markTestSkipped('Test not implemented.');
+    }
+
+    public function test_it_outputs_many_errors() {
+        $this->markTestSkipped('Test not implemented.');
+    }
+
+    public function test_it_outputs_troubleshooting_with_special_html_characters() {
+        $this->markTestSkipped('Test not implemented.');
+    }
+
+    public function test_it_has_debugging_information() {
+        $this->markTestSkipped('Test not implemented.');
+    }
+
+    public function test_it_has_debugging_information_with_special_html_characters() {
+        $this->markTestSkipped('Test not implemented.');
     }
 }

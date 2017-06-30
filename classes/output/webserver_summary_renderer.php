@@ -40,6 +40,14 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class webserver_summary_renderer extends plugin_renderer_base {
+    public static function render_passed_or_fail(webtest $webtest) {
+        $message = 'webservertest_' . ($webtest->has_passed() ? 'passed' : 'failed');
+        $message = get_string($message, 'local_cleanurls');
+
+        $class = 'status' . ($webtest->has_passed() ? 'ok' : 'critical');
+        return '<span class="' . $class . '">' . $message . '</span>';
+    }
+
     /** @var webtest[] */
     protected $tests = [];
 
@@ -80,13 +88,5 @@ class webserver_summary_renderer extends plugin_renderer_base {
         }
 
         return html_writer::table($table);
-    }
-
-    protected function render_passed_or_fail(webtest $webtest) {
-        $message = 'webservertest_' . ($webtest->has_passed() ? 'passed' : 'failed');
-        $message = get_string($message, 'local_cleanurls');
-
-        $class = 'status' . ($webtest->has_passed() ? 'ok' : 'critical');
-        return '<span class="' . $class . '">' . $message . '</span>';
     }
 }
