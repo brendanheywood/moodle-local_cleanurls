@@ -40,21 +40,44 @@ abstract class webtest {
      * @param $var mixed
      * @return string
      */
-    public static function make_short_string($var) {
-        $var = var_export($var, true);
-        $var = preg_replace('#[\s]#', ' ', $var);
-        $var = preg_replace('#[^ -~]#', '?', $var);
-        if (strlen($var) > 100) {
-            $var = substr($var, 0, 97) . '...';
-        }
-        return $var;
+    public static function make_debug_string($var) {
+        return var_export($var, true);
     }
 
-    /** @var webserver_tester */
-    protected $tester = null;
+    /**
+     * @return webtest[]
+     */
+    public static function get_available_tests() {
+        return [
+            webtest_existing_file::class,
+            webtest_directory_without_slash::class,
+            webtest_directory_with_slash::class,
+            webtest_invalid_path::class,
+            webtest_selftest::class,
+            webtest_no_parameters::class,
+            webtest_simple_parameters::class,
+            webtest_encoded_parameters::class,
+            webtest_slash_arguments::class,
+            webtest_configphp::class,
+        ];
+    }
 
-    public function set_tester(webserver_tester $tester) {
-        $this->tester = $tester;
+    public static function run_available_tests() {
+        $tests = static::get_available_tests();
+        $results = [];
+        foreach ($tests as $test) {
+            $test = new $test();
+            $test->run();
+            $results[] = $test;
+        }
+        return $results;
+    }
+
+    /** @var string */
+    protected $debug = '';
+
+    public function get_debug() {
+        return $this->debug;
     }
 
     /** @var string[] */
@@ -62,6 +85,10 @@ abstract class webtest {
 
     public function has_passed() {
         return (count($this->errors) == 0);
+    }
+
+    public function get_errors() {
+        return $this->errors;
     }
 
     /**
@@ -84,8 +111,7 @@ abstract class webtest {
      */
     public abstract function run();
 
-
-    private function curl($url) {
+    protected function curl($url) {
         $data = new stdClass();
 
         $curl = curl_init();
@@ -110,33 +136,18 @@ abstract class webtest {
 
         $url = $CFG->wwwroot . '/' . $url;
 
-        $this->tester->verbose('GET: ' . $url);
+        $this->debug .= "Fetching: {$url}\n";
         $data = $this->curl($url);
 
-        $this->tester->dump_contents($data);
+        if ($data->code == 0) {
+            $this->debug .= "*** DATA DUMP: Error fetching URL!\n";
+        } else {
+            $this->debug .= "*** DATA DUMP: Header ***\n{$data->header}\n";
+            $this->debug .= "*** DATA DUMP: Body ***\n{$data->body}\n";
+            $this->debug .= "*** DATA DUMP: End ***\n";
+        }
 
         return $data;
-    }
-
-    public function print_result() {
-        printf(
-            "%s: %-60s\n",
-            $this->has_passed() ? 'PASSED' : 'FAILED',
-            $this->get_name()
-        );
-
-        foreach ($this->errors as $error) {
-            printf("\n{$error}\n");
-        }
-
-        if (!$this->has_passed()) {
-            printf("\n  More information:\n  - %s\n", $this->get_description());
-
-            printf("\n  Troubleshooting:\n");
-            foreach ($this->get_troubleshooting() as $troubleshooting) {
-                printf("  - {$troubleshooting}\n");
-            }
-        }
     }
 
     /**
@@ -146,10 +157,14 @@ abstract class webtest {
      * @return void
      */
     public function assert_same($expected, $actual, $message) {
-        if ($expected !== $actual) {
-            $expected = self::make_short_string($expected);
-            $actual = self::make_short_string($actual);
-            $this->errors[] = "    Failed: {$message}\n  Expected: {$expected}\n     Found: {$actual}";
+        $passed = ($expected === $actual);
+
+        $this->debug .= "\n*** " . ($passed ? 'PASSED' : 'FAILED') . ": assert_same ***\n" .
+                        "Expected:\n" . self::make_debug_string($expected) . "\n" .
+                        "Actual:\n" . self::make_debug_string($actual) . "\n\n";
+
+        if (!$passed) {
+            $this->errors[] = $message;
         }
     }
 
@@ -169,10 +184,12 @@ abstract class webtest {
                  || (is_array($haystack) && in_array($needle, $haystack))
                  || (is_string($haystack) && (strpos($haystack, $needle) !== false));
 
+        $this->debug .= "\n*** " . ($found ? 'PASSED' : 'FAILED') . ": assert_contains ***\n" .
+                        "Needle:\n" . self::make_debug_string($needle) . "\n" .
+                        "Haystack:\n" . self::make_debug_string($haystack) . "\n\n";
+
         if (!$found) {
-            $needle = self::make_short_string($needle);
-            $haystack = self::make_short_string($haystack);
-            $this->errors[] = "    Failed: {$message}\n    Needle: {$needle}\n  Haystack: {$haystack}";
+            $this->errors[] = $message;
         }
     }
 }

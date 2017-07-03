@@ -33,41 +33,63 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class webtest_configphp extends webtest {
+class webtest_fake extends webtest {
+    public static function get_available_tests() {
+        return [self::class];
+    }
+
+    public $fakename = 'This is a fake test name';
+
+    public $fakedescription = 'This is a fake test description.';
+
+    public $faketroubleshooting = [
+        'Ensure fake test works at first.',
+        'Ensure fake test works again.',
+    ];
+
+    public $fakeerrors = [];
+
     /**
      * @return string
      */
     public function get_name() {
-        return 'Test the config.php is properly set';
+        return $this->fakename;
     }
 
     /**
      * @return string
      */
     public function get_description() {
-        return "Moodle's config.php requires a few changes as described in our README.md file.";
+        return $this->fakedescription;
     }
 
     /**
      * @return string[]
      */
     public function get_troubleshooting() {
-        return [
-            'Ensure config.php does not override the existing $CFG at the top of the file.',
-            'Ensure config.php defines the \'$CFG->urlrewriteclass\' as recommended.',
-        ];
+        return $this->faketroubleshooting;
     }
 
     /**
      * @return void
      */
     public function run() {
-        $this->errors = [];
+        $this->errors = $this->fakeerrors;
+    }
 
-        $data = $this->fetch('local/cleanurls/tests/webserver/configphp.php');
+    protected function curl($url) {
+        $url = explode('/', $url);
+        $url = array_pop($url);
+        list($code, $header, $body) = explode(':', $url);
+        return (object)[
+            'code'   => (int)$code,
+            'header' => $header,
+            'body'   => $body,
+        ];
+    }
 
-        $this->assert_same(200, $data->code, 'HTTP Status');
-        $this->assert_contains('$CFG OK', $data->body, 'Object $CFG lost its previous values.');
-        $this->assert_contains('$CFG->urlrewriteclass OK', $data->body, 'Configuration $CFG->urlrewriteclass not defined.');
+    public function fetch($url) {
+        // Just expose the protected method.
+        return parent::fetch($url);
     }
 }

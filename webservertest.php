@@ -19,42 +19,35 @@
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @var $CFG      stdClass
+ * @var $PAGE     moodle_page
  */
+
+use local_cleanurls\test\webserver\webtest;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 admin_externalpage_setup('local_cleanurls_webservertest');
 
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('webservertest', 'local_cleanurls'));
+$details = optional_param('details', '', PARAM_SAFEDIR);
+if (!empty($details)) {
+    $details = "\\local_cleanurls\\test\\webserver\\{$details}";
+    if (!class_exists($details)) {
+        $details = '';
+    }
+}
 
-echo '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md" target="_blank">' .
-     get_string('webservertesthelp', 'local_cleanurls') . '</a><br/><br/>';
-
-echo $OUTPUT->heading(get_string('webservertestsummary', 'local_cleanurls'));
-
-$tester = new \local_cleanurls\test\webserver\webserver_tester();
-$tester->set_verbose(false);
-
-ob_start();
-$tester->test();
-$debug = ob_get_contents();
-ob_end_clean();
-
-echo '<pre>'.htmlentities($debug).'</pre>';
-
-echo $OUTPUT->heading(get_string('webservertestdebug', 'local_cleanurls'));
-
-$tester = new \local_cleanurls\test\webserver\webserver_tester();
-$tester->set_verbose(true);
-
-ob_start();
-$tester->test();
-$debug = ob_get_contents();
-ob_end_clean();
-
-echo '<pre>'.htmlentities($debug).'</pre>';
-
-echo $OUTPUT->footer();
+if (empty($details)) {
+    $renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_summary');
+    $tests = webtest::run_available_tests();
+    $renderer->set_results($tests);
+    echo $renderer->render_page();
+} else {
+    $test = new $details();
+    $renderer = $PAGE->get_renderer('local_cleanurls', 'webserver_details');
+    $test->run();
+    $renderer->set_result($test);
+    echo $renderer->render_page();
+}
 
