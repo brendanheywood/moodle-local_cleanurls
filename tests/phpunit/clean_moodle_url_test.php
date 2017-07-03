@@ -45,7 +45,7 @@ class local_cleanurls_clean_moodle_url_test extends local_cleanurls_testcase imp
 
     public function test_it_can_detect_an_externally_coded_uncleaner() {
         $support = clean_moodle_url::get_format_support('cleanurlsfakeformat');
-        self::assertSame('\format_cleanurlsfakeformat\cleanurls_uncleaner', $support);
+        self::assertSame('\format_cleanurlsfakeformat\cleanurls_support', $support);
     }
 
     public function test_it_can_detect_an_internally_coded_uncleaner() {

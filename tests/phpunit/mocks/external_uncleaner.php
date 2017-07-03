@@ -41,7 +41,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanurls_uncleaner extends local_cleanurls_unittest_uncleaner implements courseformat_cleaner_interface {
+class cleanurls_support extends local_cleanurls_unittest_uncleaner implements courseformat_cleaner_interface {
     public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
         return null;
     }

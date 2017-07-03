@@ -101,7 +101,7 @@ class clean_moodle_url extends moodle_url {
      * @return string
      */
     public static function get_format_support($format) {
-        $classname = "\\format_{$format}\\cleanurls_uncleaner";
+        $classname = "\\format_{$format}\\cleanurls_support";
         if (!class_exists($classname)) {
             $classname = "\\local_cleanurls\\local\\courseformat\\{$format}";
             if (!class_exists($classname)) {
