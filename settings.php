@@ -44,8 +44,8 @@ if ($hassiteconfig) {
 
         // If we are on the settings page then also run a router test.
         if ($section == 'local_cleanurls') {
-            $tester = new \local_cleanurls\test\webserver\webserver_tester();
-            if ($tester->test()) {
+            $passed = \local_cleanurls\test\webserver\webtest::check_available_tests_pass();
+            if ($passed) {
                 $test .= $OUTPUT->notification(get_string('routerok', 'local_cleanurls'), 'notifysuccess');
             } else {
                 $test .= $OUTPUT->notification(get_string('routerbroken', 'local_cleanurls'), 'notifyerror');

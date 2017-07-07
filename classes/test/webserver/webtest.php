@@ -45,7 +45,7 @@ abstract class webtest {
     }
 
     /**
-     * @return webtest[]
+     * @return string[]
      */
     public static function get_available_tests() {
         return [
@@ -62,6 +62,9 @@ abstract class webtest {
         ];
     }
 
+    /**
+     * @return webtest[]
+     */
     public static function run_available_tests() {
         $tests = static::get_available_tests();
         $results = [];
@@ -71,6 +74,23 @@ abstract class webtest {
             $results[] = $test;
         }
         return $results;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function check_available_tests_pass() {
+        $tests = static::get_available_tests();
+
+        foreach ($tests as $test) {
+            $test = new $test();
+            $test->run();
+            if (!$test->has_passed()){
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /** @var string */

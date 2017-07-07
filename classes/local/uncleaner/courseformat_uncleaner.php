@@ -79,7 +79,7 @@ class courseformat_uncleaner extends uncleaner implements hascourse_uncleaner_in
         }
 
         $cleaner = clean_moodle_url::get_format_support($course->format);
-        if (!is_a($cleaner, uncleaner::class, true)) {
+        if (is_null($cleaner)) {
             return false;
         }
 
