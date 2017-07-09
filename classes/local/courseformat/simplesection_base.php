@@ -164,4 +164,8 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
 
         return "{$section}/{$cm->id}{$title}";
     }
+
+    public static function get_courseformat_section_clean_subpath(stdClass $course, $section) {
+        throw new \moodle_exception('Not implemented.');
+    }
 }

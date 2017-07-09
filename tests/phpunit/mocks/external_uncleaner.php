@@ -45,4 +45,8 @@ class cleanurls_support extends local_cleanurls_unittest_uncleaner implements co
     public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm) {
         return null;
     }
+
+    public static function get_courseformat_section_clean_subpath(stdClass $course, $section) {
+        return null;
+    }
 }

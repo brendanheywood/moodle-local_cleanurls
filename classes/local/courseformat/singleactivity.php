@@ -86,11 +86,22 @@ class singleactivity extends uncleaner implements hascourse_uncleaner_interface,
     /**
      * Single Activities do not add anything to the URL, they use the Course URL.
      *
-     * @param stdClass $course The Course being cleaned.
-     * @param cm_info  $cm     The Course Module being cleaned.
-     * @return string          The relative path from the course in which this course module will be accessed.
+     * @param stdClass $course
+     * @param cm_info  $cm
+     * @return string
      */
     public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm) {
+        return '';
+    }
+
+    /**
+     * Single Activities should not have a section URL because they use the Course URL.
+     *
+     * @param stdClass $course
+     * @param int       $section
+     * @return string
+     */
+    public static function get_courseformat_section_clean_subpath(stdClass $course, $section) {
         return '';
     }
 }
