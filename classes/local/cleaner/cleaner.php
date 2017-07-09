@@ -158,34 +158,40 @@ class cleaner {
     }
 
     private function clean_course_by_id() {
-        global $DB;
-
         if (empty($this->params['id'])) {
-            return false;
+            return null;
         }
 
-        $slug = $DB->get_field('course', 'shortname', ['id' => $this->params['id']]);
-        $newpath = '/course/'.urlencode($slug);
+        $course = get_course($this->params['id']);
+
+        $newpath = '/course/' . urlencode($course->shortname);
         if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
             unset($this->params['id']);
             clean_moodle_url::log("Rewrite course");
         }
-        return true;
+
+        return $course;
     }
 
     private function clean_course_by_name() {
+        global $DB;
+
         if (empty($this->params['name'])) {
             return false;
         }
 
-        $newpath = '/course/'.urlencode($this->params['name']);
+        $courseid = $DB->get_field('course', 'id', ['shortname' => $this->params['name']]);
+        $course = get_course($courseid);
+
+        $newpath = '/course/' . urlencode($course->shortname);
         if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
             unset($this->params['name']);
             clean_moodle_url::log("Rewrite course by name.");
         }
-        return true;
+
+        return $course;
     }
 
     private function clean_course_module_view($mod) {
@@ -374,7 +380,7 @@ class cleaner {
     private function clean_path() {
         switch ($this->path) {
             case '/course/view.php':
-                $this->clean_course_by_id() || $this->clean_course_by_name();
+                $this->clean_course();
                 return;
             case '/user/':
                 $this->clean_course_users();
@@ -419,6 +425,13 @@ class cleaner {
         if (substr($this->path, -10) == '/index.php') {
             clean_moodle_url::log("Removing /index.php");
             $this->path = substr($this->path, 0, -9);
+        }
+    }
+
+    private function clean_course() {
+        $course = $this->clean_course_by_id();
+        if (is_null($course)) {
+            $this->clean_course_by_name();
         }
     }
 }

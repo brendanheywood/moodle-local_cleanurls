@@ -31,8 +31,6 @@ use moodle_url;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class urlparser
- *
  * @package     local_cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
