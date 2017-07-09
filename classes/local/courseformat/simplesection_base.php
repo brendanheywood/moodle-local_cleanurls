@@ -156,7 +156,7 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
      * @param cm_info  $cm     The Course Module being cleaned.
      * @return string          The relative path from the course in which this course module will be accessed.
      */
-    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+    public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm) {
         $section = get_section_name($course, $cm->sectionnum);
         $section = clean_moodle_url::sluggify($section, false);
 

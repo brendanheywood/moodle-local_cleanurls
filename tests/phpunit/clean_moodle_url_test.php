@@ -70,7 +70,7 @@ class local_cleanurls_clean_moodle_url_test extends local_cleanurls_testcase imp
         self::assertNull($support);
     }
 
-    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+    public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm) {
         return null;
     }
 }

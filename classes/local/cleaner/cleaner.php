@@ -219,7 +219,7 @@ class cleaner {
         // Try to find a clean handler for the course format.
         $classname = clean_moodle_url::get_format_support($course->format);
         if (!is_null($classname)) {
-            return '/' . $classname::get_courseformat_clean_subpath($course, $cm);
+            return '/' . $classname::get_courseformat_module_clean_subpath($course, $cm);
         }
 
         // Default behaviour.

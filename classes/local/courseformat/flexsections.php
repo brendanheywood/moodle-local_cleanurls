@@ -241,7 +241,7 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
     /**
      * @inheritdoc
      */
-    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+    public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm) {
         global $DB;
         $info = get_fast_modinfo($course);
 

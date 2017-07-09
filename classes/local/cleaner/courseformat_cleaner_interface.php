@@ -51,5 +51,5 @@ interface courseformat_cleaner_interface {
      * @param cm_info  $cm     The Course Module being cleaned.
      * @return string          The relative path from the course in which this course module will be accessed.
      */
-    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm);
+    public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm);
 }
