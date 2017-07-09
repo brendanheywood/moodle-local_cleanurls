@@ -89,4 +89,18 @@ class local_cleanurls_course_cleanunclean_test extends local_cleanurls_testcase 
             'http://www.example.com/moodle/course/view.php?edit=1&name=theshortname'
         );
     }
+
+    public function test_it_does_not_clean_section_number_if_format_not_supported() {
+        $this->getDataGenerator()->create_course([
+                                                     'shortname' => 'name',
+                                                     'format'    => 'unknownformat',
+                                                 ]);
+
+        static::assert_clean_unclean(
+            "http://www.example.com/moodle/course/view.php?name=name&section=1",
+            'http://www.example.com/moodle/course/name?section=1'
+        );
+
+        $this->assertDebuggingCalled('Format plugin format_unknownformat is not found. Using default format_topics');
+    }
 }
