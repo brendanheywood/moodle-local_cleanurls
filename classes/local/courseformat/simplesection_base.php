@@ -82,8 +82,8 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
             return false;
         }
 
-        // It requires a section and a course module.
-        if (count($parent->subpath) < 2) {
+        // It requires a section.
+        if (count($parent->subpath) < 1) {
             return false;
         }
 

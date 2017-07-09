@@ -100,13 +100,6 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         self::assertFalse(fakesimplesection::can_create($format));
     }
 
-    public function test_it_requires_an_coursemodule() {
-        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'fakesimplesection']);
-        $root = new root_uncleaner('/course/shortname/section');
-        $format = $root->get_child()->get_child();
-        self::assertFalse(fakesimplesection::can_create($format));
-    }
-
     public function test_it_does_not_unclean_if_section_not_found() {
         global $DB;
 
