@@ -64,4 +64,12 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
         $expected = "http://www.example.com/moodle/course/weekscourse/topic-1/{$forum->cmid}-week-1-discussion";
         static::assert_clean_unclean($url, $expected);
     }
+
+    public function test_it_works_with_section_numbers() {
+        $this->getDataGenerator()->create_course(['shortname' => 'name', 'format' => 'topics']);
+
+        $url = 'http://www.example.com/moodle/course/view.php?name=name&section=1';
+        $expected = 'http://www.example.com/moodle/course/name/topic-1';
+        static::assert_clean_unclean($url, $expected);
+    }
 }

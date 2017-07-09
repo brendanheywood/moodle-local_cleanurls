@@ -165,7 +165,20 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         return "{$section}/{$cm->id}{$title}";
     }
 
+    /**
+     * Adds the section name.
+     *
+     * @param stdClass $course  The Course being cleaned.
+     * @param int      $section The section number requested.
+     * @return string The relative path from the course in which this section is.
+     */
     public static function get_courseformat_section_clean_subpath(stdClass $course, $section) {
-        throw new \moodle_exception('Not implemented.');
+        if (is_null($section)) {
+            return '';
+        }
+
+        $section = get_section_name($course, $section);
+        $section = clean_moodle_url::sluggify($section, false);
+        return "/{$section}";
     }
 }

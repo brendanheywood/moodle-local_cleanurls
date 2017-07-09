@@ -430,8 +430,27 @@ class cleaner {
 
     private function clean_course() {
         $course = $this->clean_course_by_id();
+        $course = $course ?: $this->clean_course_by_name();
+
         if (is_null($course)) {
-            $this->clean_course_by_name();
+            return;
+        }
+
+        $classname = clean_moodle_url::get_format_support($course->format);
+        if (is_null($classname)) {
+            return;
+        }
+
+        if (!array_key_exists('section', $this->params)) {
+            return;
+        }
+
+        $section = $this->params['section'] ?: null;
+        $sectionpath = $classname::get_courseformat_section_clean_subpath($course, $section);
+
+        if (!is_null($sectionpath)) {
+            $this->path .= $sectionpath;
+            unset($this->params['section']);
         }
     }
 }
