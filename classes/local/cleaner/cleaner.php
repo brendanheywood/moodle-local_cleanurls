@@ -43,6 +43,16 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleaner {
+    public static function get_section_number_from_id($course, $sectionid) {
+        $info = get_fast_modinfo($course);
+        foreach ($info->get_section_info_all() as $section) {
+            if ($section->id == $sectionid) {
+                return $section->section;
+            }
+        }
+        return null;
+    }
+
     /**
      * Takes a moodle_url and either returns a clean_moodle_url object with
      * clean cloned properties or if nothing is done the original object.
@@ -441,16 +451,23 @@ class cleaner {
             return;
         }
 
-        if (!array_key_exists('section', $this->params)) {
+        $section = null;
+        if (array_key_exists('sectionid', $this->params)) {
+            $section = self::get_section_number_from_id($course, $this->params['sectionid']);
+        }
+        if (array_key_exists('section', $this->params)) {
+            $section = $this->params['section'];
+        }
+        if (is_null($section)) {
             return;
         }
 
-        $section = $this->params['section'] ?: null;
         $sectionpath = $classname::get_courseformat_section_clean_subpath($course, $section);
 
         if (!is_null($sectionpath)) {
             $this->path .= $sectionpath;
             unset($this->params['section']);
+            unset($this->params['sectionid']);
         }
     }
 }
