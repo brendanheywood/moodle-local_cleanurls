@@ -66,7 +66,8 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
     }
 
     public function test_it_works_with_section_numbers() {
-        $this->getDataGenerator()->create_course(['shortname' => 'name', 'format' => 'topics']);
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'name', 'format' => 'topics']);
+        $this->getDataGenerator()->create_course_section(['course' => $course->id, 'section' => 1]);
 
         $url = 'http://www.example.com/moodle/course/view.php?name=name&section=1';
         $expected = 'http://www.example.com/moodle/course/name/topic-1';
@@ -75,8 +76,7 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
 
     public function test_it_works_with_section_ids() {
         $course = $this->getDataGenerator()->create_course(['shortname' => 'name', 'format' => 'topics']);
-        $info = get_fast_modinfo($course);
-        $section = $info->get_section_info(1);
+        $section = $this->getDataGenerator()->create_course_section(['course' => $course->id, 'section' => 1]);
 
         $url = "http://www.example.com/moodle/course/view.php?name=name&sectionid={$section->id}";
         $expected = 'http://www.example.com/moodle/course/name/topic-1';

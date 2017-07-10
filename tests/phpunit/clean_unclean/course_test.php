@@ -101,6 +101,6 @@ class local_cleanurls_course_cleanunclean_test extends local_cleanurls_testcase 
             'http://www.example.com/moodle/course/name?section=1'
         );
 
-        $this->assertDebuggingCalled('Format plugin format_unknownformat is not found. Using default format_topics');
+        $this->assertDebuggingCalled();
     }
 }
