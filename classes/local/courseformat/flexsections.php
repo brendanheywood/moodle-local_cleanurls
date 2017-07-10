@@ -98,6 +98,10 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
         return $root;
     }
 
+    protected static function get_format() {
+        return 'flexsections';
+    }
+
     private static function create_section_tree_database_info($courseid, &$sections, &$parents) {
         global $DB;
         $sectionstmp = $DB->get_records('course_sections', ['course' => $courseid], 'section ASC');
@@ -263,7 +267,7 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
             array_unshift($path, $slug);
             $sectionnum = $DB->get_field('course_format_options', 'value', [
                 'courseid'  => $course->id,
-                'format'    => 'flexsections',
+                'format'    => static::get_format(),
                 'sectionid' => $sectionid,
                 'name'      => 'parent',
             ]);
@@ -296,7 +300,7 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
             array_unshift($path, $slug);
             $sectionnum = $DB->get_field('course_format_options', 'value', [
                 'courseid'  => $course->id,
-                'format'    => 'flexsections',
+                'format'    => static::get_format(),
                 'sectionid' => $sectionid,
                 'name'      => 'parent',
             ]);
