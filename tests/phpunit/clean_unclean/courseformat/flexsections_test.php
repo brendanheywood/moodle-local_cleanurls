@@ -160,6 +160,14 @@ class local_cleanurls_flexsections_support_test extends advanced_testcase {
         local_cleanurls_testcase::assert_clean_unclean($url, $expected);
     }
 
+    public function test_it_cleans_and_uncleans_section_numbers() {
+        $this->create_course();
+
+        $url = 'http://www.example.com/moodle/course/view.php?name=mycourse&section=6';
+        $expected = 'http://www.example.com/moodle/course/mycourse/topic-1/topic-2/topic-6';
+        local_cleanurls_testcase::assert_clean_unclean($url, $expected);
+    }
+
     public function test_it_uncleans_at_course_level() {
         $this->create_course();
 
