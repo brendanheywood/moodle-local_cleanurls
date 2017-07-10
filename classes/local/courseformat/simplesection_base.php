@@ -30,6 +30,7 @@ use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 use ReflectionClass;
+use section_info;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -51,13 +52,22 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         return $format;
     }
 
+    /**
+     * @param $course
+     * @param $sectionslug
+     * @return section_info
+     */
     public static function find_section_by_slug($course, $sectionslug) {
         $cminfo = get_fast_modinfo($course);
-        foreach (array_keys($cminfo->sections) as $sectionnum) {
-            $name = get_section_name($course, $sectionnum);
+        $sections = $cminfo->get_section_info_all();
+        foreach ($sections as $sectioninfo) {
+            if ($sectioninfo->section == 0) {
+                continue; // Ignore root section.
+            }
+            $name = get_section_name($course, $sectioninfo->section);
             $slug = clean_moodle_url::sluggify($name, false);
             if ($slug == $sectionslug) {
-                return $name;
+                return $sectioninfo;
             }
         }
 
@@ -90,7 +100,7 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         return true;
     }
 
-    /** @var string */
+    /** @var section_info */
     protected $section = null;
 
     /** @var int */
@@ -110,34 +120,37 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         $coursemodule = array_shift($this->subpath);
 
         $this->section = self::find_section_by_slug($this->get_course(), $section);
+        if (is_null($coursemodule)) {
+            $this->mypath = $section;
+        } else {
+            list($cmid) = explode('-', $coursemodule);
+            $this->cmid = (int)$cmid;
+            $this->mypath .= "{$section}/{$coursemodule}";
+        }
+    }
 
-        list($cmid) = explode('-', $coursemodule);
-        $this->cmid = (int)$cmid;
-
-        $this->mypath = "{$section}/{$coursemodule}";
+    protected function prepare_parameters() {
+        parent::prepare_parameters();
+        if (is_null($this->cmid)) {
+            $this->parameters['name'] = $this->get_course()->shortname;
+            $this->parameters['section'] = $this->section->section;
+        }
     }
 
     /**
      * @return moodle_url
      */
     public function get_unclean_url() {
+        // Section must always be provided, regardless if uncleaning section or course module.
         if (is_null($this->section)) {
             return null;
         }
 
-        if (empty($this->cmid)) {
-            return null;
+        if (!empty($this->cmid)) {
+            return $this->get_unclean_coursemodule_url();
         }
 
-        $cms = get_fast_modinfo($this->get_course())->get_cms();
-        if (!array_key_exists($this->cmid, $cms)) {
-            return null;
-        }
-
-        $cm = $cms[$this->cmid];
-
-        $this->parameters['id'] = $cm->id;
-        return new moodle_url("/mod/{$cm->modname}/view.php", $this->parameters);
+        return $this->get_unclean_section_url();
     }
 
     /**
@@ -180,5 +193,21 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         $section = get_section_name($course, $section);
         $section = clean_moodle_url::sluggify($section, false);
         return "/{$section}";
+    }
+
+    private function get_unclean_coursemodule_url() {
+        $cms = get_fast_modinfo($this->get_course())->get_cms();
+        if (!array_key_exists($this->cmid, $cms)) {
+            return null;
+        }
+
+        $cm = $cms[$this->cmid];
+
+        $this->parameters['id'] = $cm->id;
+        return new moodle_url("/mod/{$cm->modname}/view.php", $this->parameters);
+    }
+
+    private function get_unclean_section_url() {
+        return new moodle_url("/course/view.php", $this->parameters);
     }
 }

@@ -39,7 +39,7 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
         $course = $this->getDataGenerator()->create_course(['shortname' => 'topicscourse', 'format' => 'topics']);
         $forum = $this->getDataGenerator()->create_module(
             'forum',
-            ['course' => $course->id, 'name' => "Forum First Section"]
+            ['course' => $course->id, 'name' => 'Forum First Section', 'section' => 1]
         );
         list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
 
