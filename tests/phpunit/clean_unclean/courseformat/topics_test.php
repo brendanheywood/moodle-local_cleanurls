@@ -39,7 +39,7 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
         $course = $this->getDataGenerator()->create_course(['shortname' => 'topicscourse', 'format' => 'topics']);
         $forum = $this->getDataGenerator()->create_module(
             'forum',
-            ['course' => $course->id, 'name' => "Forum First Section"]
+            ['course' => $course->id, 'name' => 'Forum First Section', 'section' => 1]
         );
         list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
 
@@ -63,5 +63,24 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
         $expected = "http://www.example.com/moodle/course/weekscourse/topic-1/{$forum->cmid}-week-1-discussion";
         static::assert_clean_unclean($url, $expected);
+    }
+
+    public function test_it_works_with_section_numbers() {
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'name', 'format' => 'topics']);
+        $this->getDataGenerator()->create_course_section(['course' => $course->id, 'section' => 1]);
+
+        $url = 'http://www.example.com/moodle/course/view.php?name=name&section=1';
+        $expected = 'http://www.example.com/moodle/course/name/topic-1';
+        static::assert_clean_unclean($url, $expected);
+    }
+
+    public function test_it_works_with_section_ids() {
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'name', 'format' => 'topics']);
+        $section = $this->getDataGenerator()->create_course_section(['course' => $course->id, 'section' => 1]);
+
+        $url = "http://www.example.com/moodle/course/view.php?name=name&sectionid={$section->id}";
+        $expected = 'http://www.example.com/moodle/course/name/topic-1';
+        $expecteduncleaned = 'http://www.example.com/moodle/course/view.php?name=name&section=1';
+        static::assert_clean_unclean($url, $expected, $expecteduncleaned);
     }
 }

@@ -39,7 +39,7 @@ class local_cleanurls_weeks_cleanunclean_test extends local_cleanurls_testcase {
         $course = $this->getDataGenerator()->create_course(['shortname' => 'weekscourse', 'format' => 'weeks']);
         $forum = $this->getDataGenerator()->create_module(
             'forum',
-            ['course' => $course->id, 'name' => "Week 1 Discussion"]
+            ['course' => $course->id, 'name' => 'Week 1 Discussion', 'section' => 1]
         );
         list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
 

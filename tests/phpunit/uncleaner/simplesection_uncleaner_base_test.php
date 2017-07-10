@@ -64,7 +64,7 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         $course = $this->getDataGenerator()->create_course(['shortname' => 'simplecourse', 'format' => 'fakesimplesection']);
         $forum = $this->getDataGenerator()->create_module(
             'forum',
-            ['course' => $course->id, 'name' => "Forum First Section"]
+            ['course' => $course->id, 'name' => 'Forum First Section', 'section' => 1]
         );
         list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
         // Give a name to the section.
@@ -76,8 +76,10 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         self::assertInstanceOf(fakesimplesection::class, $format);
         self::assertSame("custom-section/{$forum->cmid}-forum-first-section", $format->get_mypath(), 'Invalid mypath.');
         self::assertSame(['sub', 'path'], $format->get_subpath(), 'Invalid subpath.');
-        self::assertSame('Custom Section', $format->get_section(), 'Invalid section.');
+        self::assertSame('Custom Section', $format->get_section()->name, 'Invalid section.');
         self::assertSame($forum->cmid, $format->get_cmid(), 'Invalid cmid.');
+
+        $this->resetDebugging(); // Invalid format message.
     }
 
     public function test_it_cannot_be_created_if_parent_has_no_course() {
@@ -100,20 +102,13 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         self::assertFalse(fakesimplesection::can_create($format));
     }
 
-    public function test_it_requires_an_coursemodule() {
-        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'fakesimplesection']);
-        $root = new root_uncleaner('/course/shortname/section');
-        $format = $root->get_child()->get_child();
-        self::assertFalse(fakesimplesection::can_create($format));
-    }
-
     public function test_it_does_not_unclean_if_section_not_found() {
         global $DB;
 
         $course = $this->getDataGenerator()->create_course(['shortname' => 'Weekly', 'format' => 'fakesimplesection']);
         $forum = $this->getDataGenerator()->create_module(
             'forum',
-            ['course' => $course->id, 'name' => "Forum First Week"]
+            ['course' => $course->id, 'name' => 'Forum First Week', 'section' => 1]
         );
         list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
         // Give a name to the section.
@@ -127,6 +122,6 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         $unclean = uncleaner::unclean($url);
         self::assertSame($expected, $unclean->raw_out());
 
-        $this->assertDebuggingCalled(); // Could not unclean warning.
+        $this->resetDebugging(); // Could not unclean warning + fake format.
     }
 }

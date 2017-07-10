@@ -42,7 +42,11 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fakeformat extends local_cleanurls_unittest_uncleaner implements courseformat_cleaner_interface {
-    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+    public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm) {
+        return null;
+    }
+
+    public static function get_courseformat_section_clean_subpath(stdClass $course, $section) {
         return null;
     }
 }

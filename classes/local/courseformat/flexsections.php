@@ -138,12 +138,8 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
         while ($this->prepare_path_read_section());
         // @codingStandardsIgnoreEnd
 
-        // Read the activity.
-        if (!$this->prepare_path_read_activity()) {
-            debugging('Could not find flex section or activity for ['
-                      . implode('/', $this->parent->get_subpath()) . '] at [' . implode('/', $this->subpath) . '].');
-            return;
-        }
+        // Read the activity (if it exists).
+        $this->prepare_path_read_activity();
     }
 
     /**
@@ -164,10 +160,17 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
      * @return moodle_url
      */
     public function get_unclean_url() {
-        if (is_null($this->coursemodule)) {
-            return null;
-        }
+        return is_null($this->coursemodule) ? $this->get_unclean_section_url() : $this->get_unclean_coursemodule_url();
+    }
 
+    private function get_unclean_section_url() {
+        $this->parameters['name'] = $this->get_course()->shortname;
+        $lastsection = end($this->sectionpath);
+        $this->parameters['section'] = $lastsection->section;
+        return new moodle_url("/course/view.php", $this->parameters);
+    }
+
+    private function get_unclean_coursemodule_url() {
         $this->parameters['id'] = $this->coursemodule->id;
         return new moodle_url("/mod/{$this->coursemodule->modname}/view.php", $this->parameters);
     }
@@ -188,38 +191,44 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
     private function prepare_path_read_activity() {
         // It requires a subpath.
         if (count($this->subpath) == 0) {
-            return false;
+            return;
         }
 
         // It must have a '-' to prefix with an cmid.
         $path = $this->subpath[0];
         $index = strpos($path, '-');
         if ($index === false) {
-            return false;
+            return;
         }
         $cmid = substr($path, 0, $index);
 
         // The cmid must be an integer.
         if ($cmid !== (string)(int)$cmid) {
-            return false;
+            return;
         }
         $cmid = (int)$cmid;
 
         // The course module should exists.
         $cms = get_fast_modinfo($this->get_course())->get_cms();
         if (!array_key_exists($cmid, $cms)) {
-            return false;
+            return;
         }
 
         // Found it.
         array_shift($this->subpath);
         $this->mypath = "{$this->mypath}/{$path}";
         $this->coursemodule = $cms[$cmid];
-        return true;
     }
 
+    /**
+     * @return bool True if should try to read one more level, false when finished.
+     */
     private function prepare_path_read_section() {
         $sectionpath = array_shift($this->subpath);
+
+        if (is_null($sectionpath)) {
+            return false;
+        }
 
         $previous = end($this->sectionpath);
         foreach ($previous->flexsections as $candidate) {
@@ -241,7 +250,7 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
     /**
      * @inheritdoc
      */
-    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm) {
+    public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm) {
         global $DB;
         $info = get_fast_modinfo($course);
 
@@ -265,5 +274,34 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
         $path[] = "{$cm->id}{$title}";
 
         return implode('/', $path);
+    }
+
+    /**
+     * This method will be called when CleanURLs wants to translate a course section into a clean URL.
+     *
+     * @param stdClass $course  The Course being cleaned.
+     * @param int      $section The section number requested.
+     * @return string The relative path from the course in which this section is.
+     */
+    public static function get_courseformat_section_clean_subpath(stdClass $course, $section) {
+        global $DB;
+        $info = get_fast_modinfo($course);
+
+        // Create section path.
+        $sectionnum = $section;
+        $path = [];
+        while ($sectionnum) {
+            $sectionid = $info->get_section_info($sectionnum)->id;
+            $slug = clean_moodle_url::sluggify(get_section_name($course, $sectionnum), false);
+            array_unshift($path, $slug);
+            $sectionnum = $DB->get_field('course_format_options', 'value', [
+                'courseid'  => $course->id,
+                'format'    => 'flexsections',
+                'sectionid' => $sectionid,
+                'name'      => 'parent',
+            ]);
+        }
+
+        return '/' . implode('/', $path);
     }
 }

@@ -43,6 +43,16 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleaner {
+    public static function get_section_number_from_id($course, $sectionid) {
+        $info = get_fast_modinfo($course);
+        foreach ($info->get_section_info_all() as $section) {
+            if ($section->id == $sectionid) {
+                return $section->section;
+            }
+        }
+        return null;
+    }
+
     /**
      * Takes a moodle_url and either returns a clean_moodle_url object with
      * clean cloned properties or if nothing is done the original object.
@@ -158,34 +168,40 @@ class cleaner {
     }
 
     private function clean_course_by_id() {
-        global $DB;
-
         if (empty($this->params['id'])) {
-            return false;
+            return null;
         }
 
-        $slug = $DB->get_field('course', 'shortname', ['id' => $this->params['id']]);
-        $newpath = '/course/'.urlencode($slug);
+        $course = get_course($this->params['id']);
+
+        $newpath = '/course/' . urlencode($course->shortname);
         if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
             unset($this->params['id']);
             clean_moodle_url::log("Rewrite course");
         }
-        return true;
+
+        return $course;
     }
 
     private function clean_course_by_name() {
+        global $DB;
+
         if (empty($this->params['name'])) {
             return false;
         }
 
-        $newpath = '/course/'.urlencode($this->params['name']);
+        $courseid = $DB->get_field('course', 'id', ['shortname' => $this->params['name']]);
+        $course = get_course($courseid);
+
+        $newpath = '/course/' . urlencode($course->shortname);
         if ($this->check_path_allowed($newpath)) {
             $this->path = $newpath;
             unset($this->params['name']);
             clean_moodle_url::log("Rewrite course by name.");
         }
-        return true;
+
+        return $course;
     }
 
     private function clean_course_module_view($mod) {
@@ -213,7 +229,7 @@ class cleaner {
         // Try to find a clean handler for the course format.
         $classname = clean_moodle_url::get_format_support($course->format);
         if (!is_null($classname)) {
-            return '/' . $classname::get_courseformat_clean_subpath($course, $cm);
+            return '/' . $classname::get_courseformat_module_clean_subpath($course, $cm);
         }
 
         // Default behaviour.
@@ -374,7 +390,7 @@ class cleaner {
     private function clean_path() {
         switch ($this->path) {
             case '/course/view.php':
-                $this->clean_course_by_id() || $this->clean_course_by_name();
+                $this->clean_course();
                 return;
             case '/user/':
                 $this->clean_course_users();
@@ -419,6 +435,39 @@ class cleaner {
         if (substr($this->path, -10) == '/index.php') {
             clean_moodle_url::log("Removing /index.php");
             $this->path = substr($this->path, 0, -9);
+        }
+    }
+
+    private function clean_course() {
+        $course = $this->clean_course_by_id();
+        $course = $course ?: $this->clean_course_by_name();
+
+        if (is_null($course)) {
+            return;
+        }
+
+        $classname = clean_moodle_url::get_format_support($course->format);
+        if (is_null($classname)) {
+            return;
+        }
+
+        $section = null;
+        if (array_key_exists('sectionid', $this->params)) {
+            $section = self::get_section_number_from_id($course, $this->params['sectionid']);
+        }
+        if (array_key_exists('section', $this->params)) {
+            $section = $this->params['section'];
+        }
+        if (is_null($section)) {
+            return;
+        }
+
+        $sectionpath = $classname::get_courseformat_section_clean_subpath($course, $section);
+
+        if (!is_null($sectionpath)) {
+            $this->path .= $sectionpath;
+            unset($this->params['section']);
+            unset($this->params['sectionid']);
         }
     }
 }

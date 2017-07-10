@@ -43,13 +43,20 @@ require_once($CFG->dirroot . '/course/lib.php');
  */
 interface courseformat_cleaner_interface {
     /**
-     * This method will be called when CleanURLs wants to translate an activity (course module) into an URL.
-     *
-     * It will result a subpath which will appear like in a URL such as http://moodle/course/mycourse/subpath
+     * This method will be called when CleanURLs wants to translate an activity (course module) into a clean URL.
      *
      * @param stdClass $course The Course being cleaned.
      * @param cm_info  $cm     The Course Module being cleaned.
      * @return string          The relative path from the course in which this course module will be accessed.
      */
-    public static function get_courseformat_clean_subpath(stdClass $course, cm_info $cm);
+    public static function get_courseformat_module_clean_subpath(stdClass $course, cm_info $cm);
+
+    /**
+     * This method will be called when CleanURLs wants to translate a course section into a clean URL.
+     *
+     * @param stdClass $course  The Course being cleaned.
+     * @param int      $section The section number requested.
+     * @return string The relative path from the course in which this section is.
+     */
+    public static function get_courseformat_section_clean_subpath(stdClass $course, $section);
 }
