@@ -85,7 +85,7 @@ abstract class webtest {
         foreach ($tests as $test) {
             $test = new $test();
             $test->run();
-            if (!$test->has_passed()){
+            if (!$test->has_passed()) {
                 return false;
             }
         }
