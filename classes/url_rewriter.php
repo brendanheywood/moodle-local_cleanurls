@@ -95,14 +95,16 @@ class url_rewriter implements \core\output\url_rewriter {
 <script>
 document.addEventListener('click', function (event) {
     var element = event.srcElement;
-    while (element.tagName != 'A') {
-        if (!element.parentElement) {
-            return;
+    if (element) {
+        while (element.tagName != 'A') {
+            if (!element.parentElement) {
+                return;
+            }
+            element = element.parentElement;
         }
-        element = element.parentElement;
-    }
-    if (element.getAttribute('href').charAt(0) == '#') {
-        element.href = '{$clean}' + element.getAttribute('href');
+        if (element.getAttribute('href').charAt(0) == '#') {
+            element.href = '{$clean}' + element.getAttribute('href');
+        }
     }
 }, true);
 </script>
