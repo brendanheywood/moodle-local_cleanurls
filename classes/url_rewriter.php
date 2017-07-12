@@ -87,6 +87,13 @@ class url_rewriter implements \core\output\url_rewriter {
     }
 
     /**
+     * Rewire #anchor links dynamically
+     *
+     * This fixes an edge case bug where in the page there are simple links
+     * to internal #hash anchors. But because we add a base href tag these
+     * links now appear to link to another page and not this one and cause
+     * a reload. So on the fly we detect this and insert the clean url base.
+     *
      * @param $clean string
      * @return string
      */
@@ -94,7 +101,7 @@ class url_rewriter implements \core\output\url_rewriter {
         return <<<HTML
 <script>
 document.addEventListener('click', function (event) {
-    var element = event.srcElement;
+    var element = event.target;
     while (element.tagName != 'A') {
         if (!element.parentElement) {
             return;
