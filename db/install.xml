@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/cleanurls/db" VERSION="20170725" COMMENT="XMLDB file for Moodle local/cleanurls"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_cleanurls_cmpaths" COMMENT="Course Module custom paths">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="path" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Subpath after the course format path."/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course Module ID"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="locclecmp_cmid_uk" TYPE="unique" FIELDS="cmid" COMMENT="Only one row per cmid."/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
