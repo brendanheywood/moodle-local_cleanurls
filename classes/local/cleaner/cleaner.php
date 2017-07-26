@@ -68,7 +68,14 @@ class cleaner {
         return $cleaner->cleanedurl;
     }
 
-    public static function clean_course_module_view_subpath(cm_info $cm) {
+    /**
+     * Generates the subpath for a give course module.
+     *
+     * @param cm_info $cm         Course module
+     * @param bool    $usemodname In case of no custom path, if should we prefix it with module name.
+     * @return string Subpath.
+     */
+    public static function clean_course_module_view_subpath(cm_info $cm, $usemodname) {
         $path = activity_path::get_path_for_cmid($cm->id);
 
         if (!empty($path)) {
@@ -77,7 +84,8 @@ class cleaner {
 
         // Default
         $title = clean_moodle_url::sluggify($cm->name, true);
-        return "/{$cm->modname}/{$cm->id}{$title}";
+        $modname = $usemodname ? "/{$cm->modname}" : '';
+        return "{$modname}/{$cm->id}{$title}";
     }
 
     /** @var cache_application */
@@ -246,7 +254,7 @@ class cleaner {
         }
 
         // Default behaviour.
-        return self::clean_course_module_view_subpath($cm);
+        return self::clean_course_module_view_subpath($cm, true);
     }
 
     private function clean_course_modules($mod) {

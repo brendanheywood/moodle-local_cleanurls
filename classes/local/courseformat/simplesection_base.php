@@ -25,6 +25,7 @@ namespace local_cleanurls\local\courseformat;
 
 use cm_info;
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\cleaner\cleaner;
 use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
 use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
@@ -165,9 +166,9 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         $section = get_section_name($course, $cm->sectionnum);
         $section = clean_moodle_url::sluggify($section, false);
 
-        $title = clean_moodle_url::sluggify($cm->name, true);
+        $activity = cleaner::clean_course_module_view_subpath($cm, false);
 
-        return "{$section}/{$cm->id}{$title}";
+        return "{$section}{$activity}";
     }
 
     /**

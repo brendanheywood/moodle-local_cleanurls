@@ -21,6 +21,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\activity_path;
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
@@ -63,5 +65,21 @@ class local_cleanurls_weeks_cleanunclean_test extends local_cleanurls_testcase {
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
         $expected = "http://www.example.com/moodle/course/weekscourse/1-january-7-january/{$forum->cmid}-week-1-discussion";
         static::assert_clean_unclean($url, $expected);
+    }
+
+    public function test_it_supports_custom_activity_names() {
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'weekscourse', 'format' => 'weeks']);
+        $forum = $this->getDataGenerator()->create_module(
+            'forum',
+            ['course' => $course->id, 'name' => 'Week 1 Discussion', 'section' => 1]
+        );
+        list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
+        activity_path::save_path_for_cmid($forum->cmid, 'myweekforum');
+
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
+        $expected = "http://www.example.com/moodle/course/weekscourse/1-january-7-january/myweekforum";
+        static::assert_clean_unclean($url, $expected);
+
+        $this->resetDebugging(); // There can be a debugging regarding the invalid 'customformat'.
     }
 }
