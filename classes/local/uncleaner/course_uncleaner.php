@@ -70,6 +70,8 @@ class course_uncleaner extends uncleaner implements hascourse_uncleaner_interfac
 
     protected $course = null;
 
+    protected $coursename = null;
+
     /**
      * It:
      * - Consumes 'course'.
@@ -78,8 +80,10 @@ class course_uncleaner extends uncleaner implements hascourse_uncleaner_interfac
      */
     protected function prepare_path() {
         $this->subpath = $this->parent->subpath;
-        array_shift($this->subpath);
-        $this->mypath = array_shift($this->subpath);
+        $course = array_shift($this->subpath);
+        $this->coursename = array_shift($this->subpath);
+        $this->mypath = "{$course}/{$this->coursename}";
+        $this->coursename = urldecode($this->coursename);
     }
 
     /**
@@ -107,10 +111,10 @@ class course_uncleaner extends uncleaner implements hascourse_uncleaner_interfac
     }
 
     public function get_course_shortname() {
-        if (is_null($this->mypath)) {
+        if (empty($this->coursename)) {
             return null;
         }
-        return urldecode($this->mypath);
+        return $this->coursename;
     }
 
     /**
