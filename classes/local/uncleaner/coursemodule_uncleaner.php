@@ -23,6 +23,7 @@
 
 namespace local_cleanurls\local\uncleaner;
 
+use local_cleanurls\activity_path;
 use moodle_url;
 use stdClass;
 
@@ -55,11 +56,6 @@ class coursemodule_uncleaner extends uncleaner implements hascourse_uncleaner_in
             return false;
         }
 
-        // The modname should be valid.
-        if (!file_exists($CFG->dirroot . '/mod/' . $parent->subpath[0])) {
-            return false;
-        }
-
         return true;
     }
 
@@ -71,11 +67,95 @@ class coursemodule_uncleaner extends uncleaner implements hascourse_uncleaner_in
 
     /**
      * It:
+     * - Tries to use a custom path first.
+     * - If failed, tries to use the default 'modtype/id-name' format.
+     */
+    protected function prepare_path() {
+        if ($this->prepare_path_custom()) {
+            return;
+        }
+
+        if ($this->prepare_path_default()) {
+            return;
+        }
+
+        $this->subpath = $this->parent->subpath;
+        $this->modname = null;
+        $this->mypath = null;
+        $this->cmid = null;
+    }
+
+    /**
+     * It:
+     * - Tries to find a possible CMID that matches the custom path.
+     */
+    protected function prepare_path_custom() {
+        $paths = $this->prepare_path_custom_possibilities();
+        $subpath = $this->parent->subpath;
+
+        foreach ($paths as $cmid => $path) {
+            if (count($subpath) < count($path)) {
+                continue; // Subpath is too short for this course module custom path.
+            }
+
+            $expected = array_slice($subpath, 0, count($path));
+            if ($expected === $path) {
+                $this->prepare_path_custom_found($cmid, $path);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all possible paths, ensuring that they are:
+     * - in reverse order (longer paths first)
+     * - broken into an array of subpaths
+     * - indexed by the cmid
+     *
+     * @return string[][]
+     */
+    protected function prepare_path_custom_possibilities() {
+        global $DB;
+
+        $course = $this->get_course();
+        $modinfo = get_fast_modinfo($course);
+        $cmids = array_keys($modinfo->cms);
+        $paths = $DB->get_records_list(activity_path::PATHS_TABLE, 'cmid', $cmids);
+
+        $result = [];
+        rsort($paths);
+        foreach ($paths as $path) {
+            $result[(int)$path->cmid] = explode('/', $path->path);
+        }
+
+        return $result;
+    }
+
+    protected function prepare_path_custom_found($cmid, $path) {
+        $modinfo = get_fast_modinfo($this->get_course());
+
+        $this->subpath = array_slice($this->parent->subpath, count($path));
+        $this->mypath = implode('/', $path);
+        $this->cmid = $cmid;
+        $this->modname = $modinfo->cms[$cmid]->modname;
+    }
+
+    /**
+     * It:
      * - Reads the modname.
      * - Reads the the cmid.
      * - Leave the rest as subpaths.
      */
-    protected function prepare_path() {
+    protected function prepare_path_default() {
+        global $CFG;
+
+        // The modname should be valid.
+        if (!file_exists($CFG->dirroot . '/mod/' . $this->parent->subpath[0])) {
+            return false;
+        }
+
         $this->subpath = $this->parent->subpath;
         $this->modname = array_shift($this->subpath);
         $modid = array_shift($this->subpath);
@@ -83,6 +163,8 @@ class coursemodule_uncleaner extends uncleaner implements hascourse_uncleaner_in
 
         list($cmid) = explode('-', $modid);
         $this->cmid = ($cmid === (string)(int)$cmid) ? (int)$cmid : null;
+
+        return true;
     }
 
     public function get_modname() {
