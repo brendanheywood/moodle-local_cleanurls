@@ -91,8 +91,6 @@ class root_uncleaner extends uncleaner {
         $this->moodlepath = empty($path) ? '' : "/{$path}";
 
         parent::__construct(null);
-
-        $path = $this->get_root()->debug_path();
     }
 
     /**
