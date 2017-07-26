@@ -149,18 +149,28 @@ class coursemodule_uncleaner extends uncleaner implements hascourse_uncleaner_in
     protected function prepare_path_default() {
         global $CFG;
 
-        // The modname should be valid.
-        if (!file_exists($CFG->dirroot . '/mod/' . $this->parent->subpath[0])) {
-            return false;
-        }
-
         $this->subpath = $this->parent->subpath;
-        $this->modname = array_shift($this->subpath);
         $modid = array_shift($this->subpath);
-        $this->mypath = "{$this->modname}/{$modid}";
+        $this->mypath = "{$modid}";
 
         list($cmid) = explode('-', $modid);
         $this->cmid = ($cmid === (string)(int)$cmid) ? (int)$cmid : null;
+
+        if (is_null($this->cmid)) {
+            // This could be a course module index page.
+            if (!file_exists($CFG->dirroot . '/mod/' . $modid)) {
+                return false;
+            }
+            $this->modname = $modid;
+            return true;
+        }
+
+        $modinfo = get_fast_modinfo($this->get_course());
+        if (!isset($modinfo->cms[$this->cmid])) {
+            return false;
+        }
+
+        $this->modname = $modinfo->cms[$this->cmid]->modname;
 
         return true;
     }

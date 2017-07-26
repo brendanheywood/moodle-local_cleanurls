@@ -58,9 +58,9 @@ class local_cleanurls_coursemodule_cleanunclean_test extends local_cleanurls_tes
         ]);
 
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $forum->cmid;
-        $expected = 'http://www.example.com/moodle/course/shortname/forum/' . $forum->cmid . '-a-test-forum';
+        $expected = 'http://www.example.com/moodle/course/shortname/' . $forum->cmid . '-a-test-forum';
         static::assert_clean_unclean($url, $expected);
-        $this->resetDebugging(); // There can be a debugging regarding the invalid 'customformat'.
+        $this->resetDebugging(); // There can be a debugging regarding the invalid format.
     }
 
     public function test_it_cleans_course_modules_urls() {

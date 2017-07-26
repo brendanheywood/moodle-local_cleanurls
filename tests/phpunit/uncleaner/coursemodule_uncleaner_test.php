@@ -67,14 +67,16 @@ class local_cleanurls_coursemodule_uncleaner_test extends local_cleanurls_testca
         $course = $root->get_child();
         $module = $course->get_child();
         self::assertInstanceOf(coursemodule_uncleaner::class, $module);
-        $this->resetDebugging(); // Invalid format message.
+        $this->resetDebugging(); // There can be a debugging regarding the invalid format.
     }
 
-    public function test_it_has_a_mypath_with_modname_and_id() {
-        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'unknownformat']);
-        $root = new root_uncleaner('/course/shortname/forum/123-idme');
+    public function test_it_has_a_mypath_with_id() {
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'unknownformat']);
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'name' => 'cestmoi']);
+        $root = new root_uncleaner("/course/shortname/{$forum->cmid}-cestmoi");
         $module = $root->get_child()->get_child();
-        self::assertSame('forum/123-idme', $module->get_mypath());
+        self::assertSame("{$forum->cmid}-cestmoi", $module->get_mypath());
+        $this->resetDebugging(); // There can be a debugging regarding the invalid format.
     }
 
     public function test_it_provides_the_module_name() {
@@ -82,13 +84,16 @@ class local_cleanurls_coursemodule_uncleaner_test extends local_cleanurls_testca
         $root = new root_uncleaner('/course/shortname/forum/123-idme');
         $module = $root->get_child()->get_child();
         self::assertSame('forum', $module->get_modname());
+        $this->resetDebugging(); // There can be a debugging regarding the invalid format.
     }
 
     public function test_it_provides_the_course_module_id() {
-        $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'unknownformat']);
-        $root = new root_uncleaner('/course/shortname/forum/123-idme');
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'unknownformat']);
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'name' => 'cestmoi']);
+        $root = new root_uncleaner("/course/shortname/{$forum->cmid}-cestmoi");
         $module = $root->get_child()->get_child();
-        self::assertSame(123, $module->get_cmid());
+        self::assertSame($forum->cmid, $module->get_cmid());
+        $this->resetDebugging(); // There can be a debugging regarding the invalid format.
     }
 
     public function test_it_provides_null_for_an_invalid_course_module_id() {
@@ -96,6 +101,7 @@ class local_cleanurls_coursemodule_uncleaner_test extends local_cleanurls_testca
         $root = new root_uncleaner('/course/shortname/forum/idme');
         $module = $root->get_child()->get_child();
         self::assertNull($module->get_cmid());
+        $this->resetDebugging(); // There can be a debugging regarding the invalid format.
     }
 
     public function test_it_provides_null_if_no_course_module_id() {
@@ -103,6 +109,7 @@ class local_cleanurls_coursemodule_uncleaner_test extends local_cleanurls_testca
         $root = new root_uncleaner('/course/shortname/forum');
         $module = $root->get_child()->get_child();
         self::assertNull($module->get_cmid());
+        $this->resetDebugging(); // There can be a debugging regarding the invalid format.
     }
 
     public function test_it_cannot_be_root() {
