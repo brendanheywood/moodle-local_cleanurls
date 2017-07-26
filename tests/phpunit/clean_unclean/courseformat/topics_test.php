@@ -21,6 +21,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\activity_path;
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
@@ -82,5 +84,18 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
         $expected = 'http://www.example.com/moodle/course/name/topic-1';
         $expecteduncleaned = 'http://www.example.com/moodle/course/view.php?name=name&section=1';
         static::assert_clean_unclean($url, $expected, $expecteduncleaned);
+    }
+
+    public function test_it_supports_custom_activity_names() {
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'weekscourse', 'format' => 'topics']);
+        $forum = $this->getDataGenerator()->create_module(
+            'forum',
+            ['course' => $course->id, 'name' => 'Week 1 Discussion', 'section' => 1]
+        );
+        activity_path::save_path_for_cmid($forum->cmid, 'topics-forum');
+
+        $url = "http://www.example.com/moodle/mod/forum/view.php?id={$forum->cmid}";
+        $expected = "http://www.example.com/moodle/course/weekscourse/topic-1/topics-forum";
+        static::assert_clean_unclean($url, $expected);
     }
 }
