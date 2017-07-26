@@ -78,7 +78,8 @@ abstract class uncleaner {
 
         if (!empty($lastnode->get_subpath())) {
             $subpath = implode('/', $lastnode->get_subpath());
-            debugging("Could not unclean until the end of address: {$subpath}", DEBUG_DEVELOPER);
+            $debug = implode("\n", $root->debug_path());
+            debugging("Could not unclean until the end of address: {$subpath}\n\n{$clean}\n{$debug}", DEBUG_DEVELOPER);
         }
 
         return $unclean;

@@ -113,7 +113,7 @@ class local_cleanurls_uncleaner_test extends local_cleanurls_testcase {
 
     public function test_it_shows_a_debugging_message_if_could_not_fully_unclean_it() {
         uncleaner::unclean('/local/cleanurls/tests/bar/extra/part');
-        $this->assertDebuggingCalled('Could not unclean until the end of address: extra/part', DEBUG_DEVELOPER);
+        $this->assertDebuggingCalled();
     }
 
     public function test_it_should_use_cached_version() {

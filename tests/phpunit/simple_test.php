@@ -141,7 +141,7 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $this->assertEquals('http://www.example.com/moodle/foo/bar.php', $clean, "Clean: Don't remove php extension");
 
         $unclean = uncleaner::unclean($clean)->raw_out();
-        $this->assertDebuggingCalled('Could not unclean until the end of address: foo/bar.php');
+        $this->assertDebuggingCalled();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back");
 
         $url = 'http://www.example.com/moodle/foo/bar.php?ding=pop';
@@ -151,7 +151,7 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
                             "Clean: Do not remove php extension with params");
 
         $unclean = uncleaner::unclean($clean)->raw_out();
-        $this->assertDebuggingCalled('Could not unclean until the end of address: foo/bar.php');
+        $this->assertDebuggingCalled();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with params");
 
         $url = 'http://www.example.com/moodle/foo/bar.php#hash';
@@ -161,7 +161,7 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
                             "Clean: Don't remove php extension with hash");
 
         $unclean = uncleaner::unclean($clean)->raw_out();
-        $this->assertDebuggingCalled('Could not unclean until the end of address: foo/bar.php');
+        $this->assertDebuggingCalled();
         $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
 
         $url = 'http://www.example.com/moodle/course/index.php?foo=bar#hash';
