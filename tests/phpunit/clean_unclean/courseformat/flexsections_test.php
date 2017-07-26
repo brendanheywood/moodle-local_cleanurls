@@ -33,6 +33,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\activity_path;
 use local_cleanurls\local\courseformat\flexsections;
 use local_cleanurls\local\uncleaner\root_uncleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
@@ -186,6 +187,15 @@ class local_cleanurls_flexsections_support_test extends advanced_testcase {
 
         $expected = 'http://www.example.com/moodle/course/view.php?name=mycourse';
         self::assertSame($expected, $unclean->raw_out());
+    }
+
+    public function test_it_supports_custom_activity_names() {
+        $this->create_course();
+        activity_path::save_path_for_cmid($this->forums[6]->cmid, 'an-important-forum');
+
+        $url = "http://www.example.com/moodle/mod/forum/view.php?id={$this->forums[6]->cmid}";
+        $expected = 'http://www.example.com/moodle/course/mycourse/topic-1/topic-2/topic-6/an-important-forum';
+        local_cleanurls_testcase::assert_clean_unclean($url, $expected);
     }
 
     protected function create_course($options = []) {
