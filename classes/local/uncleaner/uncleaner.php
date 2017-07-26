@@ -251,4 +251,21 @@ abstract class uncleaner {
     public function get_parameters() {
         return $this->parameters;
     }
+
+    /**
+     * Creates a moodle URL.
+     *
+     * @param string   $path       Path for the Moodle URL.
+     * @param string[] $parameters Override default parameters, use null to unset it.
+     * @return moodle_url
+     */
+    public function create_unclean_url($path, $parameters = []) {
+        $parameters = array_merge($this->parameters, $parameters);
+        foreach ($parameters as $key => $value) {
+            if (is_null($value)) {
+                unset($parameters[$key]);
+            }
+        }
+        return new moodle_url($path, $parameters);
+    }
 }

@@ -96,8 +96,6 @@ class user_uncleaner extends uncleaner {
             return null;
         }
 
-        $this->parameters['id'] = $userid;
-
-        return new moodle_url($path, $this->parameters);
+        return $this->create_unclean_url($path, ['id' => $userid]);
     }
 }

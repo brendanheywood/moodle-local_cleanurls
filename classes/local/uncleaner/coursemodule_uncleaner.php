@@ -184,13 +184,14 @@ class coursemodule_uncleaner extends uncleaner implements hascourse_uncleaner_in
         }
 
         if (is_null($this->cmid)) {
-            $path = "/mod/{$this->modname}/index.php";
-            $this->parameters['id'] = $this->get_course()->id;
-        } else {
-            $path = "/mod/{$this->modname}/view.php";
-            $this->parameters['id'] = $this->cmid;
+            return $this->create_unclean_url(
+                "/mod/{$this->modname}/index.php",
+                ['id' => $this->get_course()->id]);
         }
-        return new moodle_url($path, $this->parameters);
+
+        return $this->create_unclean_url(
+            "/mod/{$this->modname}/view.php",
+            ['id' => $this->cmid]);
     }
 
     /**

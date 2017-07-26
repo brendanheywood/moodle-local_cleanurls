@@ -63,9 +63,9 @@ class user_forum_uncleaner extends uncleaner {
             return null;
         }
 
-        $this->parameters['id'] = $userid;
-        $this->parameters['mode'] = $this->mypath;
-
-        return new moodle_url('/mod/forum/user.php', $this->parameters);
+        return $this->create_unclean_url('/mod/forum/user.php', [
+            'id'   => $userid,
+            'mode' => $this->mypath,
+        ]);
     }
 }

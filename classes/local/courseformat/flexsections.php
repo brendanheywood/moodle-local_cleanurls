@@ -168,15 +168,16 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
     }
 
     private function get_unclean_section_url() {
-        $this->parameters['name'] = $this->get_course()->shortname;
         $lastsection = end($this->sectionpath);
-        $this->parameters['section'] = $lastsection->section;
-        return new moodle_url("/course/view.php", $this->parameters);
+        return $this->create_unclean_url('/course/view.php', [
+            'name'    => $this->get_course()->shortname,
+            'section' => $lastsection->section,
+        ]);
     }
 
     private function get_unclean_coursemodule_url() {
-        $this->parameters['id'] = $this->coursemodule->id;
-        return new moodle_url("/mod/{$this->coursemodule->modname}/view.php", $this->parameters);
+        return $this->create_unclean_url("/mod/{$this->coursemodule->modname}/view.php",
+                                         ['id' => $this->coursemodule->id]);
     }
 
     /**

@@ -89,7 +89,6 @@ class category_uncleaner extends uncleaner {
         if (!preg_match('#-(\d+)$#', $this->mypath, $matches)) {
             return null;
         }
-        $this->parameters['categoryid'] = $matches[1];
-        return new moodle_url('/course/index.php', $this->parameters);
+        return $this->create_unclean_url('/course/index.php', ['categoryid' => $matches[1]]);
     }
 }

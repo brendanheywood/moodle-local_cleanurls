@@ -129,14 +129,6 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
         }
     }
 
-    protected function prepare_parameters() {
-        parent::prepare_parameters();
-        if (is_null($this->cmid)) {
-            $this->parameters['name'] = $this->get_course()->shortname;
-            $this->parameters['section'] = $this->section->section;
-        }
-    }
-
     /**
      * @return moodle_url
      */
@@ -203,11 +195,13 @@ abstract class simplesection_base extends uncleaner implements hascourse_unclean
 
         $cm = $cms[$this->cmid];
 
-        $this->parameters['id'] = $cm->id;
-        return new moodle_url("/mod/{$cm->modname}/view.php", $this->parameters);
+        return $this->create_unclean_url("/mod/{$cm->modname}/view.php", ['id' => $cm->id]);
     }
 
     private function get_unclean_section_url() {
-        return new moodle_url("/course/view.php", $this->parameters);
+        return $this->create_unclean_url('/course/view.php', [
+            'name'    => $this->get_course()->shortname,
+            'section' => $this->section->section,
+        ]);
     }
 }
