@@ -268,4 +268,22 @@ abstract class uncleaner {
         }
         return new moodle_url($path, $parameters);
     }
+
+    public function get_root() {
+        $root = $this;
+        while (!is_null($root->parent)) {
+            $root = $root->parent;
+        }
+        return $root;
+    }
+
+    public function debug_path() {
+        $me = [static::class . ': ' . $this->mypath];
+
+        if (!is_null($this->child)) {
+            $me = array_merge($me, $this->child->debug_path());
+        }
+
+        return $me;
+    }
 }
