@@ -49,7 +49,7 @@ class coursemodule_uncleaner extends uncleaner implements hascourse_uncleaner_in
             return false;
         }
 
-        // It requires a modname.
+        // It requires a modname or custom name.
         if (count($parent->subpath) < 1) {
             return false;
         }
