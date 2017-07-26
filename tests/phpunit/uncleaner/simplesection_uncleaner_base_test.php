@@ -58,7 +58,7 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         $this->resetDebugging(); // Invalid format message.
     }
 
-    public function test_it_creates_path_subpath_section_and_cmid() {
+    public function test_it_creates_path_subpath_and_section() {
         global $DB;
 
         $course = $this->getDataGenerator()->create_course(['shortname' => 'simplecourse', 'format' => 'fakesimplesection']);
@@ -74,10 +74,13 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
                                    "custom-section/{$forum->cmid}-forum-first-section/sub/path");
         $format = $root->get_child()->get_child()->get_child();
         self::assertInstanceOf(fakesimplesection::class, $format);
-        self::assertSame("custom-section/{$forum->cmid}-forum-first-section", $format->get_mypath(), 'Invalid mypath.');
-        self::assertSame(['sub', 'path'], $format->get_subpath(), 'Invalid subpath.');
+
+        self::assertSame("custom-section", $format->get_mypath(), 'Invalid mypath.');
+
+        $expected = ["{$forum->cmid}-forum-first-section", 'sub', 'path'];
+        self::assertSame($expected, $format->get_subpath(), 'Invalid subpath.');
+
         self::assertSame('Custom Section', $format->get_section()->name, 'Invalid section.');
-        self::assertSame($forum->cmid, $format->get_cmid(), 'Invalid cmid.');
 
         $this->resetDebugging(); // Invalid format message.
     }
