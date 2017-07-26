@@ -45,8 +45,6 @@ class coursemodule_uncleaner extends uncleaner implements hascourse_uncleaner_in
      * @return bool
      */
     public static function can_create($parent) {
-        global $CFG;
-
         if (!is_a($parent, hascourse_uncleaner_interface::class)) {
             return false;
         }

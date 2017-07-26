@@ -95,5 +95,6 @@ class activity_path {
         }
     }
 
-    private function __construct() { }
+    private function __construct() {
+    }
 }
