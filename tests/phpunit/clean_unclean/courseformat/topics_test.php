@@ -87,7 +87,7 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
     }
 
     public function test_it_supports_custom_activity_names() {
-        $course = $this->getDataGenerator()->create_course(['shortname' => 'weekscourse', 'format' => 'topics']);
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'topiccourse', 'format' => 'topics']);
         $forum = $this->getDataGenerator()->create_module(
             'forum',
             ['course' => $course->id, 'name' => 'Week 1 Discussion', 'section' => 1]
@@ -95,7 +95,7 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
         activity_path::save_path_for_cmid($forum->cmid, 'topics-forum');
 
         $url = "http://www.example.com/moodle/mod/forum/view.php?id={$forum->cmid}";
-        $expected = "http://www.example.com/moodle/course/weekscourse/topic-1/topics-forum";
+        $expected = "http://www.example.com/moodle/course/topiccourse/topic-1/topics-forum";
         static::assert_clean_unclean($url, $expected);
     }
 }
