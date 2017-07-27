@@ -50,7 +50,7 @@ class activity_path {
                           self::ACTIVITY_PATH_FIELD,
                           get_string('path_setting', 'local_cleanurls'));
 
-        $form->setType(self::ACTIVITY_PATH_FIELD, PARAM_PATH);
+        $form->setType(self::ACTIVITY_PATH_FIELD, PARAM_ALPHANUMEXT);
 
         $form->addHelpButton(self::ACTIVITY_PATH_FIELD,
                              'path_setting',
