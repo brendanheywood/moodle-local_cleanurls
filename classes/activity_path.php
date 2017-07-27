@@ -159,6 +159,10 @@ class activity_path {
     protected static function remove_from_cache(stdClass $moduleinfo, stdClass $course) {
         $modinfo = get_fast_modinfo($course);
         $cm = $modinfo->cms[$moduleinfo->coursemodule];
+        if (is_null($cm->url)) {
+            return;
+        }
+
         $url = $cm->url->raw_out();
         $cache = cache::make('local_cleanurls', 'outgoing');
         $cache->delete($url);
