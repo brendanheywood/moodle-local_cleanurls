@@ -71,6 +71,7 @@ class activity_path {
 
         $path = isset($moduleinfo->$field) ? $moduleinfo->$field : '';
         self::save_path_for_cmid($moduleinfo->coursemodule, $path);
+        rebuild_course_cache($course->id, true);
 
         return $moduleinfo;
     }
