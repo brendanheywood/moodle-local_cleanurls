@@ -106,8 +106,10 @@ class activity_path {
     public static function coursemodule_validation(moodleform_mod $modform, array $data) {
         global $CFG;
 
-        $errors = [];
         $path = $data['cleanurls_path'];
+        if (empty($path)) {
+            return [];
+        }
 
         // Check if path is not a module name.
         if (file_exists($CFG->dirroot . '/mod/' . $path)) {
@@ -115,22 +117,28 @@ class activity_path {
         }
 
         $modinfo = get_fast_modinfo($modform->get_course());
-        $found = self::coursemodule_validation_existing_subpath($path, $modform->get_coursemodule()->id, $modinfo);
+        $cm = $modform->get_coursemodule();
+        $cm = $cm ?: (object)['id' => null, 'sectionnum' => $data['section']];
+        $found = self::coursemodule_validation_existing_subpath($path, $cm, $modinfo);
         if (!is_null($found)) {
             $details = "{$found->name} (#{$found->id})";
             $error = get_string('invalid_path_alreadyused', 'local_cleanurls', $details);
             return ['cleanurls_path' => $error];
         }
 
-        return $errors;
+        return [];
     }
 
-    private static function coursemodule_validation_existing_subpath($path, $mycmid, course_modinfo $modinfo) {
+    private static function coursemodule_validation_existing_subpath($path, $mycm, course_modinfo $modinfo) {
         global $DB;
 
         $cms = $modinfo->cms;
-        $mysection = $cms[$mycmid]->sectionnum;
-        unset($cms[$mycmid]);
+        if (is_null($mycm->id)) {
+            $mysection = $mycm->sectionnum;
+        } else {
+            $mysection = $cms[$mycm->id]->sectionnum;
+            unset($cms[$mycm->id]);
+        }
 
         $cmids = array_keys($cms);
         $found = $DB->get_records_list(self::PATHS_TABLE, 'cmid', $cmids);
