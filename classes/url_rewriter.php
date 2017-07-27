@@ -63,7 +63,8 @@ class url_rewriter implements \core\output\url_rewriter {
     public static function html_head_setup() {
         global $CFG, $PAGE;
 
-        $clean = $PAGE->url->out(false);
+        $url = new moodle_url($_SERVER['REQUEST_URI']);
+        $clean = $url->out(false);
         $output = '';
 
         if (isset($CFG->uncleanedurl)) {
