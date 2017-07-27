@@ -23,6 +23,7 @@
 
 namespace local_cleanurls;
 
+use cache;
 use course_modinfo;
 use moodleform_mod;
 use MoodleQuickForm;
@@ -65,6 +66,8 @@ class activity_path {
 
     public static function coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course) {
         $field = self::ACTIVITY_PATH_FIELD;
+
+        self::remove_from_cache($moduleinfo, $course);
 
         $path = isset($moduleinfo->$field) ? $moduleinfo->$field : '';
         self::save_path_for_cmid($moduleinfo->coursemodule, $path);
@@ -142,5 +145,13 @@ class activity_path {
         }
 
         return null;
+    }
+
+    protected static function remove_from_cache(stdClass $moduleinfo, stdClass $course) {
+        $modinfo = get_fast_modinfo($course);
+        $cm = $modinfo->cms[$moduleinfo->coursemodule];
+        $url = $cm->url->raw_out();
+        $cache = cache::make('local_cleanurls', 'outgoing');
+        $cache->delete($url);
     }
 }
