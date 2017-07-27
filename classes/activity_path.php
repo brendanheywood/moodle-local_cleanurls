@@ -23,6 +23,7 @@
 
 namespace local_cleanurls;
 
+use course_modinfo;
 use moodleform_mod;
 use MoodleQuickForm;
 use stdClass;
@@ -96,5 +97,50 @@ class activity_path {
     }
 
     private function __construct() {
+    }
+
+    public static function coursemodule_validation(moodleform_mod $modform, array $data) {
+        global $CFG;
+
+        $errors = [];
+        $path = $data['cleanurls_path'];
+
+        // Check if path is not a module name.
+        if (file_exists($CFG->dirroot . '/mod/' . $path)) {
+            return ['cleanurls_path' => get_string('invalid_path_modulename', 'local_cleanurls')];
+        }
+
+        $modinfo = get_fast_modinfo($modform->get_course());
+        $found = self::coursemodule_validation_existing_subpath($path, $modform->get_coursemodule()->id, $modinfo);
+        if (!is_null($found)) {
+            $details = "{$found->name} (#{$found->id})";
+            $error = get_string('invalid_path_alreadyused', 'local_cleanurls', $details);
+            return ['cleanurls_path' => $error];
+        }
+
+        return $errors;
+    }
+
+    private static function coursemodule_validation_existing_subpath($path, $mycmid, course_modinfo $modinfo) {
+        global $DB;
+
+        $cms = $modinfo->cms;
+        $mysection = $cms[$mycmid]->sectionnum;
+        unset($cms[$mycmid]);
+
+        $cmids = array_keys($cms);
+        $found = $DB->get_records_list(self::PATHS_TABLE, 'cmid', $cmids);
+        foreach ($found as $foundentry) {
+            if ($foundentry->path != $path) {
+                continue;
+            }
+
+            $foundcm = $cms[$foundentry->cmid];
+            if ($mysection == $foundcm->sectionnum) {
+                return $foundcm;
+            }
+        }
+
+        return null;
     }
 }

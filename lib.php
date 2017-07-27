@@ -29,6 +29,10 @@ function local_cleanurls_coursemodule_standard_elements(moodleform_mod $modform,
     activity_path::coursemodule_standard_elements($modform, $form);
 }
 
+function local_cleanurls_coursemodule_validation(moodleform_mod $modform, array $data) {
+    return activity_path::coursemodule_validation($modform, $data);
+}
+
 function local_cleanurls_pre_course_module_delete(stdClass $cm) {
     activity_path::pre_course_module_delete($cm->id);
 }
