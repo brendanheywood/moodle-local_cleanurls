@@ -15,7 +15,6 @@ cache:
   - $HOME/.composer/cache
 
 php:
-  - 5.6
   - 7.0
 
 env:
@@ -32,6 +31,12 @@ matrix:
       env: DB=pgsql MOODLE_BRANCH=MOODLE_29_STABLE CORE_PATCH=core29.patch
     - php: 5.6
       env: DB=pgsql MOODLE_BRANCH=MOODLE_30_STABLE CORE_PATCH=core30.patch
+    - php: 5.6
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_31_STABLE
+    - php: 5.6
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_32_STABLE
+    - php: 5.6
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_33_STABLE
     - php: 7.1
       env: DB=pgsql MOODLE_BRANCH=master
 

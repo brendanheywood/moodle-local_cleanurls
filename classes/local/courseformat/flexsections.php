@@ -25,7 +25,9 @@ namespace local_cleanurls\local\courseformat;
 
 use cm_info;
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\local\cleaner\cleaner;
 use local_cleanurls\local\cleaner\courseformat_cleaner_interface;
+use local_cleanurls\local\uncleaner\coursemodule_uncleaner;
 use local_cleanurls\local\uncleaner\hascourse_uncleaner_interface;
 use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
@@ -42,6 +44,12 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class flexsections extends uncleaner implements hascourse_uncleaner_interface, courseformat_cleaner_interface {
+    public static function list_child_options() {
+        return [
+            coursemodule_uncleaner::class,
+        ];
+    }
+
     /**
      * Quick check if this object should be created for the given parent.
      *
@@ -168,15 +176,16 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
     }
 
     private function get_unclean_section_url() {
-        $this->parameters['name'] = $this->get_course()->shortname;
         $lastsection = end($this->sectionpath);
-        $this->parameters['section'] = $lastsection->section;
-        return new moodle_url("/course/view.php", $this->parameters);
+        return $this->create_unclean_url('/course/view.php', [
+            'name'    => $this->get_course()->shortname,
+            'section' => $lastsection->section,
+        ]);
     }
 
     private function get_unclean_coursemodule_url() {
-        $this->parameters['id'] = $this->coursemodule->id;
-        return new moodle_url("/mod/{$this->coursemodule->modname}/view.php", $this->parameters);
+        return $this->create_unclean_url("/mod/{$this->coursemodule->modname}/view.php",
+                                         ['id' => $this->coursemodule->id]);
     }
 
     /**
@@ -274,8 +283,7 @@ class flexsections extends uncleaner implements hascourse_uncleaner_interface, c
         }
 
         // Add activity path.
-        $title = clean_moodle_url::sluggify($cm->name, true);
-        $path[] = "{$cm->id}{$title}";
+        $path[] = ltrim(cleaner::clean_course_module_view_subpath($cm), '/');
 
         return implode('/', $path);
     }

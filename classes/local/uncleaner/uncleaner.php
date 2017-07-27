@@ -78,7 +78,8 @@ abstract class uncleaner {
 
         if (!empty($lastnode->get_subpath())) {
             $subpath = implode('/', $lastnode->get_subpath());
-            debugging("Could not unclean until the end of address: {$subpath}", DEBUG_DEVELOPER);
+            $debug = implode("\n", $root->debug_path());
+            debugging("Could not unclean until the end of address: {$subpath}\n\n{$clean}\n{$debug}", DEBUG_DEVELOPER);
         }
 
         return $unclean;
@@ -250,5 +251,40 @@ abstract class uncleaner {
      */
     public function get_parameters() {
         return $this->parameters;
+    }
+
+    /**
+     * Creates a moodle URL.
+     *
+     * @param string   $path       Path for the Moodle URL.
+     * @param string[] $parameters Override default parameters, use null to unset it.
+     * @return moodle_url
+     */
+    public function create_unclean_url($path, $parameters = []) {
+        $parameters = array_merge($this->parameters, $parameters);
+        foreach ($parameters as $key => $value) {
+            if (is_null($value)) {
+                unset($parameters[$key]);
+            }
+        }
+        return new moodle_url($path, $parameters);
+    }
+
+    public function get_root() {
+        $root = $this;
+        while (!is_null($root->parent)) {
+            $root = $root->parent;
+        }
+        return $root;
+    }
+
+    public function debug_path() {
+        $me = [static::class . ': ' . $this->mypath];
+
+        if (!is_null($this->child)) {
+            $me = array_merge($me, $this->child->debug_path());
+        }
+
+        return $me;
     }
 }

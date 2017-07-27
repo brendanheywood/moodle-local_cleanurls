@@ -84,15 +84,13 @@ class user_course_uncleaner extends uncleaner {
 
         $userid = $this->get_user_id();
         if (is_null($userid)) {
-            $path = '/user/index.php';
-            $this->parameters['id'] = $courseid;
-        } else {
-            $path = '/user/view.php';
-            $this->parameters['id'] = $userid;
-            $this->parameters['course'] = $courseid;
+            return $this->create_unclean_url('/user/index.php', ['id' => $courseid]);
         }
 
-        return new moodle_url($path, $this->parameters);
+        return $this->create_unclean_url('/user/view.php', [
+            'id'     => $userid,
+            'course' => $courseid,
+        ]);
     }
 
     public function get_user_id() {

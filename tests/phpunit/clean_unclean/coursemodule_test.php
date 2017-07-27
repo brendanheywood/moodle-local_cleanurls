@@ -21,6 +21,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\activity_path;
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../cleanurls_testcase.php');
 
@@ -56,9 +58,9 @@ class local_cleanurls_coursemodule_cleanunclean_test extends local_cleanurls_tes
         ]);
 
         $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $forum->cmid;
-        $expected = 'http://www.example.com/moodle/course/shortname/forum/' . $forum->cmid . '-a-test-forum';
+        $expected = 'http://www.example.com/moodle/course/shortname/' . $forum->cmid . '-a-test-forum';
         static::assert_clean_unclean($url, $expected);
-        $this->resetDebugging(); // There can be a debugging regarding the invalid 'customformat'.
+        $this->resetDebugging(); // There can be a debugging regarding the invalid format.
     }
 
     public function test_it_cleans_course_modules_urls() {
@@ -66,6 +68,19 @@ class local_cleanurls_coursemodule_cleanunclean_test extends local_cleanurls_tes
 
         static::assert_clean_unclean('http://www.example.com/moodle/mod/forum/index.php?id=' . $course->id,
                                      'http://www.example.com/moodle/course/shortname/forum');
+        $this->resetDebugging(); // There can be a debugging regarding the invalid 'customformat'.
+    }
+
+    public function test_it_supports_custom_activity_names() {
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'shortcourse', 'format' => 'unknownformat']);
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'name' => 'Test Forum']);
+        list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
+        activity_path::save_path_for_cmid($forum->cmid, 'myforum');
+
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
+        $expected = 'http://www.example.com/moodle/course/shortcourse/myforum';
+        static::assert_clean_unclean($url, $expected);
+
         $this->resetDebugging(); // There can be a debugging regarding the invalid 'customformat'.
     }
 }

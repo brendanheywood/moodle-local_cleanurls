@@ -28,6 +28,7 @@ namespace local_cleanurls\local\cleaner;
 use cache;
 use cache_application;
 use cm_info;
+use local_cleanurls\activity_path;
 use local_cleanurls\clean_moodle_url;
 use moodle_url;
 use stdClass;
@@ -65,6 +66,24 @@ class cleaner {
         $cleaner->originalurl = $originalurl;
         $cleaner->execute();
         return $cleaner->cleanedurl;
+    }
+
+    /**
+     * Generates the subpath for a give course module.
+     *
+     * @param cm_info $cm         Course module
+     * @return string Subpath.
+     */
+    public static function clean_course_module_view_subpath(cm_info $cm) {
+        $path = activity_path::get_path_for_cmid($cm->id);
+
+        if (!empty($path)) {
+            return "/{$path}";
+        }
+
+        // Default
+        $title = clean_moodle_url::sluggify($cm->name, true);
+        return "/{$cm->id}{$title}";
     }
 
     /** @var cache_application */
@@ -233,8 +252,7 @@ class cleaner {
         }
 
         // Default behaviour.
-        $title = clean_moodle_url::sluggify($cm->name, true);
-        return "/{$cm->modname}/{$cm->id}{$title}";
+        return self::clean_course_module_view_subpath($cm);
     }
 
     private function clean_course_modules($mod) {

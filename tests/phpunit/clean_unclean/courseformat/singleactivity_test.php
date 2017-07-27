@@ -60,7 +60,7 @@ class local_cleanurls_simpleactivity_cleanunclean_test extends local_cleanurls_t
 
     public function test_it_cannot_be_created_if_course_has_the_wrong_format() {
         $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'weeks']);
-        $root = new root_uncleaner('/course/shortname/forum/123-idme');
+        $root = new root_uncleaner('/course/shortname');
         $format = $root->get_child()->get_child();
         self::assertFalse(singleactivity::can_create($format));
     }
