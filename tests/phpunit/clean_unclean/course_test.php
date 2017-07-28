@@ -43,27 +43,12 @@ class local_cleanurls_course_cleanunclean_test extends local_cleanurls_testcase 
                                                            ]);
 
         static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id=' . $course->id,
-                                     'http://www.example.com/moodle/course/shortname',
-                                     'http://www.example.com/moodle/course/view.php?name=shortname');
-    }
-
-    public function test_it_cleans_course_with_hash_in_shortname() {
-        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $course = $this->getDataGenerator()->create_course([
-                                                               'fullname'  => 'full name of the course #3',
-                                                               'shortname' => 'short#name',
-                                                               'visible'   => 1,
-                                                               'category'  => $category->id,
-                                                           ]);
-
-        static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id=' . $course->id,
-                                     'http://www.example.com/moodle/course/short%23name',
-                                     'http://www.example.com/moodle/course/view.php?name=short%23name');
+                                     'http://www.example.com/moodle/course/shortname');
     }
 
     public function test_it_cleans_course_urls_by_name() {
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $this->getDataGenerator()->create_course([
+        $course = $this->getDataGenerator()->create_course([
                                                      'fullname'  => 'full name',
                                                      'shortname' => 'theshortname',
                                                      'visible'   => 1,
@@ -71,7 +56,8 @@ class local_cleanurls_course_cleanunclean_test extends local_cleanurls_testcase 
                                                  ]);
 
         static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?name=theshortname',
-                                     'http://www.example.com/moodle/course/theshortname');
+                                     'http://www.example.com/moodle/course/theshortname',
+                                     "http://www.example.com/moodle/course/view.php?id={$course->id}");
     }
 
     public function test_it_cleans_in_edit_mode() {
@@ -84,20 +70,20 @@ class local_cleanurls_course_cleanunclean_test extends local_cleanurls_testcase 
                                                            ]);
 
         static::assert_clean_unclean(
-            'http://www.example.com/moodle/course/view.php?edit=1&id=' . $course->id,
+            "http://www.example.com/moodle/course/view.php?edit=1&id={$course->id}",
             'http://www.example.com/moodle/course/theshortname?edit=1',
-            'http://www.example.com/moodle/course/view.php?edit=1&name=theshortname'
+            "http://www.example.com/moodle/course/view.php?edit=1&id={$course->id}"
         );
     }
 
     public function test_it_does_not_clean_section_number_if_format_not_supported() {
-        $this->getDataGenerator()->create_course([
+        $course = $this->getDataGenerator()->create_course([
                                                      'shortname' => 'name',
                                                      'format'    => 'unknownformat',
                                                  ]);
 
         static::assert_clean_unclean(
-            "http://www.example.com/moodle/course/view.php?name=name&section=1",
+            "http://www.example.com/moodle/course/view.php?id={$course->id}&section=1",
             'http://www.example.com/moodle/course/name?section=1'
         );
 

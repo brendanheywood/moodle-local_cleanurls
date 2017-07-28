@@ -185,7 +185,7 @@ class local_cleanurls_flexsections_support_test extends advanced_testcase {
         $clean = 'http://www.example.com/moodle/course/mycourse';
         $unclean = uncleaner::unclean($clean);
 
-        $expected = 'http://www.example.com/moodle/course/view.php?name=mycourse';
+        $expected = "http://www.example.com/moodle/course/view.php?id={$this->course->id}";
         self::assertSame($expected, $unclean->raw_out());
     }
 

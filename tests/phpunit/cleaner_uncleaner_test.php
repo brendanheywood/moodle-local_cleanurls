@@ -72,19 +72,21 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
                                                             'category'  => $category->id]);
 
         static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?id='.$course->id,
-                                    'http://www.example.com/moodle/course/shortname',
-                                    'http://www.example.com/moodle/course/view.php?name=shortname');
+                                     'http://www.example.com/moodle/course/shortname');
     }
 
     public function test_it_cleans_course_urls_by_name() {
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $this->getDataGenerator()->create_course(['fullname'  => 'full name',
-                                                  'shortname' => 'theshortname',
-                                                  'visible'   => 1,
-                                                  'category'  => $category->id]);
+        $course = $this->getDataGenerator()->create_course([
+                                                               'fullname'  => 'full name',
+                                                               'shortname' => 'theshortname',
+                                                               'visible'   => 1,
+                                                               'category'  => $category->id,
+                                                           ]);
 
         static::assert_clean_unclean('http://www.example.com/moodle/course/view.php?name=theshortname',
-                                    'http://www.example.com/moodle/course/theshortname');
+                                     'http://www.example.com/moodle/course/theshortname',
+                                     "http://www.example.com/moodle/course/view.php?id={$course->id}");
     }
 
     public function test_it_cleans_username_in_forum_discussion() {

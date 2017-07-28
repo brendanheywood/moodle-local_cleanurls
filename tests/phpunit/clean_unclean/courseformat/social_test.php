@@ -38,10 +38,11 @@ class local_cleanurls_social_cleanunclean_test extends local_cleanurls_testcase 
     public function test_it_supports_social_format() {
         // No special handling for those URLs as it uses the course URL already.
 
-        $this->getDataGenerator()->create_course(['shortname' => 'Social', 'format' => 'social']);
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'Social', 'format' => 'social']);
 
         $url = 'http://www.example.com/moodle/course/view.php?name=Social';
         $expected = 'http://www.example.com/moodle/course/Social';
-        static::assert_clean_unclean($url, $expected);
+        $expectedback = "http://www.example.com/moodle/course/view.php?id={$course->id}";
+        static::assert_clean_unclean($url, $expected, $expectedback);
     }
 }

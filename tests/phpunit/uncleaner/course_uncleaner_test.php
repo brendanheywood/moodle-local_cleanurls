@@ -71,7 +71,7 @@ class local_cleanurls_course_uncleaner_test extends local_cleanurls_testcase {
 
     public function test_it_uncleans_a_course_even_with_a_slash_suffix() {
         $category = $this->getDataGenerator()->create_category(['name' => 'category']);
-        $this->getDataGenerator()->create_course([
+        $course = $this->getDataGenerator()->create_course([
                                                      'fullname'  => 'full name of the course',
                                                      'shortname' => 'shortname',
                                                      'visible'   => 1,
@@ -79,7 +79,7 @@ class local_cleanurls_course_uncleaner_test extends local_cleanurls_testcase {
                                                  ]);
 
         $url = 'http://www.example.com/moodle/course/shortname/';
-        $expected = 'http://www.example.com/moodle/course/view.php?name=shortname';
+        $expected = "http://www.example.com/moodle/course/view.php?id={$course->id}";
         $uncleaned = uncleaner::unclean($url)->raw_out();
         self::assertSame($expected, $uncleaned);
     }
