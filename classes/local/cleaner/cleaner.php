@@ -114,6 +114,11 @@ class cleaner {
     private $path;
 
     private function check_cached() {
+        global $CFG;
+        if (isset($CFG->cleanurlscache) && $CFG->cleanurlscache) {
+            return false;
+        }
+
         $this->cache = cache::make('local_cleanurls', 'outgoing');
         $cached = $this->cache->get($this->originalurlraw);
         if ($cached) {

@@ -91,6 +91,11 @@ abstract class uncleaner {
      * @throws moodle_exception
      */
     public static function load_cache($clean) {
+        global $CFG;
+        if (isset($CFG->cleanurlscache) && $CFG->cleanurlscache) {
+            return null;
+        }
+
         if (!is_string($clean)) {
             $clean = $clean->raw_out();
         }
