@@ -63,16 +63,18 @@ class url_rewriter implements \core\output\url_rewriter {
     public static function html_head_setup() {
         global $CFG, $ME, $PAGE;
 
-        $url = new moodle_url($ME);
-        $clean = $url->out(false);
         $output = '';
 
         if (isset($CFG->uncleanedurl)) {
             // This page came through router uncleaning.
+            $clean = $PAGE->url->out(false);
+            $output = '';
             $output .= self::get_base_href($CFG->uncleanedurl);
             $output .= self::get_anchor_fix_javascript($clean);
         } else {
-            // This page came through its canonical/legacy address (not clean version).
+            // This page came through its legacy address (not clean version).
+            $url = new moodle_url($ME);
+            $clean = $url->out(false);
             $orig = $PAGE->url->raw_out(false);
             if ($orig != $clean) {
                 // This page URL could have been cleaned up, so do it!
