@@ -67,6 +67,19 @@ class local_cleanurls_topics_cleanunclean_test extends local_cleanurls_testcase 
         static::assert_clean_unclean($url, $expected);
     }
 
+    public function test_it_works_even_in_section_0_general() {
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'shortname', 'format' => 'topics']);
+        $forum = $this->getDataGenerator()->create_module(
+            'forum',
+            ['course' => $course->id, 'name' => 'Forum Zero', 'section' => 0]
+        );
+        list(, $cm) = get_course_and_cm_from_cmid($forum->cmid, 'forum', $course);
+
+        $url = 'http://www.example.com/moodle/mod/forum/view.php?id=' . $cm->id;
+        $expected = "http://www.example.com/moodle/course/shortname/general/{$forum->cmid}-forum-zero";
+        static::assert_clean_unclean($url, $expected);
+    }
+
     public function test_it_works_with_section_numbers() {
         $course = $this->getDataGenerator()->create_course(['shortname' => 'name', 'format' => 'topics']);
         $this->getDataGenerator()->create_course_section(['course' => $course->id, 'section' => 1]);
