@@ -34,7 +34,7 @@ require_once(__DIR__ . '/cleanurls_testcase.php');
  * @copyright  2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_url_history_test extends local_cleanurls_testcase {
+class local_cleanurls_functional_url_history_test extends local_cleanurls_testcase {
     public function test_it_remembers_a_course_url_even_after_it_changes_shortname() {
         global $DB;
 
