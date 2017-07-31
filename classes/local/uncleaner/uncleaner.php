@@ -25,6 +25,7 @@ namespace local_cleanurls\local\uncleaner;
 
 use cache;
 use invalid_parameter_exception;
+use local_cleanurls\url_history;
 use moodle_exception;
 use moodle_url;
 
@@ -47,7 +48,12 @@ abstract class uncleaner {
             return $unclean;
         }
 
-        $unclean = self::perform_uncleaning($clean);
+        $unclean = url_history::get($clean);
+        if (is_null($unclean)) {
+            $unclean = self::perform_uncleaning($clean);
+        } else {
+            $unclean = new moodle_url($unclean);
+        }
 
         self::save_cache($clean, $unclean);
         return $unclean;
