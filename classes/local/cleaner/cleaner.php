@@ -116,6 +116,7 @@ class cleaner {
 
     private function check_cached() {
         if (get_config('local_cleanurls', 'nocache')) {
+            $this->cache = null;
             return false;
         }
 
@@ -386,7 +387,9 @@ class cleaner {
         url_history::save($cleaned, $this->originalurlraw);
 
         // Cache and log it.
-        $this->cache->set($this->originalurlraw, $cleaned);
+        if (!is_null($this->cache)) {
+            $this->cache->set($this->originalurlraw, $cleaned);
+        }
         clean_moodle_url::log("Clean: {$cleaned}");
     }
 

@@ -35,6 +35,15 @@ require_once(__DIR__ . '/cleanurls_testcase.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_cleanurls_functional_url_history_test extends local_cleanurls_testcase {
+    protected function setUp() {
+        global $CFG;
+
+        parent::setUp();
+
+        // We are testing the history in DB, not the caching.
+        $CFG->forced_plugin_settings = ['local_cleanurls' => ['nocache' => true]];
+    }
+
     public function test_it_remembers_a_course_url_even_after_it_changes_shortname() {
         global $DB;
 
@@ -44,8 +53,7 @@ class local_cleanurls_functional_url_history_test extends local_cleanurls_testca
         $oldcleaned = $originalurl->out(); // This will force 'caching' and 'storing' the old URL.
 
         $course->shortname = 'newname';
-        $DB->update_record('course', $course);
-        purge_all_caches();
+        update_course($course);
         $originalurl->out(); // This will force 'caching' and 'storing' the new URL.
 
         // Regardless of the new URL, the old one should still be accessible without relying on cache.
@@ -54,6 +62,17 @@ class local_cleanurls_functional_url_history_test extends local_cleanurls_testca
     }
 
     public function test_it_overwrites_a_course_url_after_another_course_gets_its_shortname() {
-        $this->markTestSkipped('Test/Feature not yet implemented.');
+        // Create a 'oldname' and rename it.
+        $this->test_it_remembers_a_course_url_even_after_it_changes_shortname();
+
+        // Create another course with 'oldname'. Now the history should point to this one instead.
+        $course = self::getDataGenerator()->create_course(['shortname' => 'oldname']);
+        $originalurl = new moodle_url('/course/view.php', ['id' => $course->id]);
+        $expected = $originalurl->raw_out();
+        $oldcleaned = $originalurl->out(); // This will force 'caching' and 'storing' the old URL.
+
+        // The new course should override the old name.
+        $actual = uncleaner::unclean($oldcleaned)->raw_out();
+        self::assertSame($expected, $actual);
     }
 }
