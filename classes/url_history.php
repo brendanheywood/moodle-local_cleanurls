@@ -23,6 +23,8 @@
 
 namespace local_cleanurls;
 
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -35,11 +37,15 @@ class url_history {
     const TABLE = 'local_cleanurls_history';
 
     /**
-     * @param string $clean
-     * @param string $unclean
+     * @param string|moodle_url $clean
+     * @param string            $unclean
      */
     public static function save($clean, $unclean) {
         global $DB;
+
+        if (!is_string($clean)) {
+            $clean = $clean->raw_out();
+        }
 
         $DB->delete_records(self::TABLE, ['clean' => $clean]);
 
@@ -47,8 +53,16 @@ class url_history {
         $DB->insert_record(self::TABLE, $data);
     }
 
+    /**
+     * @param string|moodle_url $clean Clean URL.
+     * @return string Unclean URL or null if not found.
+     */
     public static function get($clean) {
         global $DB;
+
+        if (!is_string($clean)) {
+            $clean = $clean->raw_out();
+        }
 
         $unclean = $DB->get_field(self::TABLE, 'unclean', ['clean' => $clean]);
 
@@ -57,5 +71,10 @@ class url_history {
         }
 
         return $unclean;
+    }
+
+    public static function clear() {
+        global $DB;
+        $DB->delete_records(self::TABLE);
     }
 }

@@ -25,6 +25,7 @@
 
 use local_cleanurls\local\cleaner\cleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
+use local_cleanurls\url_history;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/mocks/unittest_uncleaner.php');
@@ -84,6 +85,8 @@ abstract class local_cleanurls_testcase extends advanced_testcase {
         if ($input === $expectedcleaned) {
             return; // The URL was not cleaned, do not test uncleaning it.
         }
+
+        url_history::clear(); // Do not use history.
 
         $unclean = uncleaner::unclean($clean);
         self::assertInstanceOf(moodle_url::class, $unclean);
