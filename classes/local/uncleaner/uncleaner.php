@@ -97,8 +97,7 @@ abstract class uncleaner {
      * @throws moodle_exception
      */
     public static function load_cache($clean) {
-        global $CFG;
-        if (isset($CFG->cleanurlscache) && $CFG->cleanurlscache) {
+        if (get_config('local_cleanurls', 'nocache')) {
             return null;
         }
 

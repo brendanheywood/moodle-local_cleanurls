@@ -115,8 +115,7 @@ class cleaner {
     private $path;
 
     private function check_cached() {
-        global $CFG;
-        if (isset($CFG->cleanurlscache) && $CFG->cleanurlscache) {
+        if (get_config('local_cleanurls', 'nocache')) {
             return false;
         }
 
