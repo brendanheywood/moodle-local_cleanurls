@@ -120,7 +120,7 @@ class local_cleanurls_simplesection_uncleaner_base_test extends local_cleanurls_
         // When a URL cannot uncleaned, it will warn (debug) and use the course as fallback.
         $url = 'http://www.example.com/moodle/course/Weekly/' .
                "this-section-does-not-exists/{$forum->cmid}-forum-first-week";
-        $expected = 'http://www.example.com/moodle/course/view.php?name=Weekly';
+        $expected = "http://www.example.com/moodle/course/view.php?id={$course->id}";
 
         $unclean = uncleaner::unclean($url);
         self::assertSame($expected, $unclean->raw_out());

@@ -15,34 +15,66 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * CleanURLs unit tests.
- *
- * @package     local_cleanurls
+ * @package     local/cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace local_cleanurls;
+
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../../cleanurls_testcase.php');
 
 /**
- * Tests.
- *
- * @package     local_cleanurls
+ * @package     local/cleanurls
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_cleanurls_social_cleanunclean_test extends local_cleanurls_testcase {
-    public function test_it_supports_social_format() {
-        // No special handling for those URLs as it uses the course URL already.
+class url_history {
+    const TABLE = 'local_cleanurls_history';
 
-        $course = $this->getDataGenerator()->create_course(['shortname' => 'Social', 'format' => 'social']);
+    /**
+     * @param string|moodle_url $clean
+     * @param string            $unclean
+     */
+    public static function save($clean, $unclean) {
+        global $DB;
 
-        $url = 'http://www.example.com/moodle/course/view.php?name=Social';
-        $expected = 'http://www.example.com/moodle/course/Social';
-        $expectedback = "http://www.example.com/moodle/course/view.php?id={$course->id}";
-        static::assert_clean_unclean($url, $expected, $expectedback);
+        if (!is_string($clean)) {
+            $clean = $clean->raw_out();
+        }
+
+        $DB->delete_records(self::TABLE, ['clean' => $clean]);
+
+        $data = (object)['clean' => $clean, 'unclean' => $unclean, 'timemodified' => time()];
+        $DB->insert_record(self::TABLE, $data);
+    }
+
+    /**
+     * @param string|moodle_url $clean Clean URL.
+     * @return string Unclean URL or null if not found.
+     */
+    public static function get($clean) {
+        global $DB;
+
+        if (!is_string($clean)) {
+            $clean = $clean->raw_out();
+        }
+
+        $unclean = $DB->get_field(self::TABLE, 'unclean', ['clean' => $clean]);
+
+        if ($unclean === false) {
+            return null;
+        }
+
+        return $unclean;
+    }
+
+    public static function clear() {
+        global $DB;
+        $DB->delete_records(self::TABLE);
     }
 }

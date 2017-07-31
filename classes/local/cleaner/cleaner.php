@@ -30,6 +30,7 @@ use cache_application;
 use cm_info;
 use local_cleanurls\activity_path;
 use local_cleanurls\clean_moodle_url;
+use local_cleanurls\url_history;
 use moodle_url;
 use stdClass;
 
@@ -114,8 +115,8 @@ class cleaner {
     private $path;
 
     private function check_cached() {
-        global $CFG;
-        if (isset($CFG->cleanurlscache) && $CFG->cleanurlscache) {
+        if (get_config('local_cleanurls', 'nocache')) {
+            $this->cache = null;
             return false;
         }
 
@@ -380,10 +381,15 @@ class cleaner {
         $this->cleanedurl->set_path($this->path);
         $this->cleanedurl->remove_all_params();
         $this->cleanedurl->params($this->params);
+        $cleaned = $this->cleanedurl->raw_out(false);
+
+        // Save to URL history.
+        url_history::save($cleaned, $this->originalurlraw);
 
         // Cache and log it.
-        $cleaned = $this->cleanedurl->raw_out(false);
-        $this->cache->set($this->originalurlraw, $cleaned);
+        if (!is_null($this->cache)) {
+            $this->cache->set($this->originalurlraw, $cleaned);
+        }
         clean_moodle_url::log("Clean: {$cleaned}");
     }
 

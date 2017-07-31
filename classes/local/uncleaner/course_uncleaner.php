@@ -107,7 +107,7 @@ class course_uncleaner extends uncleaner implements hascourse_uncleaner_interfac
      * @return moodle_url
      */
     public function get_unclean_url() {
-        return $this->create_unclean_url('/course/view.php', ['name' => $this->get_course_shortname()]);
+        return $this->create_unclean_url('/course/view.php', ['id' => $this->get_course_id()]);
     }
 
     public function get_course_shortname() {
