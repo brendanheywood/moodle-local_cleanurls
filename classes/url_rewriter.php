@@ -93,7 +93,7 @@ class url_rewriter implements \core\output\url_rewriter {
     }
 
     private static function html_head_setup_info() {
-        global $CFG, $ORIGINALME, $PAGE;
+        global $CFG, $PAGE;
 
         $info = [
             'canonical'        => $PAGE->url->out(false),
@@ -103,7 +103,7 @@ class url_rewriter implements \core\output\url_rewriter {
         ];
 
         if ($info['routed']) {
-            $info['original'] = (new moodle_url($ORIGINALME))->raw_out(false);
+            $info['original'] = (new moodle_url($CFG->cleanurloriginal))->raw_out(false);
         } else {
             $info['original'] = $info['unclean'];
         }
@@ -114,12 +114,12 @@ class url_rewriter implements \core\output\url_rewriter {
     }
 
     public static function debug_request() {
-        global $CFG, $ME, $ORIGINALME, $PAGE;
+        global $CFG, $ME, $PAGE;
 
         echo "<b>\$ME:</b> {$ME}<br />";
 
-        if (isset($ORIGINALME)) {
-            echo "<b>\$ORIGINALME:</b> {$ORIGINALME}<br />";
+        if (isset($CFG->cleanurloriginal)) {
+            echo "<b>\$CFG->cleanurloriginal:</b> {$CFG->cleanurloriginal}<br />";
         }
 
         echo "<b>\$PAGE->url->out(true):</b> {$PAGE->url->out(true)}<br />";

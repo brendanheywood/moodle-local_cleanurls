@@ -68,17 +68,17 @@ class local_cleanurls_url_rewriter_html_head_setup_test extends local_cleanurls_
      * @param $mock
      */
     protected function mock_page($mock) {
-        global $CFG, $ME, $ORIGINALME, $PAGE;
+        global $CFG, $ME, $PAGE;
 
         $PAGE = new stdClass();
 
         if ($mock->routed) {
             $ME = '/local/cleanurls/tests/foo.php';
-            $ORIGINALME = $mock->cleanable ? '/local/cleanurls/tests/oldbar' : '/local/cleanurls/tests/bar';
+            $CFG->cleanurloriginal = $mock->cleanable ? '/local/cleanurls/tests/oldbar' : '/local/cleanurls/tests/bar';
             $CFG->uncleanedurl = (new moodle_url($ME))->raw_out();
         } else {
             unset($CFG->uncleanedurl);
-            unset($ORIGINALME);
+            unset($CFG->cleanurloriginal);
             $ME = $mock->cleanable ? '/local/cleanurls/tests/foo.php' : '/local/cleanurls/tests/legacy.php';
         }
 
