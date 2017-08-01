@@ -79,7 +79,7 @@ class url_rewriter implements \core\output\url_rewriter {
 
         if (isset($CFG->uncleanedurl)) {
             // This page came through router uncleaning.
-            $myclean = $PAGE->url->out(false);
+            $myclean = (new moodle_url($ORIGINALME))->raw_out(false);
             $canonicalclean = cleaner::clean(uncleaner::unclean($myclean));
             $output .= self::get_base_href($CFG->uncleanedurl);
             if ($myclean != $canonicalclean->out(false)) {
@@ -107,6 +107,23 @@ class url_rewriter implements \core\output\url_rewriter {
         }
 
         return $output;
+    }
+
+    public static function debug_request() {
+        global $CFG, $ME, $ORIGINALME, $PAGE;
+
+        echo "<b>\$ME:</b> {$ME}<br />";
+
+        if (isset($ORIGINALME)) {
+            echo "<b>\$ORIGINALME:</b> {$ORIGINALME}<br />";
+        }
+
+        echo "<b>\$PAGE->url->out(true):</b> {$PAGE->url->out(true)}<br />";
+        echo "<b>\$PAGE->url->raw_out(true):</b> {$PAGE->url->raw_out(true)}<br />";
+
+        if (isset($CFG->uncleanedurl)) {
+            echo "<b>\$CFG->uncleanedurl:</b> {$CFG->uncleanedurl}<br />";
+        }
     }
 
     /**
@@ -161,11 +178,11 @@ HTML;
      * Importantly this needs to happen before any JS on the page uses it,
      * such as any analytics tracking.
      *
-     * @param $clean string
+     * @param $canonical string Clean URL - Canonical (preferred) version.
      * @return string
      */
-    private static function get_replacestate_script($clean) {
-        return "<script>history.replaceState && history.replaceState({}, '', '{$clean}');</script>\n";
+    private static function get_replacestate_script($canonical) {
+        return "<script>history.replaceState && history.replaceState({}, '', '{$canonical}');</script>\n";
     }
 
     /**
@@ -175,6 +192,8 @@ HTML;
      *
      * We specify that the clean one is the 'canonical' url so this is what
      * will be shown in google search results pages.
+     *
+     * @param $canonical string Clean URL - Canonical (preferred) version.
      * @return string
      */
     private static function get_link_canonical($canonical) {
@@ -192,30 +211,13 @@ HTML;
      *
      * LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" ...
      *
-     * @param $clean string
+     * @param $canonical string Clean URL - Canonical (preferred) version.
      */
-    private static function mark_apache_note($clean) {
-        self::$lastapachenote = $clean;
+    private static function mark_apache_note($canonical) {
+        self::$lastapachenote = $canonical;
 
         if (function_exists('apache_note')) {
-            apache_note('CLEANURL', $clean);
-        }
-    }
-
-    public static function debug_request() {
-        global $CFG, $ME, $ORIGINALME, $PAGE;
-
-        echo "<b>\$ME:</b> {$ME}<br />";
-
-        if (isset($ORIGINALME)) {
-            echo "<b>\$ORIGINALME:</b> {$ORIGINALME}<br />";
-        }
-
-        echo "<b>\$PAGE->url->out(true):</b> {$PAGE->url->out(true)}<br />";
-        echo "<b>\$PAGE->url->raw_out(true):</b> {$PAGE->url->raw_out(true)}<br />";
-
-        if (isset($CFG->uncleanedurl)) {
-            echo "<b>\$CFG->uncleanedurl:</b> {$CFG->uncleanedurl}<br />";
+            apache_note('CLEANURL', $canonical);
         }
     }
 }
