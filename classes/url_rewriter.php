@@ -28,6 +28,7 @@ namespace local_cleanurls;
 defined('MOODLE_INTERNAL') || die();
 
 use local_cleanurls\local\cleaner\cleaner;
+use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 
 /**
@@ -38,6 +39,17 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class url_rewriter implements \core\output\url_rewriter {
+    /** @var string */
+    private static $lastapachenote = null;
+
+    public static function get_last_apache_note() {
+        return self::$lastapachenote;
+    }
+
+    public static function clear_last_apache_note() {
+        self::$lastapachenote = null;
+    }
+
     /**
      * Convert moodle_url into clean_moodle_url or returns the original moodle_url if not possible.
      *
@@ -61,16 +73,23 @@ class url_rewriter implements \core\output\url_rewriter {
      * @return string
      */
     public static function html_head_setup() {
-        global $CFG, $ME, $PAGE;
+        global $CFG, $ME, $ORIGINALME, $PAGE;
 
         $output = '';
 
         if (isset($CFG->uncleanedurl)) {
             // This page came through router uncleaning.
-            $clean = $PAGE->url->out(false);
-            $output = '';
+            $myclean = $PAGE->url->out(false);
+            $canonicalclean = cleaner::clean(uncleaner::unclean($myclean));
             $output .= self::get_base_href($CFG->uncleanedurl);
-            $output .= self::get_anchor_fix_javascript($clean);
+            if ($myclean != $canonicalclean->out(false)) {
+                $output .= self::get_replacestate_script($canonicalclean->out(false));
+            }
+            $output .= self::get_anchor_fix_javascript($canonicalclean);
+            if ($myclean != $canonicalclean->out(false)) {
+                $output .= self::get_link_canonical($canonicalclean->out(true));
+                self::mark_apache_note($canonicalclean->out(false));
+            }
         } else {
             // This page came through its legacy address (not clean version).
             $url = new moodle_url($ME);
@@ -81,7 +100,8 @@ class url_rewriter implements \core\output\url_rewriter {
                 $output .= self::get_base_href($orig);
                 $output .= self::get_replacestate_script($clean);
                 $output .= self::get_anchor_fix_javascript($clean);
-                $output .= self::get_link_canonical();
+                $canonical = $PAGE->url->out(true);
+                $output .= self::get_link_canonical($canonical);
                 self::mark_apache_note($clean);
             }
         }
@@ -157,11 +177,8 @@ HTML;
      * will be shown in google search results pages.
      * @return string
      */
-    private static function get_link_canonical() {
-        global $PAGE;
-
-        $cleanescaped = $PAGE->url->out(true);
-        return "<link rel=\"canonical\" href=\"{$cleanescaped}\" />\n";
+    private static function get_link_canonical($canonical) {
+        return "<link rel=\"canonical\" href=\"{$canonical}\" />\n";
     }
 
     /**
@@ -178,6 +195,8 @@ HTML;
      * @param $clean string
      */
     private static function mark_apache_note($clean) {
+        self::$lastapachenote = $clean;
+
         if (function_exists('apache_note')) {
             apache_note('CLEANURL', $clean);
         }

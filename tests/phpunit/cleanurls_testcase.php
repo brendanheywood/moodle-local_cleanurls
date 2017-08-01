@@ -26,6 +26,7 @@
 use local_cleanurls\local\cleaner\cleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
 use local_cleanurls\url_history;
+use local_cleanurls\url_rewriter;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/mocks/unittest_uncleaner.php');
@@ -50,6 +51,7 @@ abstract class local_cleanurls_testcase extends advanced_testcase {
 
         // Trigger classloaders (helps debugging).
         class_exists(cleaner::class);
+        class_exists(url_rewriter::class);
     }
 
     /**
