@@ -35,7 +35,7 @@ use local_cleanurls\local\uncleaner\uncleaner;
 
 require('../../config.php');
 
-global $CFG, $ME;
+global $CFG, $ME, $ORIGINALME;
 
 $path = required_param('q', PARAM_RAW); // TODO should use PARAM_SAFEPATH instead?
 local_cleanurls\clean_moodle_url::log("Router: \$_GET: '".$path."'");
@@ -47,6 +47,7 @@ foreach ($url->params() as $k => $v) {
     $_GET[$k] = $v;
 }
 
+$ORIGINALME = $ME;
 $file = $url->out_omit_querystring();
 if (strpos($file, $CFG->wwwroot) === 0) {
     $file = substr($file, strlen($CFG->wwwroot));
