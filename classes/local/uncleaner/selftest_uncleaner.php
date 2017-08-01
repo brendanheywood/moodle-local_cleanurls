@@ -61,16 +61,13 @@ class selftest_uncleaner extends uncleaner {
 
     /**
      * It:
-     * - Consumes 3 subpaths (local/cleanurls/tests).
-     * - Reads one subpath as mypath.
+     * - Reads 4 subpaths as mypath.
      * - The rest is subpath.
      */
     protected function prepare_path() {
-        $path = array_slice($this->parent->subpath, 3);
-        $mypath = array_shift($path);
-
-        $this->mypath = is_null($mypath) ? '' : $mypath;
-        $this->subpath = $path;
+        $this->subpath = $this->parent->subpath;
+        $path = array_splice($this->subpath, 0, 4);
+        $this->mypath = implode('/', $path);
     }
 
     /**
@@ -78,9 +75,10 @@ class selftest_uncleaner extends uncleaner {
      */
     public function get_unclean_url() {
         switch ($this->mypath) {
-            case 'bar':
+            case 'local/cleanurls/tests/oldbar':
+            case 'local/cleanurls/tests/bar':
                 return new moodle_url('/local/cleanurls/tests/foo.php');
-            case 'webcheck':
+            case 'local/cleanurls/tests/webcheck':
                 return new moodle_url('/local/cleanurls/tests/webserver/index.php');
             default:
                 return null;

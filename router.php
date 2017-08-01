@@ -47,6 +47,7 @@ foreach ($url->params() as $k => $v) {
     $_GET[$k] = $v;
 }
 
+$CFG->cleanurloriginal = $ME;
 $file = $url->out_omit_querystring();
 if (strpos($file, $CFG->wwwroot) === 0) {
     $file = substr($file, strlen($CFG->wwwroot));

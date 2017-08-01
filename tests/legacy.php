@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A simple url used to test if the rewriting is working
+ * A simple url used to test for a URL that should not be cleaned.
  *
- * @package    local_cleanurls
- * @author     Brendan Heywood <brendan@catalyst-au.net>
- * @copyright  Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     local/cleanurls
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2017 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use local_cleanurls\url_rewriter;
@@ -28,10 +28,10 @@ use local_cleanurls\url_rewriter;
 require(__DIR__ . '/../../../config.php');
 
 $PAGE->set_context(context_system::instance());
-$PAGE->set_url('/local/cleanurls/tests/foo.php');
+$PAGE->set_url('/local/cleanurls/tests/legacy.php');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading('Foo');
+echo $OUTPUT->heading('Legacy');
 
 url_rewriter::debug_request();
 

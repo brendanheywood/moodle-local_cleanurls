@@ -38,6 +38,17 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class url_rewriter implements \core\output\url_rewriter {
+    /** @var string */
+    private static $lastapachenote = null;
+
+    public static function get_last_apache_note() {
+        return self::$lastapachenote;
+    }
+
+    public static function clear_last_apache_note() {
+        self::$lastapachenote = null;
+    }
+
     /**
      * Convert moodle_url into clean_moodle_url or returns the original moodle_url if not possible.
      *
@@ -61,32 +72,62 @@ class url_rewriter implements \core\output\url_rewriter {
      * @return string
      */
     public static function html_head_setup() {
-        global $CFG, $ME, $PAGE;
-
         $output = '';
 
-        if (isset($CFG->uncleanedurl)) {
-            // This page came through router uncleaning.
-            $clean = $PAGE->url->out(false);
-            $output = '';
-            $output .= self::get_base_href($CFG->uncleanedurl);
-            $output .= self::get_anchor_fix_javascript($clean);
-        } else {
-            // This page came through its legacy address (not clean version).
-            $url = new moodle_url($ME);
-            $clean = $url->out(false);
-            $orig = $PAGE->url->raw_out(false);
-            if ($orig != $clean) {
-                // This page URL could have been cleaned up, so do it!
-                $output .= self::get_base_href($orig);
-                $output .= self::get_replacestate_script($clean);
-                $output .= self::get_anchor_fix_javascript($clean);
-                $output .= self::get_link_canonical();
-                self::mark_apache_note($clean);
-            }
+        $info = self::html_head_setup_info();
+
+        if ($info['routed'] || $info['cleaned']) {
+            // Clean URL in use.
+            $output .= self::get_base_href($info['unclean']);
+            $output .= self::get_anchor_fix_javascript($info['canonical']);
+        }
+
+        if ($info['cleaned']) {
+            // The URL needs to be fixed (it was either cleaned or pointed to the canonical).
+            $output .= self::get_replacestate_script($info['canonical']);
+            $output .= self::get_link_canonical($info['canonicalescaped']);
+            self::mark_apache_note($info['canonical']);
         }
 
         return $output;
+    }
+
+    private static function html_head_setup_info() {
+        global $CFG, $PAGE;
+
+        $info = [
+            'canonical'        => $PAGE->url->out(false),
+            'canonicalescaped' => $PAGE->url->out(true),
+            'unclean'          => $PAGE->url->raw_out(false),
+            'routed'           => isset($CFG->uncleanedurl),
+        ];
+
+        if ($info['routed']) {
+            $info['original'] = (new moodle_url($CFG->cleanurloriginal))->raw_out(false);
+        } else {
+            $info['original'] = $info['unclean'];
+        }
+
+        $info['cleaned'] = ($info['original'] != $info['canonical']);
+
+        return $info;
+    }
+
+    public static function debug_request() {
+        global $CFG, $ME, $PAGE;
+
+        echo "<b>\$ME:</b> {$ME}<br />";
+
+        if (isset($CFG->cleanurloriginal)) {
+            echo "<b>\$CFG->cleanurloriginal:</b> {$CFG->cleanurloriginal}<br />";
+        }
+
+        echo "<b>\$PAGE->url->out(true):</b> {$PAGE->url->out(true)}<br />";
+        echo "<b>\$PAGE->url->raw_out(true):</b> {$PAGE->url->raw_out(true)}<br />";
+
+        if (isset($CFG->uncleanedurl)) {
+            echo "<b>\$CFG->uncleanedurl:</b> {$CFG->uncleanedurl}<br />";
+        }
     }
 
     /**
@@ -141,11 +182,11 @@ HTML;
      * Importantly this needs to happen before any JS on the page uses it,
      * such as any analytics tracking.
      *
-     * @param $clean string
+     * @param $canonical string Clean URL - Canonical (preferred) version.
      * @return string
      */
-    private static function get_replacestate_script($clean) {
-        return "<script>history.replaceState && history.replaceState({}, '', '{$clean}');</script>\n";
+    private static function get_replacestate_script($canonical) {
+        return "<script>history.replaceState && history.replaceState({}, '', '{$canonical}');</script>\n";
     }
 
     /**
@@ -155,13 +196,12 @@ HTML;
      *
      * We specify that the clean one is the 'canonical' url so this is what
      * will be shown in google search results pages.
+     *
+     * @param $canonical string Clean URL - Canonical (preferred) version.
      * @return string
      */
-    private static function get_link_canonical() {
-        global $PAGE;
-
-        $cleanescaped = $PAGE->url->out(true);
-        return "<link rel=\"canonical\" href=\"{$cleanescaped}\" />\n";
+    private static function get_link_canonical($canonical) {
+        return "<link rel=\"canonical\" href=\"{$canonical}\" />\n";
     }
 
     /**
@@ -175,11 +215,13 @@ HTML;
      *
      * LogFormat "...  %{CLEANURL}n ... \"%{User-Agent}i\"" ...
      *
-     * @param $clean string
+     * @param $canonical string Clean URL - Canonical (preferred) version.
      */
-    private static function mark_apache_note($clean) {
+    private static function mark_apache_note($canonical) {
+        self::$lastapachenote = $canonical;
+
         if (function_exists('apache_note')) {
-            apache_note('CLEANURL', $clean);
+            apache_note('CLEANURL', $canonical);
         }
     }
 }
