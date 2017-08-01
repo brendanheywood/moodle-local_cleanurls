@@ -23,11 +23,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\url_rewriter;
+
 require(__DIR__ . '/../../../config.php');
 
 $PAGE->set_context(context_system::instance());
-$PAGE->set_url('/local/cleanurls/tests/legacy.php');
+$PAGE->set_url('/local/cleanurls/tests/foo.php');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading('Foo');
+
+url_rewriter::debug_request();
+
 echo $OUTPUT->footer();

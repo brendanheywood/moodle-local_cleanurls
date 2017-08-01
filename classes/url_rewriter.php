@@ -182,4 +182,21 @@ HTML;
             apache_note('CLEANURL', $clean);
         }
     }
+
+    public static function debug_request() {
+        global $CFG, $ME, $ORIGINALME, $PAGE;
+
+        echo "<b>\$ME:</b> {$ME}<br />";
+
+        if (isset($ORIGINALME)) {
+            echo "<b>\$ORIGINALME:</b> {$ORIGINALME}<br />";
+        }
+
+        echo "<b>\$PAGE->url->out(true):</b> {$PAGE->url->out(true)}<br />";
+        echo "<b>\$PAGE->url->raw_out(true):</b> {$PAGE->url->raw_out(true)}<br />";
+
+        if (isset($CFG->uncleanedurl)) {
+            echo "<b>\$CFG->uncleanedurl:</b> {$CFG->uncleanedurl}<br />";
+        }
+    }
 }

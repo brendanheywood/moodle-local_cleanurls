@@ -59,7 +59,7 @@ class local_cleanurls_selftest_uncleaner_test extends local_cleanurls_testcase {
         $selftest = $root->get_child();
 
         self::assertInstanceOf(selftest_uncleaner::class, $selftest);
-        self::assertSame('mytest', $selftest->get_mypath());
+        self::assertSame('local/cleanurls/tests/mytest', $selftest->get_mypath());
         self::assertSame([], $selftest->get_subpath());
     }
 
