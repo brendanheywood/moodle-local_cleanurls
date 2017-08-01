@@ -28,7 +28,6 @@ namespace local_cleanurls;
 defined('MOODLE_INTERNAL') || die();
 
 use local_cleanurls\local\cleaner\cleaner;
-use local_cleanurls\local\uncleaner\uncleaner;
 use moodle_url;
 
 /**
@@ -73,40 +72,45 @@ class url_rewriter implements \core\output\url_rewriter {
      * @return string
      */
     public static function html_head_setup() {
-        global $CFG, $ME, $ORIGINALME, $PAGE;
-
         $output = '';
 
-        if (isset($CFG->uncleanedurl)) {
-            // This page came through router uncleaning.
-            $myclean = (new moodle_url($ORIGINALME))->raw_out(false);
-            $canonicalclean = cleaner::clean(uncleaner::unclean($myclean));
-            $output .= self::get_base_href($CFG->uncleanedurl);
-            if ($myclean != $canonicalclean->out(false)) {
-                $output .= self::get_replacestate_script($canonicalclean->out(false));
-            }
-            $output .= self::get_anchor_fix_javascript($canonicalclean);
-            if ($myclean != $canonicalclean->out(false)) {
-                $output .= self::get_link_canonical($canonicalclean->out(true));
-                self::mark_apache_note($canonicalclean->out(false));
-            }
-        } else {
-            // This page came through its legacy address (not clean version).
-            $url = new moodle_url($ME);
-            $clean = $url->out(false);
-            $orig = $PAGE->url->raw_out(false);
-            if ($orig != $clean) {
-                // This page URL could have been cleaned up, so do it!
-                $output .= self::get_base_href($orig);
-                $output .= self::get_replacestate_script($clean);
-                $output .= self::get_anchor_fix_javascript($clean);
-                $canonical = $PAGE->url->out(true);
-                $output .= self::get_link_canonical($canonical);
-                self::mark_apache_note($clean);
-            }
+        $info = self::html_head_setup_info();
+
+        if ($info['routed'] || $info['cleaned']) {
+            // Clean URL in use.
+            $output .= self::get_base_href($info['unclean']);
+            $output .= self::get_anchor_fix_javascript($info['canonical']);
+        }
+
+        if ($info['cleaned']) {
+            // The URL needs to be fixed (it was either cleaned or pointed to the canonical).
+            $output .= self::get_replacestate_script($info['canonical']);
+            $output .= self::get_link_canonical($info['canonicalescaped']);
+            self::mark_apache_note($info['canonical']);
         }
 
         return $output;
+    }
+
+    private static function html_head_setup_info() {
+        global $CFG, $ORIGINALME, $PAGE;
+
+        $info = [
+            'canonical'        => $PAGE->url->out(false),
+            'canonicalescaped' => $PAGE->url->out(true),
+            'unclean'          => $PAGE->url->raw_out(false),
+            'routed'           => isset($CFG->uncleanedurl),
+        ];
+
+        if ($info['routed']) {
+            $info['original'] = (new moodle_url($ORIGINALME))->raw_out(false);
+        } else {
+            $info['original'] = $info['unclean'];
+        }
+
+        $info['cleaned'] = ($info['original'] != $info['canonical']);
+
+        return $info;
     }
 
     public static function debug_request() {
