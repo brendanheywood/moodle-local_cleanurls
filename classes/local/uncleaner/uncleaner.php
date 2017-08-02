@@ -23,8 +23,8 @@
 
 namespace local_cleanurls\local\uncleaner;
 
-use cache;
 use invalid_parameter_exception;
+use local_cleanurls\cache\cleanurls_cache;
 use local_cleanurls\url_history;
 use moodle_exception;
 use moodle_url;
@@ -43,7 +43,7 @@ abstract class uncleaner {
      * @return moodle_url
      */
     public static function unclean($clean) {
-        $unclean = self::load_cache($clean);
+        $unclean = cleanurls_cache::get_clean_from_unclean($clean);
         if (!is_null($unclean)) {
             return $unclean;
         }
@@ -55,7 +55,7 @@ abstract class uncleaner {
             $unclean = new moodle_url($unclean);
         }
 
-        self::save_cache($clean, $unclean);
+        cleanurls_cache::save_unclean_for_clean($clean, $unclean);
         return $unclean;
     }
 
@@ -89,45 +89,6 @@ abstract class uncleaner {
         }
 
         return $unclean;
-    }
-
-    /**
-     * @param string|moodle_url $clean
-     * @return moodle_url
-     * @throws moodle_exception
-     */
-    public static function load_cache($clean) {
-        if (get_config('local_cleanurls', 'nocache')) {
-            return null;
-        }
-
-        if (!is_string($clean)) {
-            $clean = $clean->raw_out();
-        }
-        $unclean = self::get_cache()->get($clean);
-
-        if (!$unclean) {
-            return null;
-        }
-        return new moodle_url($unclean);
-    }
-
-    /**
-     * @param string|moodle_url $clean
-     * @param string|moodle_url $unclean
-     */
-    public static function save_cache($clean, $unclean) {
-        if (!is_string($clean)) {
-            $clean = $clean->raw_out();
-        }
-        if (!is_string($unclean)) {
-            $unclean = $unclean->raw_out();
-        }
-        self::get_cache()->set($clean, $unclean);
-    }
-
-    public static function get_cache() {
-        return cache::make('local_cleanurls', 'incoming');
     }
 
     /** @var uncleaner */
