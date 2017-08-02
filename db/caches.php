@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $definitions = [
-    'outgoing'   => ['mode' => cache_store::MODE_APPLICATION],
-    'uncleaning' => ['mode' => cache_store::MODE_APPLICATION],
+    'outgoing' => ['mode' => cache_store::MODE_APPLICATION],
+    'incoming' => ['mode' => cache_store::MODE_APPLICATION],
 ];
 
