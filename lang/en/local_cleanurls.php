@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['analyse'] = 'Analyse';
 $string['analyse_url'] = 'Clean URL';
 $string['analyser'] = 'Clean URLs Analyser';
+$string['analyser_results'] = 'Analyser Results';
 $string['pluginname'] = 'Clean URLs';
 $string['cleaningon'] = 'Cleaning on';
 $string['cleaningonhelp'] = 'Off by default until the webserver is properly configured.';
