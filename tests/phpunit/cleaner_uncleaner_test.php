@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\cache\cleanurls_cache;
 use local_cleanurls\local\uncleaner\uncleaner;
 
 defined('MOODLE_INTERNAL') || die();
@@ -154,7 +155,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
 
         $url = 'http://www.example.com/moodle/cache/disabled-test.php';
 
-        cache::make('local_cleanurls', 'outgoing')->set($url, 'http://www.example.com/moodle/disabledcachedurl');
+        cleanurls_cache::save_clean_for_unclean($url, 'http://www.example.com/moodle/disabledcachedurl');
         static::assert_clean_unclean($url, $url); // Cleaning disabled, should not get cached version.
     }
 
@@ -170,7 +171,7 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         $url = 'http://www.example.com/moodle/cache/test.php';
         $cached = 'http://www.example.com/moodle/cachedurl.php';
 
-        cache::make('local_cleanurls', 'outgoing')->set($url, $cached);
+        cleanurls_cache::save_clean_for_unclean($url, $cached);
         static::assert_clean_unclean($url, $cached, $cached);
         $this->assertDebuggingCalled(); // Cannot unclean, which is fine.
     }
