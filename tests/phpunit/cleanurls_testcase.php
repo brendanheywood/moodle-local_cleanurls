@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\cache\cleanurls_cache;
 use local_cleanurls\local\cleaner\cleaner;
 use local_cleanurls\local\uncleaner\uncleaner;
 use local_cleanurls\url_history;
@@ -52,6 +53,7 @@ abstract class local_cleanurls_testcase extends advanced_testcase {
         // Trigger classloaders (helps debugging).
         class_exists(cleaner::class);
         class_exists(url_rewriter::class);
+        class_exists(cleanurls_cache::class);
     }
 
     /**
