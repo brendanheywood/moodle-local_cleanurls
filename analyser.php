@@ -31,12 +31,26 @@ require_once($CFG->libdir . '/adminlib.php');
 
 admin_externalpage_setup('local_cleanurls_analyser');
 
+$url = null;
+
 $form = new analyser_form();
+if ($form->is_cancelled()) {
+    redirect($PAGE->url);
+}
+$formdata = $form->get_data();
+
+if (!is_null($formdata)) {
+    $url = new moodle_url($formdata->url);
+}
 
 echo $OUTPUT->header();
 
-echo $OUTPUT->heading(get_string('analyser', 'local_cleanurls'));
-
+echo $OUTPUT->heading(get_string('analyser', 'local_cleanurls'), 1);
 $form->display();
+
+if (!is_null($url)) {
+    echo $OUTPUT->heading(get_string('analyser_results', 'local_cleanurls'), 2);
+    echo 'Results for: ' . $url->raw_out(true);
+}
 
 echo $OUTPUT->footer();
