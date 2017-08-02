@@ -27,12 +27,18 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage('local_cleanurls', get_string('pluginname', 'local_cleanurls'));
-    $webservertesturl = new moodle_url('/local/cleanurls/webservertest.php');
 
+    $webservertesturl = new moodle_url('/local/cleanurls/webservertest.php');
     $ADMIN->add('localplugins', new admin_externalpage(
         'local_cleanurls_webservertest',
         new lang_string('webservertest', 'local_cleanurls'),
         $webservertesturl
+    ));
+
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_cleanurls_analyser',
+        new lang_string('analyser', 'local_cleanurls'),
+        new moodle_url('/local/cleanurls/analyser.php')
     ));
 
     $ADMIN->add('localplugins', $settings);
