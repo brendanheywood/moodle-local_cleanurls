@@ -37,10 +37,36 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleanurls_cache {
+    private static $enabled = true;
+
+    public static function enable() {
+        self::$enabled = true;
+    }
+
+    public static function disable() {
+        self::$enabled = false;
+    }
+
+    public static function is_enabled() {
+        if (!self::$enabled) {
+            return false;
+        }
+
+        if (get_config('local_cleanurls', 'nocache')) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Maps URLs: clean to unclean.
      */
     public static function get_incoming_cache() {
+        if (!self::is_enabled()) {
+            return null;
+        }
+
         return cache::make('local_cleanurls', 'incoming');
     }
 
@@ -48,6 +74,10 @@ class cleanurls_cache {
      * Maps URLs: unclean to clean.
      */
     protected static function get_outgoing_cache() {
+        if (!self::is_enabled()) {
+            return null;
+        }
+
         return cache::make('local_cleanurls', 'outgoing');
     }
 
@@ -56,7 +86,7 @@ class cleanurls_cache {
      * @return moodle_url
      */
     public static function get_unclean_from_clean($clean) {
-        if (get_config('local_cleanurls', 'nocache')) {
+        if (!self::is_enabled()) {
             return null;
         }
 
@@ -78,6 +108,10 @@ class cleanurls_cache {
      * @return moodle_url
      */
     public static function get_clean_from_unclean($unclean) {
+        if (!self::is_enabled()) {
+            return null;
+        }
+
         if (get_config('local_cleanurls', 'nocache')) {
             return null;
         }
@@ -100,6 +134,10 @@ class cleanurls_cache {
      * @param string|moodle_url $unclean
      */
     public static function save_unclean_for_clean($clean, $unclean) {
+        if (!self::is_enabled()) {
+            return;
+        }
+
         if (!is_string($clean)) {
             $clean = $clean->raw_out();
         }
@@ -116,6 +154,10 @@ class cleanurls_cache {
      * @param string|moodle_url $clean
      */
     public static function save_clean_for_unclean($unclean, $clean) {
+        if (!self::is_enabled()) {
+            return;
+        }
+
         if (!is_string($unclean)) {
             $unclean = $unclean->raw_out();
         }
@@ -131,6 +173,10 @@ class cleanurls_cache {
      * @param string|moodle_url $clean
      */
     public static function delete_unclean_for_clean($clean) {
+        if (!self::is_enabled()) {
+            return;
+        }
+
         if (!is_string($clean)) {
             $clean = $clean->raw_out();
         }
@@ -142,6 +188,10 @@ class cleanurls_cache {
      * @param string|moodle_url $unclean
      */
     public static function delete_clean_for_unclean($unclean) {
+        if (!self::is_enabled()) {
+            return;
+        }
+
         if (!is_string($unclean)) {
             $unclean = $unclean->raw_out();
         }
