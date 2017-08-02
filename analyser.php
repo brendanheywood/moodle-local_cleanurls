@@ -24,6 +24,7 @@
  * @var $OUTPUT
  */
 
+use local_cleanurls\cache\cleanurls_cache;
 use local_cleanurls\form\analyser_form;
 
 require_once(__DIR__ . '/../../config.php');
@@ -50,7 +51,11 @@ $form->display();
 
 if (!is_null($url)) {
     echo $OUTPUT->heading(get_string('analyser_results', 'local_cleanurls'), 2);
-    echo 'Results for: ' . $url->raw_out(true);
+
+    $nocache = cleanurls_cache::is_disabled_at_config() ? 'cachedisabled' : 'notcached';
+    $nocache = get_string("analyser_{$nocache}", 'local_cleanurls');
+    $cached = cleanurls_cache::get_unclean_from_clean($url) ?: "<i>{$nocache}</i>";
+    echo "<b>Cached:</b> {$cached}<br />";
 }
 
 echo $OUTPUT->footer();

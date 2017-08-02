@@ -52,11 +52,15 @@ class cleanurls_cache {
             return false;
         }
 
-        if (get_config('local_cleanurls', 'nocache')) {
+        if (self::is_disabled_at_config()) {
             return false;
         }
 
         return true;
+    }
+
+    public static function is_disabled_at_config() {
+        return get_config('local_cleanurls', 'nocache');
     }
 
     /**
@@ -109,10 +113,6 @@ class cleanurls_cache {
      */
     public static function get_clean_from_unclean($unclean) {
         if (!self::is_enabled()) {
-            return null;
-        }
-
-        if (get_config('local_cleanurls', 'nocache')) {
             return null;
         }
 
