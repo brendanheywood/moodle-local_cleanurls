@@ -127,7 +127,7 @@ abstract class uncleaner {
     }
 
     public static function get_cache() {
-        return cache::make('local_cleanurls', 'uncleaning');
+        return cache::make('local_cleanurls', 'incoming');
     }
 
     /** @var uncleaner */
