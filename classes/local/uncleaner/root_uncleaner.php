@@ -118,7 +118,8 @@ class root_uncleaner extends uncleaner {
      * The 'mypath' for root is empty, while subpath contains the whole path of the URL.
      */
     public function prepare_path() {
-        $this->mypath = '';
+        global $CFG;
+        $this->mypath = $CFG->wwwroot;
 
         $path = $this->get_clean_url()->get_path();
         $path = substr($path, strlen($this->get_moodle_path()));

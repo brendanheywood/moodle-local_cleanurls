@@ -129,9 +129,10 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         self::assertSame('', $root->get_moodle_path());
     }
 
-    public function test_it_has_its_path_empty() {
+    public function test_it_has_its_path_is_wwwroot() {
+        global $CFG;
         $root = new root_uncleaner('/hello/world');
-        self::assertSame('', $root->get_mypath());
+        self::assertSame($CFG->wwwroot, $root->get_mypath());
     }
 
     public function test_it_uses_the_original_url_if_tries_to_unclean() {
