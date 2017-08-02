@@ -67,6 +67,5 @@ class webtest_selftest extends webtest {
 
         $data = $this->fetch('local/cleanurls/tests/bar');
         $this->assert_same(200, $data->code, 'HTTP Status');
-        $this->assert_same('OK', $data->body, 'HTTP Body');
     }
 }
