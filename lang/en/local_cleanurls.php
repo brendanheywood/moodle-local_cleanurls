@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['analyse'] = 'Analyse';
+$string['analyse_url'] = 'Clean URL';
 $string['analyser'] = 'Clean URLs Analyser';
 $string['pluginname'] = 'Clean URLs';
 $string['cleaningon'] = 'Cleaning on';
