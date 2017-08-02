@@ -26,6 +26,8 @@
 
 use local_cleanurls\cache\cleanurls_cache;
 use local_cleanurls\form\analyser_form;
+use local_cleanurls\local\uncleaner\root_uncleaner;
+use local_cleanurls\url_history;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -51,11 +53,50 @@ $form->display();
 
 if (!is_null($url)) {
     echo $OUTPUT->heading(get_string('analyser_results', 'local_cleanurls'), 2);
+    echo '<pre>';
 
-    $nocache = cleanurls_cache::is_disabled_at_config() ? 'cachedisabled' : 'notcached';
-    $nocache = get_string("analyser_{$nocache}", 'local_cleanurls');
-    $cached = cleanurls_cache::get_unclean_from_clean($url) ?: "<i>{$nocache}</i>";
-    echo "<b>Cached:</b> {$cached}<br />";
+    $notfound = get_string("analyser_notfound", 'local_cleanurls');
+
+    $cached = cleanurls_cache::get_unclean_from_clean($url);
+    if (is_null($cached)) {
+        if (cleanurls_cache::is_disabled_at_config()) {
+            $cached = get_string('analyser_cachedisabled', 'local_cleanurls');
+        } else {
+            $cached = $notfound;
+        }
+        $cached = "<i>{$cached}</i>";
+    } else {
+        $cached = $cached->raw_out(true);
+    }
+    echo "<b> Cached:</b> {$cached}\n";
+
+    $history = url_history::get($url);
+    $history = is_null($history) ? "<i>{$notfound}</i>" : htmlentities($history);
+    echo "<b>History:</b> {$history}\n";
+
+    echo "\n";
+    $root = new root_uncleaner($url);
+    $debug = $root->debug_path();
+    foreach ($debug as $part) {
+        $class = new ReflectionClass($part['class']);
+        printf("%25s: %-25s &rarr; %s\n",
+               $class->getShortName(),
+               htmlentities($part['mypath']),
+               $part['uncleaner']->get_unclean_url()->raw_out(true)
+        );
+    }
+    $last = $root;
+    while (!is_null($last->get_child())) {
+        $last = $last->get_child();
+    }
+    if (!empty($last->get_subpath())) {
+        printf("%25s: %-25s\n",
+               '[uncleaned]',
+               htmlentities(implode('/', $last->get_subpath()))
+        );
+    }
+
+    echo '</pre>';
 }
 
 echo $OUTPUT->footer();

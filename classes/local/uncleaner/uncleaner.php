@@ -84,8 +84,7 @@ abstract class uncleaner {
 
         if (!empty($lastnode->get_subpath())) {
             $subpath = implode('/', $lastnode->get_subpath());
-            $debug = implode("\n", $root->debug_path());
-            debugging("Could not unclean until the end of address: {$subpath}\n\n{$clean}\n{$debug}", DEBUG_DEVELOPER);
+            debugging("Could not unclean until the end of address: {$subpath}\n\n{$clean}", DEBUG_DEVELOPER);
         }
 
         return $unclean;
@@ -250,7 +249,13 @@ abstract class uncleaner {
     }
 
     public function debug_path() {
-        $me = [static::class . ': ' . $this->mypath];
+        $me = [
+            [
+                'class'     => static::class,
+                'mypath'    => $this->mypath,
+                'uncleaner' => $this,
+            ],
+        ];
 
         if (!is_null($this->child)) {
             $me = array_merge($me, $this->child->debug_path());
