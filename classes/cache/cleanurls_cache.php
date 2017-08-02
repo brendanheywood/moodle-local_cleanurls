@@ -24,7 +24,6 @@
 namespace local_cleanurls\cache;
 
 use cache;
-use moodle_exception;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -38,16 +37,25 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleanurls_cache {
+    /**
+     * Maps URLs: clean to unclean.
+     */
     public static function get_incoming_cache() {
         return cache::make('local_cleanurls', 'incoming');
     }
 
     /**
+     * Maps URLs: unclean to clean.
+     */
+    protected static function get_outgoing_cache() {
+        return cache::make('local_cleanurls', 'outgoing');
+    }
+
+    /**
      * @param string|moodle_url $clean
      * @return moodle_url
-     * @throws moodle_exception
      */
-    public static function get_clean_from_unclean($clean) {
+    public static function get_unclean_from_clean($clean) {
         if (get_config('local_cleanurls', 'nocache')) {
             return null;
         }
@@ -55,12 +63,36 @@ class cleanurls_cache {
         if (!is_string($clean)) {
             $clean = $clean->raw_out();
         }
+
         $unclean = self::get_incoming_cache()->get($clean);
 
         if (!$unclean) {
             return null;
         }
+
         return new moodle_url($unclean);
+    }
+
+    /**
+     * @param string|moodle_url $unclean
+     * @return moodle_url
+     */
+    public static function get_clean_from_unclean($unclean) {
+        if (get_config('local_cleanurls', 'nocache')) {
+            return null;
+        }
+
+        if (!is_string($unclean)) {
+            $unclean = $unclean->raw_out();
+        }
+
+        $clean = self::get_outgoing_cache()->get($unclean);
+
+        if (!$clean) {
+            return null;
+        }
+
+        return new moodle_url($clean);
     }
 
     /**
@@ -71,9 +103,49 @@ class cleanurls_cache {
         if (!is_string($clean)) {
             $clean = $clean->raw_out();
         }
+
         if (!is_string($unclean)) {
             $unclean = $unclean->raw_out();
         }
+
         self::get_incoming_cache()->set($clean, $unclean);
+    }
+
+    /**
+     * @param string|moodle_url $unclean
+     * @param string|moodle_url $clean
+     */
+    public static function save_clean_for_unclean($unclean, $clean) {
+        if (!is_string($unclean)) {
+            $unclean = $unclean->raw_out();
+        }
+
+        if (!is_string($clean)) {
+            $clean = $clean->raw_out();
+        }
+
+        self::get_outgoing_cache()->set($unclean, $clean);
+    }
+
+    /**
+     * @param string|moodle_url $clean
+     */
+    public static function delete_unclean_for_clean($clean) {
+        if (!is_string($clean)) {
+            $clean = $clean->raw_out();
+        }
+
+        self::get_incoming_cache()->delete($clean);
+    }
+
+    /**
+     * @param string|moodle_url $unclean
+     */
+    public static function delete_clean_for_unclean($unclean) {
+        if (!is_string($unclean)) {
+            $unclean = $unclean->raw_out();
+        }
+
+        self::get_outgoing_cache()->delete($unclean);
     }
 }

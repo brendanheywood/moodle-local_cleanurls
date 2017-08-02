@@ -27,6 +27,7 @@ namespace local_cleanurls;
 
 use cache;
 use core\event\course_updated;
+use local_cleanurls\cache\cleanurls_cache;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -48,8 +49,6 @@ class observer {
     public static function course_updated(course_updated $event) {
         $courseid = $event->get_data()['objectid'];
         $url = new moodle_url('/course/view.php', array('id' => $courseid));
-        $cache = cache::make('local_cleanurls', 'outgoing');
-        $cache->delete($url->raw_out(false));
+        cleanurls_cache::delete_clean_for_unclean($url->raw_out());
     }
 }
-

@@ -29,6 +29,7 @@ use cache;
 use cache_application;
 use cm_info;
 use local_cleanurls\activity_path;
+use local_cleanurls\cache\cleanurls_cache;
 use local_cleanurls\clean_moodle_url;
 use local_cleanurls\url_history;
 use moodle_url;
@@ -120,8 +121,7 @@ class cleaner {
             return false;
         }
 
-        $this->cache = cache::make('local_cleanurls', 'outgoing');
-        $cached = $this->cache->get($this->originalurlraw);
+        $cached = cleanurls_cache::get_clean_from_unclean($this->originalurlraw);
         if ($cached) {
             $clean = new clean_moodle_url($cached);
             clean_moodle_url::log("Found cached: {$this->originalurlraw} => {$cached}");

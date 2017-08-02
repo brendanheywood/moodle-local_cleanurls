@@ -25,6 +25,7 @@ namespace local_cleanurls;
 
 use cache;
 use course_modinfo;
+use local_cleanurls\cache\cleanurls_cache;
 use moodleform_mod;
 use MoodleQuickForm;
 use stdClass;
@@ -167,8 +168,6 @@ class activity_path {
             return;
         }
 
-        $url = $cm->url->raw_out();
-        $cache = cache::make('local_cleanurls', 'outgoing');
-        $cache->delete($url);
+        cleanurls_cache::delete_clean_for_unclean($cm->url);
     }
 }

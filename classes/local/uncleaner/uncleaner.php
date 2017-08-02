@@ -43,7 +43,7 @@ abstract class uncleaner {
      * @return moodle_url
      */
     public static function unclean($clean) {
-        $unclean = cleanurls_cache::get_clean_from_unclean($clean);
+        $unclean = cleanurls_cache::get_unclean_from_clean($clean);
         if (!is_null($unclean)) {
             return $unclean;
         }
