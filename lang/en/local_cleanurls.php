@@ -25,6 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['analyser'] = 'Clean URLs Analyser';
 $string['pluginname'] = 'Clean URLs';
 $string['cleaningon'] = 'Cleaning on';
 $string['cleaningonhelp'] = 'Off by default until the webserver is properly configured.';
@@ -54,4 +55,3 @@ $string['webservertest_failed'] = 'Failed';
 $string['webservertest_passed'] = 'Passed';
 $string['webservertest_result'] = 'Result';
 $string['webservertest_test'] = 'Test';
-
