@@ -93,12 +93,14 @@ class url_rewriter implements \core\output\url_rewriter {
     }
 
     private static function html_head_setup_info() {
-        global $CFG, $PAGE;
+        global $CFG, $ME, $PAGE;
+
+        $me = new moodle_url($ME);
 
         $info = [
-            'canonical'        => $PAGE->url->out(false),
-            'canonicalescaped' => $PAGE->url->out(true),
-            'unclean'          => $PAGE->url->raw_out(false),
+            'canonical'        => $me->out(false),
+            'canonicalescaped' => $me->out(true),
+            'unclean'          => $me->raw_out(false),
             'routed'           => isset($CFG->uncleanedurl),
         ];
 

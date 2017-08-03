@@ -67,7 +67,7 @@ class webtest_simple_parameters extends webtest {
 
         $this->assert_same(200, $data->code, 'HTTP Status');
 
-        $expected = '{"q":"local\/cleanurls\/tests\/webcheck","param":"simple"}';
+        $expected = '{"param":"simple"}';
         $this->assert_same($expected, $data->body, 'HTTP Body');
     }
 }

@@ -63,6 +63,12 @@ class local_cleanurls_url_rewriter_html_head_setup_test extends local_cleanurls_
     /**
      * Sets up the page using the given data provider information.
      *
+     * Use the following links to make sure you are mocking it correctly:
+     * - unrouted uncleanable: /local/cleanurls/tests/legacy.php?key=value
+     * - unrouted cleanable:   /local/cleanurls/tests/foo.php?key=value
+     * - routed   uncleanable: /local/cleanurls/tests/bar?key=value
+     * - routed   cleanable:   /local/cleanurls/tests/oldbar?key=value
+     *
      * @param $mock
      */
     protected function mock_page($mock) {
@@ -71,16 +77,18 @@ class local_cleanurls_url_rewriter_html_head_setup_test extends local_cleanurls_
         $PAGE = new stdClass();
 
         if ($mock->routed) {
-            $ME = '/local/cleanurls/tests/foo.php';
+            $ME = '/local/cleanurls/tests/foo.php?key=value';
             $CFG->cleanurloriginal = $mock->cleanable ? '/local/cleanurls/tests/oldbar' : '/local/cleanurls/tests/bar';
             $CFG->uncleanedurl = (new moodle_url($ME))->raw_out();
         } else {
             unset($CFG->uncleanedurl);
             unset($CFG->cleanurloriginal);
             $ME = $mock->cleanable ? '/local/cleanurls/tests/foo.php' : '/local/cleanurls/tests/legacy.php';
+            $ME .= '?key=value';
         }
 
         $PAGE->url = new moodle_url($ME);
+        $PAGE->url->remove_all_params(); // Preten`d the parameter is not an official parameter of that page.
     }
 
     /**
@@ -94,7 +102,10 @@ class local_cleanurls_url_rewriter_html_head_setup_test extends local_cleanurls_
         if (!$mock->routed && !$mock->cleanable) {
             self::assertNotContains('<base href', $output);
         } else {
-            self::assertContains('<base href="http://www.example.com/moodle/local/cleanurls/tests/foo.php">', $output);
+            self::assertContains(
+                '<base href="http://www.example.com/moodle/local/cleanurls/tests/foo.php?key=value">',
+                $output
+            );
         }
     }
 

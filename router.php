@@ -38,6 +38,8 @@ require('../../config.php');
 global $CFG, $ME;
 
 $path = required_param('q', PARAM_RAW); // TODO should use PARAM_SAFEPATH instead?
+unset($_GET['q']);
+
 local_cleanurls\clean_moodle_url::log("Router: \$_GET: '".$path."'");
 $unclean = $CFG->wwwroot . '/' . ltrim($path, '/');
 $url = uncleaner::unclean($unclean);
@@ -50,8 +52,10 @@ foreach ($url->params() as $k => $v) {
 $CFG->cleanurloriginal = $ME;
 $file = $url->out_omit_querystring();
 if (strpos($file, $CFG->wwwroot) === 0) {
+    $url->remove_all_params();
+    $url->params($_GET); // Load parameters provided in the URL, not only the uncleaned ones.
     $file = substr($file, strlen($CFG->wwwroot));
-    $ME = $file;
+    $ME = substr($url->raw_out(), strlen($CFG->wwwroot)); // Use query string here.
     $file = $CFG->dirroot . $file;
 } else {
     // Uncleaned url isn't a moodle url!

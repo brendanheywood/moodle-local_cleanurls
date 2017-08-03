@@ -65,6 +65,6 @@ class webtest_no_parameters extends webtest {
 
         $data = $this->fetch('local/cleanurls/tests/webcheck');
         $this->assert_same(200, $data->code, 'HTTP Status');
-        $this->assert_same('{"q":"local\/cleanurls\/tests\/webcheck"}', $data->body, 'HTTP Body');
+        $this->assert_same('[]', $data->body, 'HTTP Body');
     }
 }
