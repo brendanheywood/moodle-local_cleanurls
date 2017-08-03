@@ -66,7 +66,7 @@ class webtest_encoded_parameters extends webtest {
         $data = $this->fetch('local/cleanurls/tests/webcheck?xyz=x%20%26%20y%2Fz');
         $this->assert_same(200, $data->code, 'HTTP Status');
 
-        $expected = '{"q":"local\/cleanurls\/tests\/webcheck","xyz":"x & y\/z"}';
+        $expected = '{"xyz":"x & y\/z"}';
         $this->assert_same($expected, $data->body, 'HTTP Body');
     }
 }
