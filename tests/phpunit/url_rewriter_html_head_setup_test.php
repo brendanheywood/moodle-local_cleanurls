@@ -23,8 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_cleanurls\local\cleaner\cleaner;
-use local_cleanurls\local\uncleaner\uncleaner;
 use local_cleanurls\url_rewriter;
 
 defined('MOODLE_INTERNAL') || die();
@@ -83,37 +81,6 @@ class local_cleanurls_url_rewriter_html_head_setup_test extends local_cleanurls_
         }
 
         $PAGE->url = new moodle_url($ME);
-    }
-
-    /**
-     * This only ensures we have the basic test URLs used in other tests.
-     *
-     * @dataProvider provider_with_page_mocks
-     */
-    public function test_it_requires_some_test_urls_for_testing($mock) {
-        $unclean = null;
-
-        $expectedclean = 'http://www.example.com/moodle/local/cleanurls/tests/bar';
-
-        if (!$mock->routed && !$mock->cleanable) {
-            $unclean = new moodle_url('/local/cleanurls/tests/legacy.php');
-            $expectedclean = 'http://www.example.com/moodle/local/cleanurls/tests/legacy.php';
-        }
-
-        if (!$mock->routed && $mock->cleanable) {
-            $unclean = new moodle_url('/local/cleanurls/tests/foo.php');
-        }
-
-        if ($mock->routed && !$mock->cleanable) {
-            $unclean = uncleaner::unclean(new moodle_url('/local/cleanurls/tests/bar'));
-        }
-
-        if ($mock->routed && $mock->cleanable) {
-            $unclean = uncleaner::unclean(new moodle_url('/local/cleanurls/tests/oldbar'));
-        }
-
-        $clean = cleaner::clean($unclean)->raw_out();
-        self::assertSame($expectedclean, $clean);
     }
 
     /**
