@@ -471,7 +471,7 @@ class cleaner {
         $course = $this->clean_course_by_id();
         $course = $course ?: $this->clean_course_by_name();
 
-        if (is_null($course)) {
+        if (empty($course)) {
             return;
         }
 

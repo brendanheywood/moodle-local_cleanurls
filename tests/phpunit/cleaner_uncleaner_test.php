@@ -159,20 +159,21 @@ class local_cleanurls_cleaner_uncleaner_test extends local_cleanurls_testcase {
         static::assert_clean_unclean($url, $url); // Cleaning disabled, should not get cached version.
     }
 
-    public function test_it_returns_the_same_url_if_cannot_unclean() {
+    public function test_it_returns_to_home_if_cannot_unclean() {
         $url = 'http://www.example.com/moodle/thisisaninvalidpath/shouldnotbechanged';
         $unclean = uncleaner::unclean($url);
         $uncleaned = $unclean->out();
-        self::assertSame($url, $uncleaned);
+        self::assertSame('http://www.example.com/moodle/', $uncleaned);
         $this->assertDebuggingCalled(); // Message 'Could not unclean...' expected.
     }
 
     public function test_it_should_use_a_cache() {
-        $url = 'http://www.example.com/moodle/cache/test.php';
-        $cached = 'http://www.example.com/moodle/cachedurl.php';
+        $clean = 'http://www.example.com/moodle/cache/cleanedurl';
+        $unclean = 'http://www.example.com/moodle/cache/uncleaned.php';
 
-        cleanurls_cache::save_clean_for_unclean($url, $cached);
-        static::assert_clean_unclean($url, $cached, $cached);
-        $this->assertDebuggingCalled(); // Cannot unclean, which is fine.
+        cleanurls_cache::save_unclean_for_clean($clean, $unclean);
+        cleanurls_cache::save_clean_for_unclean($unclean, $clean);
+
+        static::assert_clean_unclean($unclean, $clean);
     }
 }

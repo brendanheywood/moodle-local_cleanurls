@@ -135,12 +135,6 @@ class local_cleanurls_urlparser_root_test extends local_cleanurls_testcase {
         self::assertSame($CFG->wwwroot, $root->get_mypath());
     }
 
-    public function test_it_uses_the_original_url_if_tries_to_unclean() {
-        $root = new root_uncleaner('/abcdef');
-        $expected = 'http://www.example.com/moodle/abcdef';
-        self::assertSame($expected, $root->get_unclean_url()->out());
-    }
-
     public function test_it_has_some_child_options() {
         $expected = [
             'local_cleanurls\local\uncleaner\selftest_uncleaner',

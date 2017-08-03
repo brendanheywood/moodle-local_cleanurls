@@ -138,7 +138,7 @@ class root_uncleaner extends uncleaner {
      * @return moodle_url
      */
     public function get_unclean_url() {
-        // If called it failed uncleaning any part of the URL, return original (will probably get 404).
-        return $this->cleanurl;
+        // If called it failed uncleaning any part of the URL, go home.
+        return new moodle_url('/');
     }
 }

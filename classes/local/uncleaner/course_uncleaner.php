@@ -102,12 +102,17 @@ class course_uncleaner extends uncleaner implements hascourse_uncleaner_interfac
     }
 
     /**
-     * It does not return an URL, it relies on a child instead.
+     * If it founda course, return it. Otherwise return parent's.
      *
      * @return moodle_url
      */
     public function get_unclean_url() {
-        return $this->create_unclean_url('/course/view.php', ['id' => $this->get_course_id()]);
+        $id = $this->get_course_id();
+        if (is_null($id)) {
+            return null;
+        }
+
+        return $this->create_unclean_url('/course/view.php', ['id' => $id]);
     }
 
     public function get_course_shortname() {
