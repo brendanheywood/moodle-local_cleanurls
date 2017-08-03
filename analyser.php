@@ -79,10 +79,11 @@ if (!is_null($url)) {
     $debug = $root->debug_path();
     foreach ($debug as $part) {
         $class = new ReflectionClass($part['class']);
-        printf("%25s: %-25s &rarr; %s\n",
+        $uncleaned = $part['uncleaner']->get_unclean_url();
+        printf("%25s: %s &rarr; %s\n",
                $class->getShortName(),
                htmlentities($part['mypath']),
-               $part['uncleaner']->get_unclean_url()->raw_out(true)
+               $uncleaned ? $uncleaned->raw_out(true) : '<i>[cannot unclean]</i>'
         );
     }
     $last = $root;
