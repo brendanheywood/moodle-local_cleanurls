@@ -153,7 +153,8 @@ document.addEventListener('click', function (event) {
         element = element.parentElement;
     }
     if (element.getAttribute('href').charAt(0) == '#') {
-        element.href = '{$clean}' + element.getAttribute('href');
+        var base = location.protocol + '//' + location.host + location.pathname + location.search;
+        element.href = base + element.getAttribute('href');
     }
 }, true);
 </script>

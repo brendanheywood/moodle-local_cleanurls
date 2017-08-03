@@ -126,13 +126,8 @@ class local_cleanurls_url_rewriter_html_head_setup_test extends local_cleanurls_
         // Element 'base href' must be always present, except if an unclean URL that cannot be cleaned.
         if (!$mock->routed && !$mock->cleanable) {
             self::assertNotContains('<base href', $output);
-            self::assertNotContains("document.addEventListener('click',", $output);
         } else {
             self::assertContains('<base href="http://www.example.com/moodle/local/cleanurls/tests/foo.php">', $output);
-            // Ensure correct 'js fix' is available.
-            self::assertContains("document.addEventListener('click',", $output);
-            $href = "'http://www.example.com/moodle/local/cleanurls/tests/bar' + element.getAttribute('href')";
-            self::assertContains("element.href = {$href};", $output);
         }
     }
 
@@ -145,14 +140,9 @@ class local_cleanurls_url_rewriter_html_head_setup_test extends local_cleanurls_
 
         // In those cases where 'base href' is set, we must also provide the javascript anchor fix.
         if (!$mock->routed && !$mock->cleanable) {
-            self::assertNotContains('<base href', $output);
             self::assertNotContains("document.addEventListener('click',", $output);
         } else {
-            self::assertContains('<base href="http://www.example.com/moodle/local/cleanurls/tests/foo.php">', $output);
-            // Ensure correct 'js fix' is available.
             self::assertContains("document.addEventListener('click',", $output);
-            $href = "'http://www.example.com/moodle/local/cleanurls/tests/bar' + element.getAttribute('href')";
-            self::assertContains("element.href = {$href};", $output);
         }
     }
 
