@@ -135,35 +135,6 @@ class local_cleanurls_simple_test extends local_cleanurls_testcase {
         $clean = $murl->out();
         $this->assertEquals($url, $clean, "Nothing: File draftfile.php should not be touched");
 
-        $url = 'http://www.example.com/moodle/foo/bar.php';
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/foo/bar.php', $clean, "Clean: Don't remove php extension");
-
-        $unclean = uncleaner::unclean($clean)->raw_out();
-        $this->assertDebuggingCalled();
-        $this->assertEquals($url, $unclean, "Unclean: Put php extension back");
-
-        $url = 'http://www.example.com/moodle/foo/bar.php?ding=pop';
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/foo/bar.php?ding=pop', $clean,
-                            "Clean: Do not remove php extension with params");
-
-        $unclean = uncleaner::unclean($clean)->raw_out();
-        $this->assertDebuggingCalled();
-        $this->assertEquals($url, $unclean, "Unclean: Put php extension back with params");
-
-        $url = 'http://www.example.com/moodle/foo/bar.php#hash';
-        $murl = new moodle_url($url);
-        $clean = $murl->out();
-        $this->assertEquals('http://www.example.com/moodle/foo/bar.php#hash', $clean,
-                            "Clean: Don't remove php extension with hash");
-
-        $unclean = uncleaner::unclean($clean)->raw_out();
-        $this->assertDebuggingCalled();
-        $this->assertEquals($url, $unclean, "Unclean: Put php extension back with hash");
-
         $url = 'http://www.example.com/moodle/course/index.php?foo=bar#hash';
         $murl = new moodle_url($url);
         $clean = $murl->out();
