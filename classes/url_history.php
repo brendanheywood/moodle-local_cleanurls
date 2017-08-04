@@ -47,6 +47,8 @@ class url_history {
             $clean = $clean->raw_out();
         }
 
+        $clean = str_replace('+', ' ', $clean);
+
         $DB->delete_records(self::TABLE, ['clean' => $clean]);
 
         $data = (object)['clean' => $clean, 'unclean' => $unclean, 'timemodified' => time()];

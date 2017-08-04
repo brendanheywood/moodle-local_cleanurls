@@ -45,16 +45,17 @@ class local_cleanurls_functional_url_history_test extends local_cleanurls_testca
     }
 
     public function test_it_remembers_a_course_url_even_after_it_changes_shortname() {
-        global $DB;
-
-        $course = self::getDataGenerator()->create_course(['shortname' => 'oldname']);
+        $course = self::getDataGenerator()->create_course(['shortname' => 'old name']);
         $originalurl = new moodle_url('/course/view.php', ['id' => $course->id]);
         $expected = $originalurl->raw_out();
         $oldcleaned = $originalurl->out(); // This will force 'caching' and 'storing' the old URL.
 
-        $course->shortname = 'newname';
+        $course->shortname = 'new name';
         update_course($course);
         $originalurl->out(); // This will force 'caching' and 'storing' the new URL.
+
+        // The incoming URL will come with spaces parsed.
+        $oldcleaned = str_replace('+', ' ', $oldcleaned);
 
         // Regardless of the new URL, the old one should still be accessible without relying on cache.
         $actual = uncleaner::unclean($oldcleaned)->raw_out();
