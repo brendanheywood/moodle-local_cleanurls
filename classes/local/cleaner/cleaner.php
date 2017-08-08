@@ -64,6 +64,11 @@ class cleaner {
      * @return moodle_url
      */
     public static function clean(moodle_url $originalurl) {
+        // Never clean anything with sesskey, they are transient URLs (should never be displayed).
+        if (!is_null($originalurl->param('sesskey'))) {
+            return $originalurl;
+        }
+
         $cleaner = new self();
         $cleaner->originalurl = $originalurl;
         $cleaner->execute();

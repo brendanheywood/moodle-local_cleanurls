@@ -61,4 +61,23 @@ class local_cleanurls_cleaner_test extends local_cleanurls_testcase {
         $clean = $clean->raw_out();
         self::assertSame('http://www.example.com/moodle/course/shortname', $clean);
     }
+
+    public function test_it_should_never_unclean_urls_with_sesskey() {
+        global $DB;
+
+        self::getDataGenerator()->create_course(['shortname' => 'shortname']);
+        $unclean = new moodle_url('/course/view.php?name=shortname&sesskey=' . sesskey());
+
+        $clean = cleaner::clean($unclean);
+        self::assertSame($unclean->raw_out(), $clean->raw_out());
+
+        // It should not pollute the cache.
+        $clean = cleanurls_cache::get_clean_from_unclean($unclean->raw_out());
+        self::assertNull($clean);
+
+        // It should not pollute the history.
+        $unclean = $unclean->raw_out();
+        $found = $DB->record_exists('local_cleanurls_history', ['unclean' => $unclean]);
+        self::assertFalse($found);
+    }
 }
