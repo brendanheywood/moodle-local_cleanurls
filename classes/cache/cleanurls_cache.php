@@ -120,6 +120,18 @@ class cleanurls_cache {
             $unclean = $unclean->raw_out();
         }
 
+        static $all = [];
+
+        if ($unclean === '*') {
+            asort($all);
+        }
+
+        if (array_key_exists($unclean, $all)) {
+            $all[$unclean]++;
+        } else {
+            $all[$unclean] = 1;
+        }
+
         $clean = self::get_outgoing_cache()->get($unclean);
 
         if (!$clean) {
