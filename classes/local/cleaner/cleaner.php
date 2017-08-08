@@ -25,8 +25,6 @@
 
 namespace local_cleanurls\local\cleaner;
 
-use cache;
-use cache_application;
 use cm_info;
 use local_cleanurls\activity_path;
 use local_cleanurls\cache\cleanurls_cache;
@@ -64,11 +62,6 @@ class cleaner {
      * @return moodle_url
      */
     public static function clean(moodle_url $originalurl) {
-        // Never clean anything with sesskey, they are transient URLs (should never be displayed).
-        if (!is_null($originalurl->param('sesskey'))) {
-            return $originalurl;
-        }
-
         $cleaner = new self();
         $cleaner->originalurl = $originalurl;
         $cleaner->execute();
@@ -389,6 +382,12 @@ class cleaner {
         $this->originalurlraw = $this->originalurl->raw_out(false);
         $this->originalpath = $this->originalurl->get_path(false);
         $this->cleanedurl = null;
+
+        if ($this->check_cleaning_blacklist()) {
+            $this->cleanedurl = $this->originalurl;
+            return;
+        }
+
         $this->config = get_config('local_cleanurls');
 
         // The order of the checks below is important.
@@ -490,5 +489,14 @@ class cleaner {
             unset($this->params['section']);
             unset($this->params['sectionid']);
         }
+    }
+
+    private function check_cleaning_blacklist() {
+        // Never clean anything with sesskey, they are transient URLs (should never be displayed).
+        if (!is_null($this->originalurl->param('sesskey'))) {
+            return true;
+        }
+
+        return false;
     }
 }
