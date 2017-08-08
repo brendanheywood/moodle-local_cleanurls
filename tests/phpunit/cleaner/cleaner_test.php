@@ -23,6 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_cleanurls\cache\cleanurls_cache;
 use local_cleanurls\local\cleaner\cleaner;
 
 defined('MOODLE_INTERNAL') || die();
@@ -47,5 +48,17 @@ class local_cleanurls_cleaner_test extends local_cleanurls_testcase {
         $unclean = new moodle_url('/login/index.php?foo=bar');
         $clean = cleaner::clean($unclean);
         self::assertSame('http://www.example.com/moodle/login/?foo=bar', $clean->raw_out());
+    }
+
+    public function test_it_adds_to_cache_after_cleaning() {
+        self::getDataGenerator()->create_course(['shortname' => 'shortname']);
+        $unclean = new moodle_url('/course/view.php?name=shortname');
+        cleaner::clean($unclean);
+
+        $clean = cleanurls_cache::get_clean_from_unclean($unclean->raw_out());
+        self::assertNotNull($clean);
+
+        $clean = $clean->raw_out();
+        self::assertSame('http://www.example.com/moodle/course/shortname', $clean);
     }
 }

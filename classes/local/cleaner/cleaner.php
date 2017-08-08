@@ -88,9 +88,6 @@ class cleaner {
         return "/{$cm->id}{$title}";
     }
 
-    /** @var cache_application */
-    private $cache;
-
     /** @var moodle_url */
     private $cleanedurl;
 
@@ -116,11 +113,6 @@ class cleaner {
     private $path;
 
     private function check_cached() {
-        if (get_config('local_cleanurls', 'nocache')) {
-            $this->cache = null;
-            return false;
-        }
-
         $cached = cleanurls_cache::get_clean_from_unclean($this->originalurlraw);
         if ($cached) {
             $clean = new clean_moodle_url($cached);
@@ -383,13 +375,8 @@ class cleaner {
         $this->cleanedurl->params($this->params);
         $cleaned = $this->cleanedurl->raw_out(false);
 
-        // Save to URL history.
         url_history::save($cleaned, $this->originalurlraw);
-
-        // Cache and log it.
-        if (!is_null($this->cache)) {
-            $this->cache->set($this->originalurlraw, $cleaned);
-        }
+        cleanurls_cache::save_clean_for_unclean($this->originalurlraw, $cleaned);
         clean_moodle_url::log("Clean: {$cleaned}");
     }
 
