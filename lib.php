@@ -48,6 +48,8 @@ function local_cleanurls_before_footer() {
     }
 
     $data = cleanurls_cache::get_outgoing_debug();
+    $gets = array_sum($data);
+    $count = count($data);
 
     ksort($data);
     $byurl = var_export($data, true);
@@ -57,6 +59,12 @@ function local_cleanurls_before_footer() {
 
     echo <<<HTML
 <!--
+
+***** Clean URLs Debug Information *****
+
+Cache Gets: $gets
+
+URL Count: $count
 
 ***** Clean URLs Debug Information - Ordered by URL *****
 
