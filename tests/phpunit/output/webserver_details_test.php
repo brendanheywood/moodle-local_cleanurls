@@ -70,7 +70,7 @@ class local_cleanurls_output_webserver_details_test extends local_cleanurls_test
             '<h2>Troubleshooting</h2>',
             '<li>Ensure fake test works at first.</li>',
             '<li>Ensure fake test works again.</li>',
-            '<a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md"',
+            '<a href="https://github.com/brendanheywood/moodle-local_cleanurls',
             '<h2>Debugging</h2>',
             'No debugging information.',
         ];
