@@ -19,7 +19,7 @@
 * [Installation](#installation)
   * [Install the local module](#step-1-install-the-local-module)
   * [Apply tiny patches to core](#step-2-apply-tiny-patches-to-core)
-  * [Add the apache rewrite to the custom router](#step-3-add-the-apache-rewrite-to-the-custom-router)
+  * [Add the webserver rewrite to the custom router](#step-3-add-the-webserver-rewrite-to-the-custom-router)
   * [Turn it on and configure](#step-4-turn-it-on-and-configure)
 * [Trouble shooting](#trouble-shooting)
 
