@@ -37,7 +37,13 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleanurls_cache {
+    private static $outgoingdebug = [];
+
     private static $enabled = true;
+
+    public static function get_outgoing_debug() {
+        return self::$outgoingdebug;
+    }
 
     public static function enable() {
         self::$enabled = true;
@@ -61,6 +67,10 @@ class cleanurls_cache {
 
     public static function is_disabled_at_config() {
         return get_config('local_cleanurls', 'nocache');
+    }
+
+    public static function is_debugging() {
+        return isset($_GET['CLEANURLS_DEBUG']);
     }
 
     /**
@@ -120,13 +130,17 @@ class cleanurls_cache {
             $unclean = $unclean->raw_out();
         }
 
-        $clean = self::get_outgoing_cache()->get($unclean);
-
-        if (!$clean) {
-            return null;
+        if (self::is_debugging()) {
+            if (isset(self::$outgoingdebug[$unclean])) {
+                self::$outgoingdebug[$unclean]++;
+            } else {
+                self::$outgoingdebug[$unclean] = 1;
+            }
         }
 
-        return new moodle_url($clean);
+        $clean = self::get_outgoing_cache()->get($unclean);
+
+        return $clean ? new moodle_url($clean) : null;
     }
 
     /**

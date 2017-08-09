@@ -24,6 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 use local_cleanurls\activity_path;
+use local_cleanurls\cache\cleanurls_cache;
 
 function local_cleanurls_coursemodule_standard_elements(moodleform_mod $modform, MoodleQuickForm $form) {
     activity_path::coursemodule_standard_elements($modform, $form);
@@ -39,4 +40,34 @@ function local_cleanurls_pre_course_module_delete(stdClass $cm) {
 
 function local_cleanurls_coursemodule_edit_post_actions(stdClass $moduleinfo, stdClass $course) {
     return activity_path::coursemodule_edit_post_actions($moduleinfo, $course);
+}
+
+function local_cleanurls_before_footer() {
+    if (!cleanurls_cache::is_debugging()) {
+        return;
+    }
+
+    $data = cleanurls_cache::get_outgoing_debug();
+
+    ksort($data);
+    $byurl = var_export($data, true);
+
+    arsort($data);
+    $bycount = var_export($data, true);
+
+    echo <<<HTML
+<!--
+
+***** Clean URLs Debug Information - Ordered by URL *****
+
+$byurl
+
+***** Clean URLs Debug Information - Ordered by Count *****
+
+$bycount
+
+***** End of Clean URLs Debug Information *****
+
+-->
+HTML;
 }
