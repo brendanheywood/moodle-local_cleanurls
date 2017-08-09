@@ -414,6 +414,10 @@ You should see items like this in your apache error logs for **every** page load
 
 Do you get a themed Moodle error page? Or an 404 error page from apache?
 
+* There is a performance issue
+
+You can check the outgoing cleaning cache by adding the `CLEANURLS_DEBUG` query string parameter
+to any URL. View the source page then look for *Clean URLs Debug Information* which will be inside a HTML comment.
 
 
 Contributing
