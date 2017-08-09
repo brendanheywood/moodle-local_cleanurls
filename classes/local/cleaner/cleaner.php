@@ -512,7 +512,7 @@ class cleaner {
         }
 
         // Prefixed not allowed.
-        $path = substr($this->originalurlraw, strlen($CFG->wwwroot)+1);
+        $path = substr($this->originalurlraw, strlen($CFG->wwwroot) + 1);
         $prefixes = [$CFG->admin, 'backup', 'grade', 'filter'];
         foreach ($prefixes as $prefix) {
             $strpos = strpos($path, $prefix);
