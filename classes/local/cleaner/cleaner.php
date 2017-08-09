@@ -497,6 +497,18 @@ class cleaner {
             return true;
         }
 
+        // Never clean anything that is not php nor index.
+        $last1 = substr($this->originalpath, -1);
+        $last4 = substr($this->originalpath, -4);
+        if (($last1 != '/') && ($last4 != '.php')) {
+            return true;
+        }
+
+        // Never clean any slash arguments URL.
+        if ($this->originalpath !== $this->originalurl->get_path(true)) {
+            return true;
+        }
+
         return false;
     }
 }

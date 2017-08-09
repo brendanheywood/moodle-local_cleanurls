@@ -62,7 +62,7 @@ class local_cleanurls_cleaner_test extends local_cleanurls_testcase {
         self::assertSame('http://www.example.com/moodle/course/shortname', $clean);
     }
 
-    public function test_it_should_never_unclean_urls_with_sesskey() {
+    public function test_it_should_never_clean_urls_with_sesskey() {
         global $DB;
 
         self::getDataGenerator()->create_course(['shortname' => 'shortname']);
@@ -79,5 +79,45 @@ class local_cleanurls_cleaner_test extends local_cleanurls_testcase {
         $unclean = $unclean->raw_out();
         $found = $DB->record_exists('local_cleanurls_history', ['unclean' => $unclean]);
         self::assertFalse($found);
+    }
+
+    public function provider_for_test_it_has_a_cleaning_blacklist() {
+        return [
+            ['/something.js', true],
+            ['/something.css', true],
+            ['/something.html', true],
+            ['/somewhere/index.php', false],
+            ['/somewhere/', false],
+        ];
+    }
+
+    /**
+     * @dataProvider provider_for_test_it_has_a_cleaning_blacklist
+     */
+    public function test_it_has_a_cleaning_blacklist($uncleanpath, $blacklisted) {
+        global $DB;
+        $unclean = new moodle_url($uncleanpath);
+
+        if ($blacklisted) {
+            $clean = cleaner::clean($unclean);
+            self::assertSame($unclean->raw_out(), $clean->raw_out(), "It should not clean: {$uncleanpath}");
+
+            $clean = cleanurls_cache::get_clean_from_unclean($unclean->raw_out());
+            self::assertNull($clean, "It should not pollute the cache: {$uncleanpath}");
+
+            $uncleanraw = $unclean->raw_out();
+            $found = $DB->record_exists('local_cleanurls_history', ['unclean' => $uncleanraw]);
+            self::assertFalse($found, "It should not pollute the history: {$uncleanpath}");
+        }
+
+        // Now add a version to cache, blacklisted paths shouldn't even try to use it.
+        cleanurls_cache::save_clean_for_unclean($unclean, new moodle_url('/fakeclean'));
+        $clean = cleaner::clean($unclean);
+
+        if ($blacklisted) {
+            self::assertSame($unclean->raw_out(), $clean->raw_out(), "It should not try to get from cache: {$uncleanpath}");
+        } else {
+            self::assertSame('http://www.example.com/moodle/fakeclean', $clean->raw_out(), "It have gotten from cache: {$uncleanpath}");
+        }
     }
 }
