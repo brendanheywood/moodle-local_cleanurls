@@ -40,7 +40,7 @@ require_once(__DIR__ . '/../../../../lib/formslib.php');
  */
 class analyser_form extends moodleform {
     protected function definition() {
-        $this->_form->addElement('url', 'url', get_string('analyse_url', 'local_cleanurls'));
+        $this->_form->addElement('text', 'url', get_string('analyse_url', 'local_cleanurls'), array('size' => 60));
         $this->_form->setType('url', PARAM_URL);
 
         $this->add_action_buttons(false, get_string('analyse', 'local_cleanurls'));

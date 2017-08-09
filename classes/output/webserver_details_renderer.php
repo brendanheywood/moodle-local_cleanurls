@@ -90,7 +90,7 @@ class webserver_details_renderer extends plugin_renderer_base {
             $html .= '<li>' . htmlentities($hint) . '</li>';
         }
 
-        $html .= '<li><a href="https://github.com/brendanheywood/moodle-local_cleanurls/blob/master/README.md" target="_blank">' .
+        $html .= '<li><a href="https://github.com/brendanheywood/moodle-local_cleanurls#step-3-add-the-webserver-rewrite-to-the-custom-router" target="_blank">' .
                  'Click here to view instructions on how to configure your webserver.</a></li>' .
                  '</ul>';
 
