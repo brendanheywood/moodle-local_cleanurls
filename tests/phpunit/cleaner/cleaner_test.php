@@ -55,6 +55,20 @@ class local_cleanurls_cleaner_test extends local_cleanurls_testcase {
         $unclean = new moodle_url('/course/view.php?name=shortname');
         cleaner::clean($unclean);
 
+        cleanurls_cache::purge_static(); // Do not use static cache.
+        $clean = cleanurls_cache::get_clean_from_unclean($unclean->raw_out());
+        self::assertNotNull($clean);
+
+        $clean = $clean->raw_out();
+        self::assertSame('http://www.example.com/moodle/course/shortname', $clean);
+    }
+
+    public function test_it_adds_to_static_cache_after_cleaning() {
+        self::getDataGenerator()->create_course(['shortname' => 'shortname']);
+        $unclean = new moodle_url('/course/view.php?name=shortname');
+        cleaner::clean($unclean);
+
+        purge_all_caches(); // Purges MUC only, not static.
         $clean = cleanurls_cache::get_clean_from_unclean($unclean->raw_out());
         self::assertNotNull($clean);
 
@@ -123,5 +137,15 @@ class local_cleanurls_cleaner_test extends local_cleanurls_testcase {
         } else {
             self::assertSame('http://www.example.com/moodle/fakeclean', $clean->raw_out(), "It have gotten from cache: {$uncleanpath}");
         }
+    }
+
+    public function test_it_should_use_an_internal_static_cache() {
+        $unclean = new moodle_url('/someurl/something.php');
+
+        // Inject a cached value.
+        cleanurls_cache::add_outgoing_map($unclean->raw_out(), new moodle_url('/fakeurl'));
+
+        $clean = cleaner::clean($unclean);
+        self::assertSame('http://www.example.com/moodle/fakeurl', $clean->raw_out());
     }
 }

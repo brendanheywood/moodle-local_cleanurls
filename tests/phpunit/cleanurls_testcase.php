@@ -50,6 +50,9 @@ abstract class local_cleanurls_testcase extends advanced_testcase {
     public static function setUpBeforeClass() {
         parent::setUpBeforeClass();
 
+        // Cleanup static cache.
+        cleanurls_cache::purge_static();
+
         // Trigger classloaders (helps debugging).
         class_exists(cleaner::class);
         class_exists(url_rewriter::class);

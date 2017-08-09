@@ -37,9 +37,19 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleanurls_cache {
+    private static $outgoingmap = [];
+
     private static $outgoingdebug = [];
 
     private static $enabled = true;
+
+    public static function purge_static() {
+        self::$outgoingmap = [];
+    }
+
+    public static function add_outgoing_map($unclean, $clean) {
+        self::$outgoingmap[$unclean] = $clean;
+    }
 
     public static function get_outgoing_debug() {
         return self::$outgoingdebug;
@@ -138,9 +148,15 @@ class cleanurls_cache {
             }
         }
 
-        $clean = self::get_outgoing_cache()->get($unclean);
+        if (array_key_exists($unclean, self::$outgoingmap)) {
+            return self::$outgoingmap[$unclean];
+        }
 
-        return $clean ? new moodle_url($clean) : null;
+        $clean = self::get_outgoing_cache()->get($unclean);
+        $clean = $clean ? new moodle_url($clean) : null;
+        self::add_outgoing_map($unclean, $clean);
+
+        return $clean;
     }
 
     /**
