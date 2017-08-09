@@ -86,6 +86,10 @@ class local_cleanurls_cleaner_test extends local_cleanurls_testcase {
             ['/something.js', true],
             ['/something.css', true],
             ['/something.html', true],
+            ['/admin/something.php', true],
+            ['/backup/something.php', true],
+            ['/grade/something.php', true],
+            ['/filter/something.php', true],
             ['/somewhere/index.php', false],
             ['/somewhere/', false],
         ];

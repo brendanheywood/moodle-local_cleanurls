@@ -492,6 +492,8 @@ class cleaner {
     }
 
     private function check_cleaning_blacklist() {
+        global $CFG;
+
         // Never clean anything with sesskey, they are transient URLs (should never be displayed).
         if (!is_null($this->originalurl->param('sesskey'))) {
             return true;
@@ -507,6 +509,16 @@ class cleaner {
         // Never clean any slash arguments URL.
         if ($this->originalpath !== $this->originalurl->get_path(true)) {
             return true;
+        }
+
+        // Prefixed not allowed.
+        $path = substr($this->originalurlraw, strlen($CFG->wwwroot)+1);
+        $prefixes = [$CFG->admin, 'backup', 'grade', 'filter'];
+        foreach ($prefixes as $prefix) {
+            $strpos = strpos($path, $prefix);
+            if ($strpos === 0) {
+                return true;
+            }
         }
 
         return false;
