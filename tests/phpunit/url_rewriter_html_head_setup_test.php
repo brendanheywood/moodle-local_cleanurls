@@ -91,6 +91,76 @@ class local_cleanurls_url_rewriter_html_head_setup_test extends local_cleanurls_
         $PAGE->url->remove_all_params(); // Preten`d the parameter is not an official parameter of that page.
     }
 
+    public function test_it_routes_unclean_to_clean() {
+        global $CFG, $ME;
+
+        $wwwroot = new moodle_url($CFG->wwwroot);
+        $mdldirpath = $wwwroot->get_path(); // e.g. "/moodle"
+
+        $category = $this->getDataGenerator()->create_category(['name' => 'category']);
+        $course = $this->getDataGenerator()->create_course([
+            'fullname'  => 'full name',
+            'shortname' => 'theshortname',
+            'visible'   => 1,
+            'category'  => $category->id,
+        ]);
+
+        $page = $this->getDataGenerator()->create_module('page', [
+            'course' => $course->id,
+            'name'   => 'A Test Page',
+        ]);
+
+        $user = $this->getDataGenerator()->create_user(['email' => 'exampleuser@example.com', 'username' => 'exampleuser']);
+
+        // Course view URL.
+        $ME = "/moodle/course/view.php?id={$course->id}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+
+        // Course users URL.
+        $ME = "/moodle/user/?id={$course->id}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+
+        // Course users URL w/index.php. Moodle dir shouldn't appear twice.
+        $ME = "/moodle/user/index.php?id={$course->id}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+        self::assertNotContains($CFG->wwwroot . $mdldirpath, $output);
+
+        // Course index URL.
+        $ME = "/moodle/course/?categoryid={$category->id}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+
+        // Course index URL w/index.php. Moodle dir shouldn't appear twice.
+        $ME = "/moodle/course/index.php?categoryid={$category->id}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+        self::assertNotContains($CFG->wwwroot . $mdldirpath, $output);
+
+        // Module URL
+        $ME = "/moodle/mod/page/?id={$course->id}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+
+        // Module URL w/index.php. Moodle dir shouldn't appear twice.
+        $ME = "/moodle/mod/page/index.php?id={$course->id}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+        self::assertNotContains($CFG->wwwroot . $mdldirpath, $output);
+
+        // Module view URL
+        $ME = "/moodle/mod/page/view.php?id={$page->cmid}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+
+        // User profile URL
+        $ME = "/moodle/user/profile.php?id={$user->id}";
+        $output = url_rewriter::html_head_setup();
+        self::assertNotEquals('', $output);
+    }
+
     /**
      * @dataProvider provider_with_page_mocks
      */

@@ -95,6 +95,13 @@ class url_rewriter implements \core\output\url_rewriter {
     private static function html_head_setup_info() {
         global $CFG, $ME, $PAGE;
 
+        // Remove Moodle directory at beginning of URL, if present
+        $wwwroot = new moodle_url($CFG->wwwroot);
+        $wwwpath = $wwwroot->get_path();
+        if (substr($ME, 0, strlen($wwwpath)) === $wwwpath) {
+            $ME = substr($ME, strlen($wwwpath));
+        }
+
         $me = new moodle_url($ME);
 
         $info = [
